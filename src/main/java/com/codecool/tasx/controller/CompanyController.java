@@ -77,7 +77,7 @@ public class CompanyController {
           new UserResponsePublicDto(companyDetails.userId(), "Company Owner"));
 
       return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-        "message","Company with ID " + companyId + "updated successfully",
+        "message","Company with ID " + companyId + " updated successfully",
         "data",companyResponseDetails));
     } catch (Exception e) {
       //TODO: handle other exceptions
