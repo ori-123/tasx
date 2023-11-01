@@ -17,9 +17,9 @@ public class CompanyController {
     try {
       //TODO: impl
       List<CompanyResponsePublicDTO> companies = List.of(
-        new CompanyResponsePublicDTO(Long.valueOf(1), "Mock Company 1",
+        new CompanyResponsePublicDTO(1L, "Mock Company 1",
           "Public company details"),
-        new CompanyResponsePublicDTO(Long.valueOf(2), "Mock Company 2",
+        new CompanyResponsePublicDTO(2L, "Mock Company 2",
           "Public company details"));
 
       return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", companies));
@@ -35,10 +35,10 @@ public class CompanyController {
     try {
       //TODO: impl
       CompanyResponsePrivateDTO company = new CompanyResponsePrivateDTO(
-        Long.valueOf(companyId),
+        companyId,
         "Mock Company " + companyId,
         "Company details to be seen only by the employees of the company",
-        new UserResponsePublicDto(Long.valueOf(1), "Company Owner"));
+        new UserResponsePublicDto(1L, "Company Owner"));
 
       return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", company));
     } catch (Exception e) {
@@ -52,9 +52,13 @@ public class CompanyController {
   public ResponseEntity<?> createCompany(@RequestBody CompanyCreateRequestDto companyDetails) {
     try {
       //TODO: impl
-      return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-        "message",
-        "Company created successfully"));
+      CompanyResponsePrivateDTO companyResponseDetails =
+        new CompanyResponsePrivateDTO(1L, companyDetails.name(), companyDetails.description(),
+          new UserResponsePublicDto(companyDetails.userId(), "Company Owner"));
+
+      return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+        "message", "Company created successfully",
+        "data", companyResponseDetails));
     } catch (Exception e) {
       //TODO: handle other exceptions
       return ResponseEntity.status(500).body(
@@ -68,9 +72,13 @@ public class CompanyController {
   CompanyUpdateRequestDto companyDetails) {
     try {
       //TODO: impl
+      CompanyResponsePrivateDTO companyResponseDetails =
+        new CompanyResponsePrivateDTO(companyId, companyDetails.name(), companyDetails.description(),
+          new UserResponsePublicDto(companyDetails.userId(), "Company Owner"));
+
       return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-        "message",
-        "Company with ID " + companyId + "updated successfully"));
+        "message","Company with ID " + companyId + "updated successfully",
+        "data",companyResponseDetails));
     } catch (Exception e) {
       //TODO: handle other exceptions
       return ResponseEntity.status(500).body(
