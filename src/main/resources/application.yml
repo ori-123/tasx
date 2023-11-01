@@ -20,6 +20,6 @@ spring:
 
 logging:
   level:
-    root: INFO
-    org.springframework: WARN
-    org.hibernate: DEBUG
+    root: info
+    org.springframework: info
+    org.hibernate: info
