@@ -108,7 +108,7 @@ public class ProjectController {
   }
 
   @DeleteMapping("/{projectId}")
-  public ResponseEntity<?> deleteCompany(
+  public ResponseEntity<?> deleteProject(
     @PathVariable Long companyId, @PathVariable Long projectId) {
     try {
       //TODO: impl
