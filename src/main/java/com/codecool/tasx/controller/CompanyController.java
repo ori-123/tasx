@@ -54,7 +54,7 @@ public class CompanyController {
       //TODO: impl
       CompanyResponsePrivateDTO companyResponseDetails =
         new CompanyResponsePrivateDTO(1L, companyDetails.name(), companyDetails.description(),
-          new UserResponsePublicDto(companyDetails.userId(), "Company Owner"));
+          new UserResponsePublicDto(1L, "Company Owner"));
 
       return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
         "message", "Company created successfully",
@@ -74,7 +74,7 @@ public class CompanyController {
       //TODO: impl
       CompanyResponsePrivateDTO companyResponseDetails =
         new CompanyResponsePrivateDTO(companyId, companyDetails.name(), companyDetails.description(),
-          new UserResponsePublicDto(companyDetails.userId(), "Company Owner"));
+          new UserResponsePublicDto(1L, "Company Owner"));
 
       return ResponseEntity.status(HttpStatus.OK).body(Map.of(
         "message","Company with ID " + companyId + " updated successfully",
@@ -104,7 +104,7 @@ public class CompanyController {
   public ResponseEntity<?> joinCompany(@PathVariable Long companyId) {
     try {
       //TODO: impl
-      long userId = 1;
+      Long userId = 1L;
       CompanyJoinRequestDto joinRequest = new CompanyJoinRequestDto(companyId, userId);
 
       return ResponseEntity.status(HttpStatus.OK).body(Map.of(
@@ -123,12 +123,10 @@ public class CompanyController {
   public ResponseEntity<?> removeJoinCompanyRequest(@PathVariable Long companyId) {
     try {
       //TODO: impl
-      long userId = 1;
-
       return ResponseEntity.status(HttpStatus.OK).body(Map.of(
         "message",
         "Request to join company with ID " + companyId +
-          " removed by user with ID " + userId));
+          " removed by user with ID " + 1L));
     } catch (Exception e) {
       //TODO: handle other exceptions
       return ResponseEntity.status(500).body(
