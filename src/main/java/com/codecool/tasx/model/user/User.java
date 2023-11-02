@@ -5,14 +5,14 @@ import jakarta.persistence.*;
 import java.util.Objects;
 
 @Entity
+@Table(name = "\"user\"")
 public class User {
-
   @Id
   @SequenceGenerator(name = "user_id_sequence", sequenceName = "user_id_sequence")
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_id_sequence")
   private Long id;
 
-  @Column(/*unique = true*/)
+  @Column(unique = true)
   private String username;
 
   public User() {
