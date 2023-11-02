@@ -2,7 +2,6 @@ package com.codecool.tasx.controller;
 
 import com.codecool.tasx.controller.dto.company.CompanyResponsePrivateDTO;
 import com.codecool.tasx.controller.dto.company.CompanyResponsePublicDTO;
-import com.codecool.tasx.controller.dto.project.ProjectCreateRequestDto;
 import com.codecool.tasx.controller.dto.project.ProjectResponsePrivateDTO;
 import com.codecool.tasx.controller.dto.task.TaskCreateRequestDto;
 import com.codecool.tasx.controller.dto.task.TaskResponsePrivateDto;
@@ -118,6 +117,20 @@ public class TaskController {
         } catch (Exception e) {
             return ResponseEntity.status(500).body(
                     Map.of("error", "Failed to update task with ID " + taskId));
+        }
+    }
+
+    @DeleteMapping("/{taskId}")
+    public ResponseEntity<?> deleteTask(
+            @PathVariable long companyId, @PathVariable long projectId, @PathVariable long taskId) {
+        try {
+            //TODO: impl
+            return ResponseEntity.status(HttpStatus.OK).body(Map.of(
+                    "message",
+                    "Task with ID " + taskId + " deleted successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(
+                    Map.of("error", "Failed to delete task with ID " + taskId));
         }
     }
 }
