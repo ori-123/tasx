@@ -94,7 +94,7 @@ public class TaskController {
         }
     }
 
-    @PutMapping("{/taskId}")
+    @PutMapping("/{taskId}")
     public ResponseEntity<?> updateTaskById(
             @PathVariable long companyId, @PathVariable long projectId, @PathVariable long taskId,
             @RequestBody TaskUpdateRequestDto taskDetails) {
