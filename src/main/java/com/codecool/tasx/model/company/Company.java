@@ -5,6 +5,7 @@ import com.codecool.tasx.model.company.reward.Reward;
 import com.codecool.tasx.model.user.User;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -20,15 +21,15 @@ public class Company {
   @JoinColumn(name = "company_owner_id")
   private User companyOwner;
 
-  @ManyToMany
+  @ManyToMany(fetch = FetchType.EAGER)
   @JoinTable(name = "company_employees", joinColumns = @JoinColumn(name = "company_id"),
     inverseJoinColumns = @JoinColumn(name = "user_id"))
   private List<User> employees;
 
-  @OneToMany(mappedBy = "company")
+  @OneToMany(mappedBy = "company", fetch = FetchType.EAGER)
   private List<Project> projects;
 
-  @OneToMany(mappedBy = "company")
+  @OneToMany(mappedBy = "company", fetch = FetchType.EAGER)
   private List<Reward> rewards;
 
 
@@ -39,6 +40,10 @@ public class Company {
     this.name = name;
     this.description = description;
     this.companyOwner = companyOwner;
+    this.employees = new ArrayList<>();
+    this.employees.add(companyOwner);
+    this.projects = new ArrayList<>();
+    this.rewards = new ArrayList<>();
   }
 
   public Long getId() {
@@ -91,14 +96,8 @@ public class Company {
 
   @Override
   public String toString() {
-    return "Company{" +
-      "id=" + id +
-      ", name='" + name + '\'' +
-      ", description='" + description + '\'' +
-      ", companyOwner=" + companyOwner +
-      ", employees=" + employees +
-      ", projects=" + projects +
-      ", rewards=" + rewards +
-      '}';
+    return "Company{" + "id=" + id + ", name='" + name + '\'' + ", description='" + description +
+      '\'' + ", companyOwner=" + companyOwner + ", employees=" + employees + ", projects=" +
+      projects + ", rewards=" + rewards + '}';
   }
 }

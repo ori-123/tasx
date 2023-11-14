@@ -1,64 +1,60 @@
 package com.codecool.tasx.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.codecool.tasx.controller.dto.company.CompanyResponsePrivateDTO;
+import com.codecool.tasx.controller.dto.company.CompanyResponsePublicDTO;
+import com.codecool.tasx.exception.company.CompanyNotFoundException;
+import com.codecool.tasx.service.company.CompanyService;
+import com.codecool.tasx.service.populate.MockDataProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/companies")
 public class CompanyController {
-  /*
+  private final CompanyService companyService;
+  private final MockDataProvider mockDataProvider;
+  private final Logger logger;
+
+  @Autowired
+  public CompanyController(CompanyService companyService, MockDataProvider mockDataProvider) {
+    this.companyService = companyService;
+    this.mockDataProvider = mockDataProvider;
+    logger = LoggerFactory.getLogger(this.getClass());
+  }
+
   @GetMapping
   public ResponseEntity<?> getAllCompanies() {
-    try {
-      //TODO: impl
-      List<CompanyResponsePublicDTO> companies = List.of(
-        new CompanyResponsePublicDTO(1L, "Mock Company 1",
-          "Public company details"),
-        new CompanyResponsePublicDTO(2L, "Mock Company 2",
-          "Public company details"));
-
-      return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", companies));
-    } catch (Exception e) {
-      //TODO: handle other exceptions
-      return ResponseEntity.status(500).body(
-        Map.of("error", "Failed to load companies"));
-    }
+    List<CompanyResponsePublicDTO> companies = companyService.getAllCompanies();
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", companies));
   }
 
   @GetMapping("/{companyId}")
   public ResponseEntity<?> getCompanyById(@PathVariable Long companyId) {
-    try {
-      //TODO: impl
-      CompanyResponsePrivateDTO company = new CompanyResponsePrivateDTO(
-        companyId,
-        "Mock Company " + companyId,
-        "Company details to be seen only by the employees of the company",
-        new UserResponsePublicDto(1L, "Company Owner"));
-
-      return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", company));
-    } catch (Exception e) {
-      //TODO: handle other exceptions
-      return ResponseEntity.status(500).body(
-        Map.of("error", "Failed to load details of company with ID " + companyId));
-    }
+    //TODO: get user from auth context
+    Long userId = mockDataProvider.getAllUsers().get(0).userId();
+    CompanyResponsePrivateDTO company = companyService.getCompanyById(userId, companyId)
+      .orElseThrow(() -> new CompanyNotFoundException(companyId));
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", company));
   }
 
+/*
   @PostMapping
   public ResponseEntity<?> createCompany(@RequestBody CompanyCreateRequestDto companyDetails) {
-    try {
-      //TODO: impl
-      CompanyResponsePrivateDTO companyResponseDetails =
+    //TODO: impl
+    CompanyResponsePrivateDTO companyResponseDetails =
         new CompanyResponsePrivateDTO(1L, companyDetails.name(), companyDetails.description(),
           new UserResponsePublicDto(1L, "Company Owner"));
 
       return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
         "message", "Company created successfully",
         "data", companyResponseDetails));
-    } catch (Exception e) {
-      //TODO: handle other exceptions
-      return ResponseEntity.status(500).body(
-        Map.of("error", "Failed to create company"));
-    }
   }
 
   @PutMapping("/{companyId}")
@@ -129,4 +125,10 @@ public class CompanyController {
     }
   }
   */
+
+  @ExceptionHandler(CompanyNotFoundException.class)
+  public ResponseEntity<?> handleCompanyNotFound() {
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
+      "error", "The requested company was not found"));
+  }
 }
