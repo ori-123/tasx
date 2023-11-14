@@ -1,18 +1,12 @@
 package com.codecool.tasx.controller;
 
-import com.codecool.tasx.controller.dto.company.*;
-import com.codecool.tasx.controller.dto.requests.CompanyJoinRequestCreateDto;
-import com.codecool.tasx.controller.dto.user.UserResponsePublicDto;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/companies")
 public class CompanyController {
+  /*
   @GetMapping
   public ResponseEntity<?> getAllCompanies() {
     try {
@@ -134,4 +128,5 @@ public class CompanyController {
         Map.of("error", "Failed to load details of company with ID " + companyId));
     }
   }
+  */
 }

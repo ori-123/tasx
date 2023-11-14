@@ -4,9 +4,7 @@ import com.codecool.tasx.model.company.Company;
 import com.codecool.tasx.model.company.project.Project;
 import jakarta.persistence.*;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "user_account")
@@ -58,6 +56,21 @@ public class User {
 
   public List<Project> getOwnedProjects() {
     return List.copyOf(ownedProjects);
+  }
+
+  public User() {
+  }
+
+  public User(String username, String email, String password) {
+    this.username = username;
+    this.email = email;
+    this.password = password;
+    this.roles=new HashSet<>();
+    roles.add(Role.USER);
+    this.ownedCompanies=new ArrayList<>();
+    this.companies=new ArrayList<>();
+    this.ownedProjects=new ArrayList<>();
+
   }
 
   @Override

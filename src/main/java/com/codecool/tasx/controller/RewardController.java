@@ -16,6 +16,7 @@ import java.util.Set;
 @RestController
 @RequestMapping("/api/v1/companies/{companyId}/rewards")
 public class RewardController {
+  /*
     @GetMapping("/")
     public ResponseEntity<?> getAllRewards(@PathVariable long companyId) {
         try {
@@ -111,4 +112,5 @@ public class RewardController {
                     Map.of("error", "Failed to delete reward with ID " + rewardId));
         }
     }
+   */
 }

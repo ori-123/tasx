@@ -17,7 +17,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/companies/{companyId}/projects")
 public class ProjectController {
-
+/*
   @GetMapping
   public ResponseEntity<?> getAllProjects(@PathVariable Long companyId) {
     try {
@@ -121,4 +121,6 @@ public class ProjectController {
         Map.of("error", "Failed to delete project with ID " + projectId));
     }
   }
+
+ */
 }

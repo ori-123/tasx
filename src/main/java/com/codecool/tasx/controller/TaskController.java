@@ -18,7 +18,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/companies/{companyId}/projects/{projectId}/tasks")
 public class TaskController {
-
+/*
     @GetMapping
     public ResponseEntity<?> getAllTasks(@PathVariable long companyId, @PathVariable long projectId) {
         try {
@@ -133,4 +133,6 @@ public class TaskController {
                     Map.of("error", "Failed to delete task with ID " + taskId));
         }
     }
+
+ */
 }
