@@ -4,6 +4,8 @@ import com.codecool.tasx.model.company.Company;
 import com.codecool.tasx.model.user.User;
 import jakarta.persistence.*;
 
+import java.util.Objects;
+
 @Entity
 @Table(name = "company_join_request")
 public class CompanyJoinRequest {
@@ -21,4 +23,48 @@ public class CompanyJoinRequest {
 
   @Enumerated(EnumType.STRING)
   private RequestStatus status;
+
+  public Long getId() {
+    return id;
+  }
+
+  public Company getCompany() {
+    return company;
+  }
+
+  public User getUser() {
+    return user;
+  }
+
+  public RequestStatus getStatus() {
+    return status;
+  }
+
+  @Override
+  public boolean equals(Object object) {
+    if (this == object) {
+      return true;
+    }
+    if (object == null || getClass() != object.getClass()) {
+      return false;
+    }
+    CompanyJoinRequest that = (CompanyJoinRequest) object;
+    return Objects.equals(id, that.id) && Objects.equals(company, that.company) &&
+      Objects.equals(user, that.user) && status == that.status;
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, company, user, status);
+  }
+
+  @Override
+  public String toString() {
+    return "CompanyJoinRequest{" +
+      "id=" + id +
+      ", company=" + company +
+      ", user=" + user +
+      ", status=" + status +
+      '}';
+  }
 }
