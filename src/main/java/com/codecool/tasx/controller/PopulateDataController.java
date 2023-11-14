@@ -15,30 +15,19 @@ import java.util.Map;
 import java.util.Optional;
 
 @Controller
-@RequestMapping("/api/v1/users")
-public class MockUserController {
+@RequestMapping("/api/v1/populate")
+public class PopulateDataController {
   private final MockDataProvider provider;
 
   @Autowired
-  public MockUserController(MockDataProvider provider) {
+  public PopulateDataController(MockDataProvider provider) {
     this.provider = provider;
   }
 
   @GetMapping()
-  public ResponseEntity<?> getAllUsers() {
-    List<UserResponsePublicDto> users = provider.getAllUsers();
-    return ResponseEntity.status(HttpStatus.OK).body(
-      Map.of("data", users));
-  }
-
-  @GetMapping("/{userId}")
-  public ResponseEntity<?> getUserById(@PathVariable Long userId) {
-    Optional<UserResponsePublicDto> user = provider.getUserById(userId);
-    if (user.isPresent()) {
-      return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", user));
-    } else {
-      return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
-        Map.of("error", HttpStatus.NOT_FOUND.getReasonPhrase()));
-    }
+  public ResponseEntity<?> populateUsers() {
+    provider.populate();
+    return ResponseEntity.status(HttpStatus.CREATED).body(
+      Map.of("message", "Mock data created successfully"));
   }
 }

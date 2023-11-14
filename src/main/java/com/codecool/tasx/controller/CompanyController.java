@@ -105,7 +105,7 @@ public class CompanyController {
       return ResponseEntity.status(HttpStatus.OK).body(Map.of(
         "message",
         "Request to join company with ID " + companyId +
-          " saved by user with ID " + userId));
+          " saved by populate with ID " + userId));
     } catch (Exception e) {
       //TODO: handle other exceptions
       return ResponseEntity.status(500).body(
@@ -121,7 +121,7 @@ public class CompanyController {
       return ResponseEntity.status(HttpStatus.OK).body(Map.of(
         "message",
         "Request to join company with ID " + companyId +
-          " removed by user with ID " + 1L));
+          " removed by populate with ID " + 1L));
     } catch (Exception e) {
       //TODO: handle other exceptions
       return ResponseEntity.status(500).body(

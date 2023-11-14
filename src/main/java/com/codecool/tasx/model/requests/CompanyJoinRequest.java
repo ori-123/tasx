@@ -24,6 +24,16 @@ public class CompanyJoinRequest {
   @Enumerated(EnumType.STRING)
   private RequestStatus status;
 
+  public CompanyJoinRequest() {
+  }
+
+  public CompanyJoinRequest(Long id, Company company, User user) {
+    this.id = id;
+    this.company = company;
+    this.user = user;
+    this.status = RequestStatus.PENDING;
+  }
+
   public Long getId() {
     return id;
   }
@@ -49,8 +59,8 @@ public class CompanyJoinRequest {
       return false;
     }
     CompanyJoinRequest that = (CompanyJoinRequest) object;
-    return Objects.equals(id, that.id) && Objects.equals(company, that.company) &&
-      Objects.equals(user, that.user) && status == that.status;
+    return Objects.equals(id, that.id) && Objects.equals(company, that.company) && Objects.equals(
+      user, that.user) && status == that.status;
   }
 
   @Override
@@ -60,11 +70,7 @@ public class CompanyJoinRequest {
 
   @Override
   public String toString() {
-    return "CompanyJoinRequest{" +
-      "id=" + id +
-      ", company=" + company +
-      ", user=" + user +
-      ", status=" + status +
-      '}';
+    return "CompanyJoinRequest{" + "id=" + id + ", company=" + company + ", populate=" + user +
+      ", status=" + status + '}';
   }
 }

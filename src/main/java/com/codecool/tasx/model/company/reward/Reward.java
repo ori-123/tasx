@@ -25,6 +25,16 @@ public class Reward {
     inverseJoinColumns = @JoinColumn(name = "task_id"))
   private List<Task> tasks;
 
+  public Reward() {
+  }
+
+  public Reward(Long id, String name, String description, Company company) {
+    this.id = id;
+    this.name = name;
+    this.description = description;
+    this.company = company;
+  }
+
   public Long getId() {
     return id;
   }

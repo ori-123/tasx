@@ -31,6 +31,16 @@ public class Company {
   @OneToMany(mappedBy = "company")
   private List<Reward> rewards;
 
+
+  public Company() {
+  }
+
+  public Company(String name, String description, User companyOwner) {
+    this.name = name;
+    this.description = description;
+    this.companyOwner = companyOwner;
+  }
+
   public Long getId() {
     return id;
   }

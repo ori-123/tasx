@@ -17,6 +17,16 @@ public class Expense {
   @JoinColumn(name = "task_id")
   private Task task;
 
+  public Expense() {
+  }
+
+  public Expense(String name, double price, boolean paid, Task task) {
+    this.name = name;
+    this.price = price;
+    this.paid = paid;
+    this.task = task;
+  }
+
   public Long getId() {
     return id;
   }

@@ -35,6 +35,20 @@ public class Project {
   @OneToMany(mappedBy = "project")
   private List<Task> tasks;
 
+  public Project() {
+  }
+
+
+  public Project(String name, String description, LocalDateTime startDate, LocalDateTime deadline,
+    User projectOwner, Company company) {
+    this.name = name;
+    this.description = description;
+    this.startDate = startDate;
+    this.deadline = deadline;
+    this.projectOwner = projectOwner;
+    this.company = company;
+  }
+
   public Long getId() {
     return id;
   }
