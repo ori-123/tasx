@@ -4,7 +4,10 @@ import com.codecool.tasx.controller.dto.company.CompanyCreateRequestDto;
 import com.codecool.tasx.controller.dto.company.CompanyResponsePrivateDTO;
 import com.codecool.tasx.controller.dto.company.CompanyResponsePublicDTO;
 import com.codecool.tasx.controller.dto.company.CompanyUpdateRequestDto;
+import com.codecool.tasx.controller.dto.requests.CompanyJoinRequestResponseDto;
+import com.codecool.tasx.controller.dto.requests.CompanyJoinRequestUpdateDto;
 import com.codecool.tasx.exception.company.CompanyNotFoundException;
+import com.codecool.tasx.exception.company.UserAlreadyInCompanyException;
 import com.codecool.tasx.service.company.CompanyService;
 import com.codecool.tasx.service.populate.MockDataProvider;
 import org.hibernate.exception.ConstraintViolationException;
@@ -32,7 +35,7 @@ public class CompanyController {
     logger = LoggerFactory.getLogger(this.getClass());
   }
 
-  private Long getUserId(){
+  private Long getUserId() {
     //TODO: get user from auth context
     return mockDataProvider.getAllUsers().get(0).userId();
   }
@@ -58,7 +61,7 @@ public class CompanyController {
     Long userId = getUserId();
 
     CompanyResponsePrivateDTO companyResponseDetails =
-      companyService.createCompany(createRequestDto,userId);
+      companyService.createCompany(createRequestDto, userId);
 
     return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
       "message", "Company created successfully",
@@ -90,47 +93,59 @@ public class CompanyController {
       "Company with ID " + companyId + " deleted successfully"));
   }
 
-/*
-  @GetMapping("/{companyId}/join")
+  @GetMapping("/{companyId}/requests")
+  public ResponseEntity<?> readJoinRequestsOfCompany(@PathVariable Long companyId) {
+    Long userId = getUserId();
+
+    List<CompanyJoinRequestResponseDto> requests =
+      companyService.getJoinRequestsOfCompany(companyId, userId);
+
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of(
+      "data", requests));
+  }
+
+  @PostMapping("/{companyId}/requests/join")
   public ResponseEntity<?> joinCompany(@PathVariable Long companyId) {
-    try {
-      //TODO: impl
-      Long userId = 1L;
-      CompanyJoinRequestCreateDto joinRequest = new CompanyJoinRequestCreateDto(companyId, userId);
+    Long userId = getUserId();
 
-      return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-        "message",
-        "Request to join company with ID " + companyId +
-          " saved by populate with ID " + userId));
-    } catch (Exception e) {
-      //TODO: handle other exceptions
-      return ResponseEntity.status(500).body(
-        Map.of("error", "Failed to load details of company with ID " + companyId));
-    }
+    CompanyJoinRequestResponseDto createdRequest = companyService.createJoinRequest(
+      userId,
+      companyId);
+
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of(
+      "message",
+      "Request created successfully",
+      "data", createdRequest));
   }
 
+  @PutMapping("/{companyId}/requests/{requestId}")
+  public ResponseEntity<?> updateJoinRequestById(
+    @PathVariable Long requestId,
+    @RequestBody CompanyJoinRequestUpdateDto requestDto) {
+    Long userId = getUserId();
 
-  @DeleteMapping("/{companyId}/join")
-  public ResponseEntity<?> removeJoinCompanyRequest(@PathVariable Long companyId) {
-    try {
-      //TODO: impl
-      return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-        "message",
-        "Request to join company with ID " + companyId +
-          " removed by populate with ID " + 1L));
-    } catch (Exception e) {
-      //TODO: handle other exceptions
-      return ResponseEntity.status(500).body(
-        Map.of("error", "Failed to load details of company with ID " + companyId));
-    }
+    CompanyJoinRequestResponseDto updatedRequestDto = companyService.updateJoinRequestById(userId
+      , requestId, requestDto);
+
+    //TODO: notify the user who requested to join...
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of(
+      "message",
+      "Request updated successfully",
+      "data", updatedRequestDto));
   }
-  */
 
   @ExceptionHandler(CompanyNotFoundException.class)
   public ResponseEntity<?> handleCompanyNotFound(CompanyNotFoundException e) {
     logger.error(e.getMessage(), e);
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
       "error", "The requested company was not found"));
+  }
+
+  @ExceptionHandler(UserAlreadyInCompanyException.class)
+  public ResponseEntity<?> handleUserAlreadyInCompany(UserAlreadyInCompanyException e) {
+    logger.error(e.getMessage(), e);
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
+      "error", "User is already in the requested company"));
   }
 
   @ExceptionHandler(ConstraintViolationException.class)

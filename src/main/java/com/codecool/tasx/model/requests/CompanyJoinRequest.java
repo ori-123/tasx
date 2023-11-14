@@ -27,8 +27,7 @@ public class CompanyJoinRequest {
   public CompanyJoinRequest() {
   }
 
-  public CompanyJoinRequest(Long id, Company company, User user) {
-    this.id = id;
+  public CompanyJoinRequest(Company company, User user) {
     this.company = company;
     this.user = user;
     this.status = RequestStatus.PENDING;
@@ -48,6 +47,10 @@ public class CompanyJoinRequest {
 
   public RequestStatus getStatus() {
     return status;
+  }
+
+  public void setStatus(RequestStatus status) {
+    this.status = status;
   }
 
   @Override

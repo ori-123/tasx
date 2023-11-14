@@ -4,11 +4,17 @@ import com.codecool.tasx.controller.dto.company.CompanyCreateRequestDto;
 import com.codecool.tasx.controller.dto.company.CompanyResponsePrivateDTO;
 import com.codecool.tasx.controller.dto.company.CompanyResponsePublicDTO;
 import com.codecool.tasx.controller.dto.company.CompanyUpdateRequestDto;
+import com.codecool.tasx.controller.dto.requests.CompanyJoinRequestResponseDto;
+import com.codecool.tasx.controller.dto.requests.CompanyJoinRequestUpdateDto;
 import com.codecool.tasx.exception.auth.UnauthorizedException;
+import com.codecool.tasx.exception.company.CompanyJoinRequestNotFoundException;
 import com.codecool.tasx.exception.company.CompanyNotFoundException;
+import com.codecool.tasx.exception.company.UserAlreadyInCompanyException;
 import com.codecool.tasx.exception.user.UserNotFoundException;
 import com.codecool.tasx.model.company.Company;
 import com.codecool.tasx.model.company.CompanyDao;
+import com.codecool.tasx.model.requests.CompanyJoinRequest;
+import com.codecool.tasx.model.requests.CompanyJoinRequestDao;
 import com.codecool.tasx.model.user.User;
 import com.codecool.tasx.model.user.UserDao;
 import com.codecool.tasx.service.converter.CompanyConverter;
@@ -26,6 +32,7 @@ import java.util.Optional;
 @Service
 public class CompanyService {
   private final CompanyDao companyDao;
+  private final CompanyJoinRequestDao requestDao;
   private final UserDao userDao;
   private final CompanyConverter companyConverter;
   private final UserConverter userConverter;
@@ -33,9 +40,11 @@ public class CompanyService {
 
   @Autowired
   public CompanyService(
-    CompanyDao companyDao, UserDao userDao, CompanyConverter companyConverter,
+    CompanyDao companyDao, CompanyJoinRequestDao requestDao, UserDao userDao,
+    CompanyConverter companyConverter,
     UserConverter userConverter) {
     this.companyDao = companyDao;
+    this.requestDao = requestDao;
     this.userDao = userDao;
     this.companyConverter = companyConverter;
     this.userConverter = userConverter;
@@ -112,5 +121,59 @@ public class CompanyService {
       throw new UnauthorizedException();
     }
     companyDao.deleteById(companyId);
+  }
+
+  @Transactional
+  public CompanyJoinRequestResponseDto createJoinRequest(
+    Long userId, Long companyId) {
+    User user =
+      userDao.findById(userId).orElseThrow(
+        () -> new UserNotFoundException(userId));
+
+    Company company = companyDao.findById(companyId).orElseThrow(
+      () -> new CompanyNotFoundException(companyId));
+
+    if (userConverter.getUserIds(company.getEmployees()).contains(userId)) {
+      throw new UserAlreadyInCompanyException();
+    }
+
+    CompanyJoinRequest savedRequest = requestDao.save(new CompanyJoinRequest(company, user));
+
+    return companyConverter.getCompanyJoinRequestResponseDto(savedRequest);
+  }
+
+  @Transactional
+  public List<CompanyJoinRequestResponseDto> getJoinRequestsOfCompany(Long companyId, Long userId) {
+    User user =
+      userDao.findById(userId).orElseThrow(
+        () -> new UserNotFoundException(userId));
+
+    Company company = companyDao.findById(companyId).orElseThrow(
+      () -> new CompanyNotFoundException(companyId));
+
+    if (!user.getOwnedCompanies().contains(company)) {
+      throw new UnauthorizedException();
+    }
+
+    List<CompanyJoinRequest> requests = requestDao.findByCompany(company);
+    return companyConverter.getCompanyJoinRequestResponseDtos(requests);
+  }
+
+  @Transactional
+  public CompanyJoinRequestResponseDto updateJoinRequestById(
+    Long userId, Long requestId, CompanyJoinRequestUpdateDto updateDto) {
+    CompanyJoinRequest request = requestDao.findById(requestId).orElseThrow(
+      () -> new CompanyJoinRequestNotFoundException(requestId));
+
+   User user = userDao.findById(userId).orElseThrow(
+      () -> new UserNotFoundException(userId));
+
+    if (!user.getOwnedCompanies().contains(request.getCompany())) {
+      throw new UnauthorizedException();
+    }
+
+    request.setStatus(updateDto.status());
+    CompanyJoinRequest updatedRequest = requestDao.save(request);
+    return companyConverter.getCompanyJoinRequestResponseDto(updatedRequest);
   }
 }
