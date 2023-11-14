@@ -1,6 +1,7 @@
 package com.codecool.tasx.controller;
 
 import com.codecool.tasx.controller.dto.company.*;
+import com.codecool.tasx.controller.dto.requests.newCompanyJoinRequestCreateDto;
 import com.codecool.tasx.controller.dto.user.UserResponsePublicDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -105,7 +106,7 @@ public class CompanyController {
     try {
       //TODO: impl
       Long userId = 1L;
-      CompanyJoinRequestDto joinRequest = new CompanyJoinRequestDto(companyId, userId);
+      newCompanyJoinRequestCreateDto joinRequest = new newCompanyJoinRequestCreateDto(companyId, userId);
 
       return ResponseEntity.status(HttpStatus.OK).body(Map.of(
         "message",

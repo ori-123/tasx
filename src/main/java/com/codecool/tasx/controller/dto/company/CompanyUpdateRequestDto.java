@@ -1,4 +1,4 @@
 package com.codecool.tasx.controller.dto.company;
 
-public record CompanyUpdateRequestDto(String name, String description) {
+public record CompanyUpdateRequestDto(Long companyId, String name, String description) {
 }

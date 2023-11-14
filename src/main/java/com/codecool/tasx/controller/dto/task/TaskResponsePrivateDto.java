@@ -1,11 +1,15 @@
 package com.codecool.tasx.controller.dto.task;
 
-import com.codecool.tasx.controller.dto.company.CompanyResponsePrivateDTO;
-import com.codecool.tasx.controller.dto.project.ProjectResponsePrivateDTO;
 import com.codecool.tasx.controller.dto.user.UserResponsePublicDto;
+import com.codecool.tasx.model.company.project.task.Importance;
+import com.codecool.tasx.model.company.project.task.TaskStatus;
 
-public record TaskResponsePrivateDto(String description, long taskId,
-                                     ProjectResponsePrivateDTO project,
-                                     CompanyResponsePrivateDTO company,
-                                     UserResponsePublicDto owner) {
+import java.time.LocalDateTime;
+import java.util.List;
+
+public record TaskResponsePrivateDto(Long projectId, Long taskId, String name, String description,
+                                     Importance importance, Integer difficulty, LocalDateTime startDate,
+                                     LocalDateTime deadline, TaskStatus taskStatus,
+                                     UserResponsePublicDto owner,
+                                     List<UserResponsePublicDto> assignedEmployees) {
 }
