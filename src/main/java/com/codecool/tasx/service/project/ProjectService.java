@@ -1,10 +1,16 @@
 package com.codecool.tasx.service.project;
 
+import com.codecool.tasx.controller.dto.project.ProjectCreateRequestDto;
 import com.codecool.tasx.controller.dto.project.ProjectResponsePrivateDTO;
 import com.codecool.tasx.controller.dto.project.ProjectResponsePublicDTO;
 import com.codecool.tasx.exception.auth.UnauthorizedException;
+import com.codecool.tasx.exception.company.CompanyNotFoundException;
+import com.codecool.tasx.exception.user.UserNotFoundException;
+import com.codecool.tasx.model.company.Company;
+import com.codecool.tasx.model.company.CompanyDao;
 import com.codecool.tasx.model.company.project.Project;
 import com.codecool.tasx.model.company.project.ProjectDao;
+import com.codecool.tasx.model.user.User;
 import com.codecool.tasx.model.user.UserDao;
 import com.codecool.tasx.service.converter.ProjectConverter;
 import com.codecool.tasx.service.converter.UserConverter;
@@ -21,15 +27,17 @@ import java.util.Optional;
 public class ProjectService {
     private final ProjectDao projectDao;
     private final UserDao userDao;
+    private final CompanyDao companyDao;
     private final ProjectConverter projectConverter;
     private final UserConverter userConverter;
     private final Logger logger;
 
     @Autowired
     public ProjectService(ProjectDao projectDao, UserDao userDao,
-                          ProjectConverter projectConverter, UserConverter userConverter) {
+                          CompanyDao companyDao, ProjectConverter projectConverter, UserConverter userConverter) {
         this.projectDao = projectDao;
         this.userDao = userDao;
+        this.companyDao = companyDao;
         this.projectConverter = projectConverter;
         this.userConverter = userConverter;
         this.logger = LoggerFactory.getLogger(this.getClass());
@@ -56,5 +64,27 @@ public class ProjectService {
         }
 
         return Optional.of(projectConverter.getProjectResponsePrivateDto(project));
+    }
+
+    @Transactional
+    public ProjectResponsePrivateDTO createProject(ProjectCreateRequestDto createRequestDto, Long userId) {
+
+        User user = userDao.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        Company company = companyDao.findById(createRequestDto.companyId())
+                .orElseThrow(() -> new CompanyNotFoundException(createRequestDto.companyId()));
+
+        Project savedProject = projectDao.save(
+                new Project(
+                        createRequestDto.name(),
+                        createRequestDto.description(),
+                        createRequestDto.startDate(),
+                        createRequestDto.deadline(),
+                        user,
+                        company
+                )
+        );
+
+        return projectConverter.getProjectResponsePrivateDto(savedProject);
     }
 }
