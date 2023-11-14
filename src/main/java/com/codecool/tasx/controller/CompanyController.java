@@ -1,10 +1,13 @@
 package com.codecool.tasx.controller;
 
+import com.codecool.tasx.controller.dto.company.CompanyCreateRequestDto;
 import com.codecool.tasx.controller.dto.company.CompanyResponsePrivateDTO;
 import com.codecool.tasx.controller.dto.company.CompanyResponsePublicDTO;
+import com.codecool.tasx.controller.dto.company.CompanyUpdateRequestDto;
 import com.codecool.tasx.exception.company.CompanyNotFoundException;
 import com.codecool.tasx.service.company.CompanyService;
 import com.codecool.tasx.service.populate.MockDataProvider;
+import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +32,11 @@ public class CompanyController {
     logger = LoggerFactory.getLogger(this.getClass());
   }
 
+  private Long getUserId(){
+    //TODO: get user from auth context
+    return mockDataProvider.getAllUsers().get(0).userId();
+  }
+
   @GetMapping
   public ResponseEntity<?> getAllCompanies() {
     List<CompanyResponsePublicDTO> companies = companyService.getAllCompanies();
@@ -37,60 +45,52 @@ public class CompanyController {
 
   @GetMapping("/{companyId}")
   public ResponseEntity<?> getCompanyById(@PathVariable Long companyId) {
-    //TODO: get user from auth context
-    Long userId = mockDataProvider.getAllUsers().get(0).userId();
+    Long userId = getUserId();
+
     CompanyResponsePrivateDTO company = companyService.getCompanyById(userId, companyId)
       .orElseThrow(() -> new CompanyNotFoundException(companyId));
+
     return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", company));
   }
 
-/*
   @PostMapping
-  public ResponseEntity<?> createCompany(@RequestBody CompanyCreateRequestDto companyDetails) {
-    //TODO: impl
-    CompanyResponsePrivateDTO companyResponseDetails =
-        new CompanyResponsePrivateDTO(1L, companyDetails.name(), companyDetails.description(),
-          new UserResponsePublicDto(1L, "Company Owner"));
+  public ResponseEntity<?> createCompany(@RequestBody CompanyCreateRequestDto createRequestDto) {
+    Long userId = getUserId();
 
-      return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-        "message", "Company created successfully",
-        "data", companyResponseDetails));
+    CompanyResponsePrivateDTO companyResponseDetails =
+      companyService.createCompany(createRequestDto,userId);
+
+    return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+      "message", "Company created successfully",
+      "data", companyResponseDetails));
   }
 
   @PutMapping("/{companyId}")
   public ResponseEntity<?> updateCompany(
     @PathVariable Long companyId, @RequestBody
-  CompanyUpdateRequestDto companyDetails) {
-    try {
-      //TODO: impl
-      CompanyResponsePrivateDTO companyResponseDetails =
-        new CompanyResponsePrivateDTO(companyId, companyDetails.name(), companyDetails.description(),
-          new UserResponsePublicDto(1L, "Company Owner"));
+  CompanyUpdateRequestDto updateRequestDto) {
+    Long userId = getUserId();
 
-      return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-        "message","Company with ID " + companyId + " updated successfully",
-        "data",companyResponseDetails));
-    } catch (Exception e) {
-      //TODO: handle other exceptions
-      return ResponseEntity.status(500).body(
-        Map.of("error", "Failed to update company with ID " + companyId));
-    }
+    CompanyResponsePrivateDTO companyResponseDetails =
+      companyService.updateCompany(updateRequestDto, userId, companyId);
+
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of(
+      "message", "Company with ID " + companyId + " updated successfully",
+      "data", companyResponseDetails));
   }
 
   @DeleteMapping("/{companyId}")
   public ResponseEntity<?> deleteCompany(@PathVariable Long companyId) {
-    try {
-      //TODO: impl
-      return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-        "message",
-        "Company with ID " + companyId + " deleted successfully"));
-    } catch (Exception e) {
-      //TODO: handle other exceptions
-      return ResponseEntity.status(500).body(
-        Map.of("error", "Failed to delete company with ID " + companyId));
-    }
+    Long userId = getUserId();
+
+    companyService.deleteCompany(companyId, userId);
+
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of(
+      "message",
+      "Company with ID " + companyId + " deleted successfully"));
   }
 
+/*
   @GetMapping("/{companyId}/join")
   public ResponseEntity<?> joinCompany(@PathVariable Long companyId) {
     try {
@@ -131,5 +131,12 @@ public class CompanyController {
     logger.error(e.getMessage(), e);
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
       "error", "The requested company was not found"));
+  }
+
+  @ExceptionHandler(ConstraintViolationException.class)
+  public ResponseEntity<?> handleDuplicateFields(ConstraintViolationException e) {
+    logger.error(e.getMessage(), e);
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
+      "error", "Company with requested " + e.getConstraintName() + " already exists"));
   }
 }

@@ -14,22 +14,25 @@ public class Company {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
+
+  @Column(unique = true)
   private String name;
+
   private String description;
 
   @ManyToOne
   @JoinColumn(name = "company_owner_id")
   private User companyOwner;
 
-  @ManyToMany(fetch = FetchType.EAGER)
+  @ManyToMany
   @JoinTable(name = "company_employees", joinColumns = @JoinColumn(name = "company_id"),
     inverseJoinColumns = @JoinColumn(name = "user_id"))
   private List<User> employees;
 
-  @OneToMany(mappedBy = "company", fetch = FetchType.EAGER)
+  @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Project> projects;
 
-  @OneToMany(mappedBy = "company", fetch = FetchType.EAGER)
+  @OneToMany(mappedBy = "company", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Reward> rewards;
 
 
@@ -54,8 +57,16 @@ public class Company {
     return name;
   }
 
+  public void setName(String name) {
+    this.name = name;
+  }
+
   public String getDescription() {
     return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 
   public User getCompanyOwner() {

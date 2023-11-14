@@ -32,7 +32,7 @@ public class Project {
   @JoinColumn(name = "company_id")
   private Company company;
 
-  @OneToMany(mappedBy = "project")
+  @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
   private List<Task> tasks;
 
   public Project() {
