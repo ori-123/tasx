@@ -127,7 +127,8 @@ public class CompanyController {
   */
 
   @ExceptionHandler(CompanyNotFoundException.class)
-  public ResponseEntity<?> handleCompanyNotFound() {
+  public ResponseEntity<?> handleCompanyNotFound(CompanyNotFoundException e) {
+    logger.error(e.getMessage(), e);
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
       "error", "The requested company was not found"));
   }

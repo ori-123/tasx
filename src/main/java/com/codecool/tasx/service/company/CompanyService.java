@@ -1,5 +1,6 @@
 package com.codecool.tasx.service.company;
 
+import com.codecool.tasx.controller.dto.company.CompanyCreateRequestDto;
 import com.codecool.tasx.controller.dto.company.CompanyResponsePrivateDTO;
 import com.codecool.tasx.controller.dto.company.CompanyResponsePublicDTO;
 import com.codecool.tasx.exception.auth.UnauthorizedException;
@@ -57,5 +58,7 @@ public class CompanyService {
     return Optional.of(companyConverter.getCompanyResponsePrivateDto(company));
   }
 
+  public void createCompany(CompanyCreateRequestDto createRequestDto){
 
+  }
 }
