@@ -13,6 +13,11 @@ public class ProjectConverter {
   private final UserConverter userConverter;
   private final TaskConverter taskConverter;
 
+  public ProjectConverter(UserConverter userConverter, TaskConverter taskConverter) {
+    this.userConverter = userConverter;
+    this.taskConverter = taskConverter;
+  }
+
   public ProjectResponsePublicDTO getProjectResponsePublicDto(Project project) {
     return new ProjectResponsePublicDTO(project.getCompany().getId(), project.getId(),
       project.getName(), project.getDescription());
