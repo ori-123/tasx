@@ -38,7 +38,9 @@ public class CompanyController {
 
   private Long getUserId() {
     //TODO: get user from auth context
-    return mockDataProvider.getAllUsers().get(0).userId();
+    return mockDataProvider.getAllUsers().isEmpty()
+      ? 1L
+      : mockDataProvider.getAllUsers().get(0).userId();
   }
 
   @GetMapping
