@@ -2,8 +2,7 @@ package com.codecool.tasx.controller;
 
 import com.codecool.tasx.controller.dto.company.CompanyResponsePrivateDTO;
 import com.codecool.tasx.controller.dto.reward.RewardCreateRequestDto;
-import com.codecool.tasx.controller.dto.reward.RewardResponsePrivateDto;
-import com.codecool.tasx.controller.dto.reward.RewardResponsePublicDto;
+import com.codecool.tasx.controller.dto.reward.RewardResponseDto;
 import com.codecool.tasx.controller.dto.reward.RewardUpdateRequestDto;
 import com.codecool.tasx.controller.dto.user.UserResponsePublicDto;
 import org.springframework.http.HttpStatus;
@@ -36,7 +35,7 @@ public class RewardController {
     public ResponseEntity<?> getRewardById(@PathVariable long companyId, @PathVariable long rewardId) {
         try {
             //TODO: impl
-            RewardResponsePrivateDto reward = new RewardResponsePrivateDto(
+            RewardResponseDto reward = new RewardResponseDto(
                     1L,
                     "Fake reward 3",
                     "Reward details",
@@ -62,7 +61,7 @@ public class RewardController {
             @RequestBody RewardCreateRequestDto rewardDetails) {
         try {
             //TODO: impl
-            RewardResponsePrivateDto rewardResponseDetails = new RewardResponsePrivateDto(
+            RewardResponseDto rewardResponseDetails = new RewardResponseDto(
                     7, rewardDetails.name(), rewardDetails.description(),
                     new CompanyResponsePrivateDTO(companyId, "Mock company " + companyId,
                             "Company details to be seen only by the employees of the company",
@@ -84,7 +83,7 @@ public class RewardController {
                                           @RequestBody RewardUpdateRequestDto rewardDetails) {
         try {
             //TODO: impl
-            RewardResponsePrivateDto rewardResponseDetails = new RewardResponsePrivateDto(
+            RewardResponseDto rewardResponseDetails = new RewardResponseDto(
                     rewardId, rewardDetails.name(), rewardDetails.description(),
                     new CompanyResponsePrivateDTO(companyId, "Mock Company", "Company Details",
                             new UserResponsePublicDto(7L, "Company Owner")),

@@ -1,4 +1,7 @@
 package com.codecool.tasx.controller.dto.project;
 
-public record ProjectCreateRequestDto(String name, String description) {
+import java.time.LocalDateTime;
+
+public record ProjectCreateRequestDto(Long userId, Long companyId, String name, String description,
+                                      LocalDateTime startDate, LocalDateTime deadline) {
 }
