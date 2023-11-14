@@ -30,4 +30,8 @@ public class ProjectConverter {
     return projects.stream().map(
       project -> getProjectResponsePublicDto(project)).collect(Collectors.toList());
   }
+
+  public List<ProjectResponsePrivateDTO> getProjectResponsePrivateDtos(List<Project> projects) {
+    return projects.stream().map(this::getProjectResponsePrivateDto).toList();
+  }
 }
