@@ -7,6 +7,7 @@ import com.codecool.tasx.controller.dto.company.CompanyUpdateRequestDto;
 import com.codecool.tasx.controller.dto.requests.CompanyJoinRequestResponseDto;
 import com.codecool.tasx.controller.dto.requests.CompanyJoinRequestUpdateDto;
 import com.codecool.tasx.exception.company.CompanyNotFoundException;
+import com.codecool.tasx.exception.company.DuplicateCompanyJoinRequestException;
 import com.codecool.tasx.exception.company.UserAlreadyInCompanyException;
 import com.codecool.tasx.service.company.CompanyService;
 import com.codecool.tasx.service.populate.MockDataProvider;
@@ -146,6 +147,14 @@ public class CompanyController {
     logger.error(e.getMessage(), e);
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
       "error", "User is already in the requested company"));
+  }
+
+  @ExceptionHandler(DuplicateCompanyJoinRequestException.class)
+  public ResponseEntity<?> handleDuplicateCompanyJoinRequest(
+    DuplicateCompanyJoinRequestException e) {
+    logger.error(e.getMessage(), e);
+    return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
+      "error", "Join request already exists with the provided details"));
   }
 
   @ExceptionHandler(ConstraintViolationException.class)

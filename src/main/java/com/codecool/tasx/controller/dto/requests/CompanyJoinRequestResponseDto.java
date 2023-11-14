@@ -5,5 +5,6 @@ import com.codecool.tasx.controller.dto.user.UserResponsePublicDto;
 import com.codecool.tasx.model.requests.RequestStatus;
 
 public record CompanyJoinRequestResponseDto(
-  CompanyResponsePublicDTO company, UserResponsePublicDto user, RequestStatus status) {
+  Long requestId, CompanyResponsePublicDTO company, UserResponsePublicDto user,
+  RequestStatus status) {
 }

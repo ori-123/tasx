@@ -7,6 +7,7 @@ import com.codecool.tasx.model.company.project.Project;
 import com.codecool.tasx.model.company.project.ProjectDao;
 import com.codecool.tasx.model.company.project.task.*;
 import com.codecool.tasx.model.company.reward.RewardDao;
+import com.codecool.tasx.model.requests.CompanyJoinRequest;
 import com.codecool.tasx.model.requests.CompanyJoinRequestDao;
 import com.codecool.tasx.model.user.User;
 import com.codecool.tasx.model.user.UserDao;
@@ -68,6 +69,11 @@ public class MockDataProvider {
     Task task3 = new Task("Task 3", "asdasd", Importance.NICE_TO_HAVE, 5, LocalDateTime.now(),
       LocalDateTime.now().plusHours(1), TaskStatus.BACKLOG, user2, project2);
     taskDao.save(task3);
+
+    CompanyJoinRequest joinRequest1 = new CompanyJoinRequest(company1, user2);
+    joinRequestDao.save(joinRequest1);
+    CompanyJoinRequest joinRequest2 = new CompanyJoinRequest(company2, user1);
+    joinRequestDao.save(joinRequest2);
   }
 
   public List<UserResponsePublicDto> getAllUsers() {

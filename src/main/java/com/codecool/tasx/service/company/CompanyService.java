@@ -9,6 +9,7 @@ import com.codecool.tasx.controller.dto.requests.CompanyJoinRequestUpdateDto;
 import com.codecool.tasx.exception.auth.UnauthorizedException;
 import com.codecool.tasx.exception.company.CompanyJoinRequestNotFoundException;
 import com.codecool.tasx.exception.company.CompanyNotFoundException;
+import com.codecool.tasx.exception.company.DuplicateCompanyJoinRequestException;
 import com.codecool.tasx.exception.company.UserAlreadyInCompanyException;
 import com.codecool.tasx.exception.user.UserNotFoundException;
 import com.codecool.tasx.model.company.Company;
@@ -135,6 +136,11 @@ public class CompanyService {
 
     if (userConverter.getUserIds(company.getEmployees()).contains(userId)) {
       throw new UserAlreadyInCompanyException();
+    }
+
+    Optional<CompanyJoinRequest> duplicateRequest = requestDao.findOneByCompanyAndUser(company,user);
+    if (duplicateRequest.isPresent()){
+      throw new DuplicateCompanyJoinRequestException();
     }
 
     CompanyJoinRequest savedRequest = requestDao.save(new CompanyJoinRequest(company, user));
