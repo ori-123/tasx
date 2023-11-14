@@ -11,6 +11,7 @@ import com.codecool.tasx.model.requests.CompanyJoinRequest;
 import com.codecool.tasx.model.requests.CompanyJoinRequestDao;
 import com.codecool.tasx.model.user.User;
 import com.codecool.tasx.model.user.UserDao;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -42,6 +43,7 @@ public class MockDataProvider {
     this.joinRequestDao = joinRequestDao;
   }
 
+  @PostConstruct
   public void populate() {
     User user1 = new User("User1", "asd.asd@asd.asd", "asdasdasd");
     userDao.save(user1);
