@@ -101,17 +101,15 @@ public class ProjectService {
         Project project = projectDao.findById(projectId)
                 .orElseThrow(() -> new ProjectNotFoundException(projectId));
 
-        Project savedProject = projectDao.save(
-                new Project(
-                        updateRequestDto.name(),
-                        updateRequestDto.description(),
-                        updateRequestDto.startDate(),
-                        updateRequestDto.deadline(),
-                        user,
-                        company
-                )
-        );
+        if (!project.getProjectOwner().equals(user) &&
+            !project.getAssignedEmployees().contains(user)) {
+            throw new UnauthorizedException();
+        }
 
-        return projectConverter.getProjectResponsePrivateDto(savedProject);
+        project.setName(updateRequestDto.name());
+        project.setDescription(updateRequestDto.description());
+        project.setDeadline(updateRequestDto.deadline());
+
+
     }
 }
