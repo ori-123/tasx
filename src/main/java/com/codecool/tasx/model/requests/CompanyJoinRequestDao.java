@@ -13,4 +13,6 @@ public interface CompanyJoinRequestDao extends JpaRepository<CompanyJoinRequest,
   List<CompanyJoinRequest> findByCompany(Company company);
 
   Optional<CompanyJoinRequest> findOneByCompanyAndUser(Company company, User user);
+
+  List<CompanyJoinRequest> findByUser(User user);
 }
