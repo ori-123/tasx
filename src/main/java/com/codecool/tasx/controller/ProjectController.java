@@ -5,10 +5,12 @@ import com.codecool.tasx.controller.dto.project.ProjectCreateRequestDto;
 import com.codecool.tasx.controller.dto.project.ProjectResponsePrivateDTO;
 import com.codecool.tasx.controller.dto.project.ProjectResponsePublicDTO;
 import com.codecool.tasx.controller.dto.project.ProjectUpdateRequestDto;
-import com.codecool.tasx.controller.dto.user.UserResponsePublicDto;
 import com.codecool.tasx.exception.company.CompanyNotFoundException;
 import com.codecool.tasx.exception.project.ProjectNotFoundException;
-import com.codecool.tasx.model.company.Company;
+import com.codecool.tasx.model.company.CompanyDao;
+import com.codecool.tasx.model.company.project.Project;
+import com.codecool.tasx.model.user.User;
+import com.codecool.tasx.model.user.UserDao;
 import com.codecool.tasx.service.company.CompanyService;
 import com.codecool.tasx.service.populate.MockDataProvider;
 import com.codecool.tasx.service.project.ProjectService;
@@ -66,8 +68,12 @@ public class ProjectController {
       public ResponseEntity<?> createProject(
         @PathVariable Long companyId,
         @RequestBody ProjectCreateRequestDto projectDetails) {
-        //TODO: impl
-          return null;
+        Long userId = getUserId();
+
+        ProjectResponsePrivateDTO projectResponseDetails = projectService.createProject(projectDetails, userId);
+          return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                  "message", "Project created successfully",
+                  "data", projectResponseDetails));
       }
 
       @PutMapping("/{projectId}")

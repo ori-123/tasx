@@ -85,6 +85,38 @@ public class Project {
     return List.copyOf(tasks);
   }
 
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public void setStartDate(LocalDateTime startDate) {
+    this.startDate = startDate;
+  }
+
+  public void setProjectOwner(User projectOwner) {
+    this.projectOwner = projectOwner;
+  }
+
+  public void assignEmployee(User employee) {
+    assignedEmployees.add(employee);
+  }
+
+  public void removeEmployee(User employee) {
+    assignedEmployees.remove(employee);
+  }
+
+  public void setCompany(Company company) {
+    this.company = company;
+  }
+
+  public void addTask (Task task) {
+    tasks.add(task);
+  }
+
+  public void removeTask (Task task) {
+    tasks.remove(task);
+  }
+
   public void setName(String name) {
     this.name = name;
   }
