@@ -110,6 +110,7 @@ public class ProjectService {
         project.setDescription(updateRequestDto.description());
         project.setDeadline(updateRequestDto.deadline());
 
-
+        Project savedProject = projectDao.save(project);
+        return projectConverter.getProjectResponsePrivateDto(savedProject);
     }
 }
