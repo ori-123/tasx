@@ -113,4 +113,16 @@ public class ProjectService {
         Project savedProject = projectDao.save(project);
         return projectConverter.getProjectResponsePrivateDto(savedProject);
     }
+
+    @Transactional
+    public void deleteProject(Long projectId, Long userId) {
+        User user = userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+        Project project = projectDao.findById(projectId).orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        if (!project.getProjectOwner().equals(user)) {
+            throw new UnauthorizedException();
+        }
+
+        projectDao.deleteById(projectId);
+    }
 }
