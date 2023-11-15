@@ -16,6 +16,11 @@ public interface CompanyDao extends JpaRepository<Company, Long> {
   @Query("SELECT c FROM Company c WHERE :user MEMBER OF c.employees")
   List<Company> findAllWithEmployee(@Param("user") User user);
 
-  @Query("SELECT c FROM Company c WHERE :user NOT MEMBER OF c.employees")
-  List<Company> findAllWithoutEmployee(@Param("user") User user);
+  /*@Query("SELECT c FROM Company c WHERE :user NOT MEMBER OF c.employees")
+  List<Company> findAllWithoutEmployee(@Param("user") User user);*/
+
+  @Query("SELECT c FROM Company c WHERE :user NOT MEMBER OF c.employees AND c.id NOT IN " +
+    "(SELECT cr.company.id FROM CompanyJoinRequest cr " +
+    "WHERE cr.user = :user AND cr.status = 'PENDING')")
+  List<Company> findAllWithoutEmployeeAndPendingRequest(@Param("user") User user);
 }
