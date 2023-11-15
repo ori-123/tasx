@@ -184,6 +184,17 @@ public class CompanyService {
     return companyConverter.getCompanyJoinRequestResponseDtos(requests);
   }
 
+
+  @Transactional
+  public List<CompanyJoinRequestResponseDto> getJoinRequestsOfUser(Long userId) {
+    User user =
+      userDao.findById(userId).orElseThrow(
+        () -> new UserNotFoundException(userId));
+
+    List<CompanyJoinRequest> requests = requestDao.findByUser(user);
+    return companyConverter.getCompanyJoinRequestResponseDtos(requests);
+  }
+
   @Transactional(rollbackOn = Exception.class)
   public void handleJoinRequest(
     Long userId, Long requestId, CompanyJoinRequestUpdateDto updateDto) {
