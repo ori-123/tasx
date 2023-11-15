@@ -25,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -59,7 +60,7 @@ public class ProjectService {
             throws UnauthorizedException {
         Company company = companyDao.findById(companyId)
                 .orElseThrow(() -> new CompanyNotFoundException(companyId));
-        Optional<Project> foundProject = projectDao.findById(projectId);
+        Optional<Project> foundProject = company.getProjects().stream().filter(project -> Objects.equals(project.getId(), projectId)).findFirst();
         if (foundProject.isEmpty()) {
             logger.error("Project with ID " + projectId + " was not found");
             return Optional.empty();

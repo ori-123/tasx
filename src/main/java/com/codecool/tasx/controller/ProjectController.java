@@ -67,6 +67,7 @@ public class ProjectController {
         @PathVariable Long companyId,
         @RequestBody ProjectCreateRequestDto projectDetails) {
         //TODO: impl
+          return null;
       }
 
       @PutMapping("/{projectId}")
@@ -74,11 +75,13 @@ public class ProjectController {
         @PathVariable Long companyId, @PathVariable Long projectId, @RequestBody
       ProjectUpdateRequestDto projectDetails) {
         //TODO: impl
+          return null;
       }
 
       @DeleteMapping("/{projectId}")
       public ResponseEntity<?> deleteProject(
         @PathVariable Long companyId, @PathVariable Long projectId) {
         //TODO: impl
+          return null;
       }
 }
