@@ -6,6 +6,7 @@ import com.codecool.tasx.controller.dto.company.CompanyResponsePublicDTO;
 import com.codecool.tasx.controller.dto.company.CompanyUpdateRequestDto;
 import com.codecool.tasx.controller.dto.requests.CompanyJoinRequestResponseDto;
 import com.codecool.tasx.controller.dto.requests.CompanyJoinRequestUpdateDto;
+import com.codecool.tasx.exception.auth.UnauthorizedException;
 import com.codecool.tasx.exception.company.CompanyNotFoundException;
 import com.codecool.tasx.exception.company.DuplicateCompanyJoinRequestException;
 import com.codecool.tasx.exception.company.UserAlreadyInCompanyException;
@@ -38,13 +39,25 @@ public class CompanyController {
   }
 
   private Long getUserId(HttpServletRequest request) {
-    //TODO: get user from auth context
-    return Long.valueOf(request.getHeader("Authorization").split(" ")[1]);
+    //TODO: get user from actual auth context
+    try {
+      return Long.valueOf(request.getHeader("Authorization").split(" ")[1]);
+    } catch (Exception e) {
+      throw new UnauthorizedException();
+    }
   }
 
-  @GetMapping
-  public ResponseEntity<?> getAllCompanies() {
-    List<CompanyResponsePublicDTO> companies = companyService.getAllCompanies();
+  @GetMapping()
+  public ResponseEntity<?> getAllCompanies(
+    @RequestParam(name = "withUser") Boolean withUser,
+    HttpServletRequest request) {
+    Long userId = getUserId(request);
+    List<CompanyResponsePublicDTO> companies;
+    if (withUser) {
+      companies = companyService.getCompaniesWithUserId(userId);
+    } else {
+      companies = companyService.getCompaniesWithoutUserId(userId);
+    }
     return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", companies));
   }
 
