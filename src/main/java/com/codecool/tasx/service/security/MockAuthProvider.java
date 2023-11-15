@@ -2,7 +2,9 @@ package com.codecool.tasx.service.security;
 
 import com.codecool.tasx.exception.auth.UnauthorizedException;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.stereotype.Service;
 
+@Service
 public class MockAuthProvider implements AuthProvider {
   @Override
   public Long getUserId(HttpServletRequest request) {
