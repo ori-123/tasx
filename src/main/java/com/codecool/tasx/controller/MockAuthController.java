@@ -33,9 +33,8 @@ public class MockAuthController {
       return ResponseEntity.status(HttpStatus.CREATED).body(
         Map.of("message", "Account created successfully"));
     } catch (ConstraintViolationException e) {
-      return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
-        "error", "Username or e-mail already taken"
-      ));
+      return ResponseEntity.status(HttpStatus.CONFLICT).body(
+        Map.of("error", "Username or e-mail already taken"));
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
         Map.of("error", "Failed to create account"));
@@ -49,7 +48,7 @@ public class MockAuthController {
 
       if (foundUser.isPresent()) {
         MockAuthenticationDto authenticationDto = new MockAuthenticationDto(
-          "mock_access_token",
+          foundUser.get().getId().toString(),
           new MockUserInfoDto(foundUser.get().getUsername(), foundUser.get().getEmail(),
             foundUser.get().getRoles()));
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", authenticationDto));
