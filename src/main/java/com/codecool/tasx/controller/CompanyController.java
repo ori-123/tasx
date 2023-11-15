@@ -6,12 +6,11 @@ import com.codecool.tasx.controller.dto.company.CompanyResponsePublicDTO;
 import com.codecool.tasx.controller.dto.company.CompanyUpdateRequestDto;
 import com.codecool.tasx.controller.dto.requests.CompanyJoinRequestResponseDto;
 import com.codecool.tasx.controller.dto.requests.CompanyJoinRequestUpdateDto;
-import com.codecool.tasx.exception.auth.UnauthorizedException;
 import com.codecool.tasx.exception.company.CompanyNotFoundException;
 import com.codecool.tasx.exception.company.DuplicateCompanyJoinRequestException;
 import com.codecool.tasx.exception.company.UserAlreadyInCompanyException;
 import com.codecool.tasx.service.company.CompanyService;
-import com.codecool.tasx.service.populate.MockDataProvider;
+import com.codecool.tasx.service.security.AuthProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
@@ -28,30 +27,22 @@ import java.util.Map;
 @RequestMapping("/api/v1/companies")
 public class CompanyController {
   private final CompanyService companyService;
-  private final MockDataProvider mockDataProvider;
+  private final AuthProvider authProvider;
   private final Logger logger;
 
   @Autowired
-  public CompanyController(CompanyService companyService, MockDataProvider mockDataProvider) {
+  public CompanyController(CompanyService companyService, AuthProvider authProvider) {
     this.companyService = companyService;
-    this.mockDataProvider = mockDataProvider;
+    this.authProvider = authProvider;
     logger = LoggerFactory.getLogger(this.getClass());
   }
 
-  private Long getUserId(HttpServletRequest request) {
-    //TODO: get user from actual auth context
-    try {
-      return Long.valueOf(request.getHeader("Authorization").split(" ")[1]);
-    } catch (Exception e) {
-      throw new UnauthorizedException();
-    }
-  }
 
   @GetMapping()
   public ResponseEntity<?> getAllCompanies(
     @RequestParam(name = "withUser") Boolean withUser,
     HttpServletRequest request) {
-    Long userId = getUserId(request);
+    Long userId = authProvider.getUserId(request);
     List<CompanyResponsePublicDTO> companies;
     if (withUser) {
       companies = companyService.getCompaniesWithUserId(userId);
@@ -64,7 +55,7 @@ public class CompanyController {
   @GetMapping("/{companyId}")
   public ResponseEntity<?> getCompanyById(
     @PathVariable Long companyId, HttpServletRequest request) {
-    Long userId = getUserId(request);
+    Long userId = authProvider.getUserId(request);
 
     CompanyResponsePrivateDTO company = companyService.getCompanyById(userId, companyId)
       .orElseThrow(() -> new CompanyNotFoundException(companyId));
@@ -76,7 +67,7 @@ public class CompanyController {
   public ResponseEntity<?> createCompany(
     @RequestBody CompanyCreateRequestDto createRequestDto,
     HttpServletRequest request) {
-    Long userId = getUserId(request);
+    Long userId = authProvider.getUserId(request);
 
     CompanyResponsePrivateDTO companyResponseDetails =
       companyService.createCompany(createRequestDto, userId);
@@ -90,7 +81,7 @@ public class CompanyController {
   public ResponseEntity<?> updateCompany(
     @PathVariable Long companyId, @RequestBody
   CompanyUpdateRequestDto updateRequestDto, HttpServletRequest request) {
-    Long userId = getUserId(request);
+    Long userId = authProvider.getUserId(request);
 
     CompanyResponsePrivateDTO companyResponseDetails =
       companyService.updateCompany(updateRequestDto, userId, companyId);
@@ -102,7 +93,7 @@ public class CompanyController {
 
   @DeleteMapping("/{companyId}")
   public ResponseEntity<?> deleteCompany(@PathVariable Long companyId, HttpServletRequest request) {
-    Long userId = getUserId(request);
+    Long userId = authProvider.getUserId(request);
 
     companyService.deleteCompany(companyId, userId);
 
@@ -115,7 +106,7 @@ public class CompanyController {
   public ResponseEntity<?> readJoinRequestsOfCompany(
     @PathVariable Long companyId,
     HttpServletRequest request) {
-    Long userId = getUserId(request);
+    Long userId = authProvider.getUserId(request);
 
     List<CompanyJoinRequestResponseDto> requests =
       companyService.getJoinRequestsOfCompany(companyId, userId);
@@ -126,7 +117,7 @@ public class CompanyController {
 
   @PostMapping("/{companyId}/requests")
   public ResponseEntity<?> joinCompany(@PathVariable Long companyId, HttpServletRequest request) {
-    Long userId = getUserId(request);
+    Long userId = authProvider.getUserId(request);
 
     CompanyJoinRequestResponseDto createdRequest = companyService.createJoinRequest(
       userId,
@@ -142,7 +133,7 @@ public class CompanyController {
   public ResponseEntity<?> updateJoinRequestById(
     @PathVariable Long requestId,
     @RequestBody CompanyJoinRequestUpdateDto requestDto, HttpServletRequest request) {
-    Long userId = getUserId(request);
+    Long userId = authProvider.getUserId(request);
 
     CompanyJoinRequestResponseDto updatedRequestDto = companyService.updateJoinRequestById(userId
       , requestId, requestDto);
