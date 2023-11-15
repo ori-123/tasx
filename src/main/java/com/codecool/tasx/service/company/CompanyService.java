@@ -62,7 +62,7 @@ public class CompanyService {
   public List<CompanyResponsePublicDTO> getCompaniesWithoutUserId(Long userId)
     throws UserNotFoundException {
     User user = userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
-    List<Company> companies = companyDao.findAllWithoutEmployee(user);
+    List<Company> companies = companyDao.findAllWithoutEmployeeAndPendingRequest(user);
     return companyConverter.getCompanyResponsePublicDtos(companies);
   }
 

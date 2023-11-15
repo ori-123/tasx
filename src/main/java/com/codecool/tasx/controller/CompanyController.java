@@ -40,8 +40,7 @@ public class CompanyController {
 
   @GetMapping()
   public ResponseEntity<?> getAllCompanies(
-    @RequestParam(name = "withUser") Boolean withUser,
-    HttpServletRequest request) {
+    @RequestParam(name = "withUser") Boolean withUser, HttpServletRequest request) {
     Long userId = authProvider.getUserId(request);
     List<CompanyResponsePublicDTO> companies;
     if (withUser) {
@@ -123,7 +122,7 @@ public class CompanyController {
       userId,
       companyId);
 
-    return ResponseEntity.status(HttpStatus.OK).body(Map.of(
+    return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
       "message",
       "Request created successfully",
       "data", createdRequest));
