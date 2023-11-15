@@ -85,6 +85,18 @@ public class Project {
     return List.copyOf(tasks);
   }
 
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public void setDeadline(LocalDateTime deadline) {
+    this.deadline = deadline;
+  }
+
   @Override
   public boolean equals(Object object) {
     if (this == object) {
