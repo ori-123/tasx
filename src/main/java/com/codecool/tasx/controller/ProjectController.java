@@ -93,7 +93,11 @@ public class ProjectController {
       @DeleteMapping("/{projectId}")
       public ResponseEntity<?> deleteProject(
         @PathVariable Long companyId, @PathVariable Long projectId) {
-        //TODO: impl
-          return null;
+        Long userId = getUserId();
+        projectService.deleteProject(projectId, userId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of(
+                "message",
+                "Project with ID " + projectId + " deleted successfully"));
       }
 }
