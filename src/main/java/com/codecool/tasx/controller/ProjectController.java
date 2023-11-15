@@ -80,8 +80,14 @@ public class ProjectController {
       public ResponseEntity<?> updateProject(
         @PathVariable Long companyId, @PathVariable Long projectId, @RequestBody
       ProjectUpdateRequestDto projectDetails) {
-        //TODO: impl
-          return null;
+        Long userId = getUserId();
+
+        ProjectResponsePrivateDTO projectResponseDetails =
+                projectService.updateProject(projectDetails, userId, projectId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(Map.of(
+                  "message", "Project with ID " + projectId + " updated successfully",
+                  "data", projectResponseDetails));
       }
 
       @DeleteMapping("/{projectId}")
