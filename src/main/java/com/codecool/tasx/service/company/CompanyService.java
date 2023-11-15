@@ -16,6 +16,7 @@ import com.codecool.tasx.model.company.Company;
 import com.codecool.tasx.model.company.CompanyDao;
 import com.codecool.tasx.model.requests.CompanyJoinRequest;
 import com.codecool.tasx.model.requests.CompanyJoinRequestDao;
+import com.codecool.tasx.model.requests.RequestStatus;
 import com.codecool.tasx.model.user.User;
 import com.codecool.tasx.model.user.UserDao;
 import com.codecool.tasx.service.converter.CompanyConverter;
@@ -183,8 +184,8 @@ public class CompanyService {
     return companyConverter.getCompanyJoinRequestResponseDtos(requests);
   }
 
-  @Transactional
-  public CompanyJoinRequestResponseDto updateJoinRequestById(
+  @Transactional(rollbackOn = Exception.class)
+  public void handleJoinRequest(
     Long userId, Long requestId, CompanyJoinRequestUpdateDto updateDto) {
     CompanyJoinRequest request = requestDao.findById(requestId).orElseThrow(
       () -> new CompanyJoinRequestNotFoundException(requestId));
@@ -197,7 +198,14 @@ public class CompanyService {
     }
 
     request.setStatus(updateDto.status());
-    CompanyJoinRequest updatedRequest = requestDao.save(request);
-    return companyConverter.getCompanyJoinRequestResponseDto(updatedRequest);
+
+    if (request.getStatus().equals(RequestStatus.APPROVED)) {
+      addUserToCompany(request.getUser(), request.getCompany());
+    }
+    requestDao.delete(request);
+  }
+
+  private void addUserToCompany(User user, Company company) {
+    company.addEmployee(user);
   }
 }

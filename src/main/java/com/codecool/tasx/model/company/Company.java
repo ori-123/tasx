@@ -77,6 +77,10 @@ public class Company {
     return List.copyOf(employees);
   }
 
+  public void addEmployee(User user) {
+    employees.add(user);
+  }
+
   public List<Project> getProjects() {
     return List.copyOf(projects);
   }

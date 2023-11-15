@@ -135,14 +135,11 @@ public class CompanyController {
     @RequestBody CompanyJoinRequestUpdateDto requestDto, HttpServletRequest request) {
     Long userId = authProvider.getUserId(request);
 
-    CompanyJoinRequestResponseDto updatedRequestDto = companyService.updateJoinRequestById(userId
-      , requestId, requestDto);
+    companyService.handleJoinRequest(userId, requestId, requestDto);
 
     //TODO: notify the user who requested to join...
     return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-      "message",
-      "Request updated successfully",
-      "data", updatedRequestDto));
+      "message", "Request updated successfully"));
   }
 
   @ExceptionHandler(CompanyNotFoundException.class)
