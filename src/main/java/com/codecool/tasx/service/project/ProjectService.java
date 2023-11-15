@@ -3,8 +3,10 @@ package com.codecool.tasx.service.project;
 import com.codecool.tasx.controller.dto.project.ProjectCreateRequestDto;
 import com.codecool.tasx.controller.dto.project.ProjectResponsePrivateDTO;
 import com.codecool.tasx.controller.dto.project.ProjectResponsePublicDTO;
+import com.codecool.tasx.controller.dto.project.ProjectUpdateRequestDto;
 import com.codecool.tasx.exception.auth.UnauthorizedException;
 import com.codecool.tasx.exception.company.CompanyNotFoundException;
+import com.codecool.tasx.exception.project.ProjectNotFoundException;
 import com.codecool.tasx.exception.user.UserNotFoundException;
 import com.codecool.tasx.model.company.Company;
 import com.codecool.tasx.model.company.CompanyDao;
@@ -15,6 +17,7 @@ import com.codecool.tasx.model.user.UserDao;
 import com.codecool.tasx.service.converter.ProjectConverter;
 import com.codecool.tasx.service.converter.UserConverter;
 import jakarta.transaction.Transactional;
+import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,7 +70,8 @@ public class ProjectService {
     }
 
     @Transactional
-    public ProjectResponsePrivateDTO createProject(ProjectCreateRequestDto createRequestDto, Long userId) {
+    public ProjectResponsePrivateDTO createProject(ProjectCreateRequestDto createRequestDto, Long userId)
+    throws ConstraintViolationException {
 
         User user = userDao.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
@@ -80,6 +84,29 @@ public class ProjectService {
                         createRequestDto.description(),
                         createRequestDto.startDate(),
                         createRequestDto.deadline(),
+                        user,
+                        company
+                )
+        );
+
+        return projectConverter.getProjectResponsePrivateDto(savedProject);
+    }
+
+    @Transactional
+    public ProjectResponsePrivateDTO updateProject(ProjectUpdateRequestDto updateRequestDto, Long userId, Long projectId)
+            throws ConstraintViolationException {
+
+        User user = userDao.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId));
+        Project project = projectDao.findById(projectId)
+                .orElseThrow(() -> new ProjectNotFoundException(projectId));
+
+        Project savedProject = projectDao.save(
+                new Project(
+                        updateRequestDto.name(),
+                        updateRequestDto.description(),
+                        updateRequestDto.startDate(),
+                        updateRequestDto.deadline(),
                         user,
                         company
                 )
