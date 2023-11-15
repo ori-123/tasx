@@ -1,5 +1,6 @@
 package com.codecool.tasx.service.project;
 
+import com.codecool.tasx.controller.dto.company.CompanyResponsePrivateDTO;
 import com.codecool.tasx.controller.dto.project.ProjectCreateRequestDto;
 import com.codecool.tasx.controller.dto.project.ProjectResponsePrivateDTO;
 import com.codecool.tasx.controller.dto.project.ProjectResponsePublicDTO;
@@ -46,13 +47,18 @@ public class ProjectService {
         this.logger = LoggerFactory.getLogger(this.getClass());
     }
 
-    public List<ProjectResponsePublicDTO> getAllProjects() {
-        List<Project> projects = projectDao.findAll();
+    public List<ProjectResponsePublicDTO> getAllProjects(Long companyId) {
+        Company company = companyDao.findById(companyId)
+                .orElseThrow(() -> new CompanyNotFoundException(companyId));
+        List<Project> projects = company.getProjects();
         return projectConverter.getProjectResponsePublicDtos(projects);
     }
 
     @Transactional
-    public Optional<ProjectResponsePrivateDTO> getProjectById(Long userId, Long projectId) throws UnauthorizedException {
+    public Optional<ProjectResponsePrivateDTO> getProjectById(Long userId, Long projectId, Long companyId)
+            throws UnauthorizedException {
+        Company company = companyDao.findById(companyId)
+                .orElseThrow(() -> new CompanyNotFoundException(companyId));
         Optional<Project> foundProject = projectDao.findById(projectId);
         if (foundProject.isEmpty()) {
             logger.error("Project with ID " + projectId + " was not found");
