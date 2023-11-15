@@ -124,7 +124,7 @@ public class CompanyController {
       "data", requests));
   }
 
-  @PostMapping("/{companyId}/requests/join")
+  @PostMapping("/{companyId}/requests")
   public ResponseEntity<?> joinCompany(@PathVariable Long companyId, HttpServletRequest request) {
     Long userId = getUserId(request);
 

@@ -57,13 +57,19 @@ public class CompanyService {
     return companyConverter.getCompanyResponsePublicDtos(companies);
   }
 
-  public List<CompanyResponsePublicDTO> getCompaniesWithoutUserId(Long userId) {
-    List<Company> companies = companyDao.findAllWithoutEmployeeId(userId);
+  @Transactional
+  public List<CompanyResponsePublicDTO> getCompaniesWithoutUserId(Long userId)
+    throws UserNotFoundException {
+    User user = userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+    List<Company> companies = companyDao.findAllWithoutEmployee(user);
     return companyConverter.getCompanyResponsePublicDtos(companies);
   }
 
-  public List<CompanyResponsePublicDTO> getCompaniesWithUserId(Long userId) {
-    List<Company> companies = companyDao.findAllWithEmployeeId(userId);
+  @Transactional
+  public List<CompanyResponsePublicDTO> getCompaniesWithUserId(Long userId)
+    throws UserNotFoundException {
+    User user = userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+    List<Company> companies = companyDao.findAllWithEmployee(user);
     return companyConverter.getCompanyResponsePublicDtos(companies);
   }
 
@@ -148,7 +154,8 @@ public class CompanyService {
       throw new UserAlreadyInCompanyException();
     }
 
-    Optional<CompanyJoinRequest> duplicateRequest = requestDao.findOneByCompanyAndUser(company,
+    Optional<CompanyJoinRequest> duplicateRequest = requestDao.findOneByCompanyAndUser(
+      company,
       user);
     if (duplicateRequest.isPresent()) {
       throw new DuplicateCompanyJoinRequestException();
