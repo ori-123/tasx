@@ -64,12 +64,13 @@ public class ProjectController {
 
   @PostMapping
   public ResponseEntity<?> createProject(
+    @PathVariable Long companyId,
     @RequestBody ProjectCreateRequestDto projectDetails,
     HttpServletRequest request) {
     Long userId = authProvider.getUserId(request);
 
     ProjectResponsePrivateDTO projectResponseDetails = projectService.createProject(
-      projectDetails, userId);
+      projectDetails, userId, companyId);
     return ResponseEntity.status(HttpStatus.CREATED).body(
       Map.of("message", "Project created successfully", "data", projectResponseDetails));
   }

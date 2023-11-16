@@ -6,6 +6,7 @@ import com.codecool.tasx.model.user.User;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -39,13 +40,16 @@ public class Project {
   }
 
 
-  public Project(String name, String description, LocalDateTime startDate, LocalDateTime deadline,
+  public Project(
+    String name, String description, LocalDateTime startDate, LocalDateTime deadline,
     User projectOwner, Company company) {
     this.name = name;
     this.description = description;
     this.startDate = startDate;
     this.deadline = deadline;
     this.projectOwner = projectOwner;
+    this.assignedEmployees = new ArrayList<>();
+    this.assignedEmployees.add(this.projectOwner);
     this.company = company;
   }
 
@@ -109,11 +113,11 @@ public class Project {
     this.company = company;
   }
 
-  public void addTask (Task task) {
+  public void addTask(Task task) {
     tasks.add(task);
   }
 
-  public void removeTask (Task task) {
+  public void removeTask(Task task) {
     tasks.remove(task);
   }
 

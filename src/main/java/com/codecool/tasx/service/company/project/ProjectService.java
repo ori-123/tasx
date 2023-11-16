@@ -86,13 +86,13 @@ public class ProjectService {
 
   @Transactional
   public ProjectResponsePrivateDTO createProject(
-    ProjectCreateRequestDto createRequestDto, Long userId)
+    ProjectCreateRequestDto createRequestDto, Long userId, Long companyId)
     throws ConstraintViolationException {
 
     User user = userDao.findById(userId)
       .orElseThrow(() -> new UserNotFoundException(userId));
-    Company company = companyDao.findById(createRequestDto.companyId())
-      .orElseThrow(() -> new CompanyNotFoundException(createRequestDto.companyId()));
+    Company company = companyDao.findById(companyId)
+      .orElseThrow(() -> new CompanyNotFoundException(companyId));
 
     if (!userConverter.getUserIds(company.getEmployees()).contains(userId)) {
       logger.error(
