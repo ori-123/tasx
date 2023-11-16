@@ -4,15 +4,10 @@ import com.codecool.tasx.controller.dto.company.CompanyCreateRequestDto;
 import com.codecool.tasx.controller.dto.company.CompanyResponsePrivateDTO;
 import com.codecool.tasx.controller.dto.company.CompanyResponsePublicDTO;
 import com.codecool.tasx.controller.dto.company.CompanyUpdateRequestDto;
-import com.codecool.tasx.controller.dto.requests.CompanyJoinRequestResponseDto;
-import com.codecool.tasx.controller.dto.requests.CompanyJoinRequestUpdateDto;
 import com.codecool.tasx.exception.company.CompanyNotFoundException;
-import com.codecool.tasx.exception.company.DuplicateCompanyJoinRequestException;
-import com.codecool.tasx.exception.company.UserAlreadyInCompanyException;
 import com.codecool.tasx.service.company.CompanyService;
 import com.codecool.tasx.service.security.AuthProvider;
 import jakarta.servlet.http.HttpServletRequest;
-import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -99,74 +94,5 @@ public class CompanyController {
     return ResponseEntity.status(HttpStatus.OK).body(Map.of(
       "message",
       "Company with ID " + companyId + " deleted successfully"));
-  }
-
-  @GetMapping("/{companyId}/requests")
-  public ResponseEntity<?> readJoinRequestsOfCompany(
-    @PathVariable Long companyId,
-    HttpServletRequest request) {
-    Long userId = authProvider.getUserId(request);
-
-    List<CompanyJoinRequestResponseDto> requests =
-      companyService.getJoinRequestsOfCompany(companyId, userId);
-
-    return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-      "data", requests));
-  }
-
-  @PostMapping("/{companyId}/requests")
-  public ResponseEntity<?> joinCompany(@PathVariable Long companyId, HttpServletRequest request) {
-    Long userId = authProvider.getUserId(request);
-
-    CompanyJoinRequestResponseDto createdRequest = companyService.createJoinRequest(
-      userId,
-      companyId);
-
-    return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-      "message",
-      "Request created successfully",
-      "data", createdRequest));
-  }
-
-  @PutMapping("/{companyId}/requests/{requestId}")
-  public ResponseEntity<?> updateJoinRequestById(
-    @PathVariable Long requestId,
-    @RequestBody CompanyJoinRequestUpdateDto requestDto, HttpServletRequest request) {
-    Long userId = authProvider.getUserId(request);
-
-    companyService.handleJoinRequest(userId, requestId, requestDto);
-
-    //TODO: notify the user who requested to join...
-    return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-      "message", "Request updated successfully"));
-  }
-
-  @ExceptionHandler(CompanyNotFoundException.class)
-  public ResponseEntity<?> handleCompanyNotFound(CompanyNotFoundException e) {
-    logger.error(e.getMessage(), e);
-    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of(
-      "error", "The requested company was not found"));
-  }
-
-  @ExceptionHandler(UserAlreadyInCompanyException.class)
-  public ResponseEntity<?> handleUserAlreadyInCompany(UserAlreadyInCompanyException e) {
-    logger.error(e.getMessage(), e);
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of(
-      "error", "User is already in the requested company"));
-  }
-
-  @ExceptionHandler(DuplicateCompanyJoinRequestException.class)
-  public ResponseEntity<?> handleDuplicateCompanyJoinRequest(
-    DuplicateCompanyJoinRequestException e) {
-    logger.error(e.getMessage(), e);
-    return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
-      "error", "Join request already exists with the provided details"));
-  }
-
-  @ExceptionHandler(ConstraintViolationException.class)
-  public ResponseEntity<?> handleDuplicateFields(ConstraintViolationException e) {
-    logger.error(e.getMessage(), e);
-    return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
-      "error", "Company with requested " + e.getConstraintName() + " already exists"));
   }
 }

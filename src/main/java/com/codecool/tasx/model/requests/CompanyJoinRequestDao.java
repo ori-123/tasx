@@ -10,7 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface CompanyJoinRequestDao extends JpaRepository<CompanyJoinRequest,Long> {
-  List<CompanyJoinRequest> findByCompany(Company company);
+  List<CompanyJoinRequest> findByCompanyAndStatus(Company company, RequestStatus status);
 
   Optional<CompanyJoinRequest> findOneByCompanyAndUser(Company company, User user);
 

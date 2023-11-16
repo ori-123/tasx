@@ -1,5 +1,6 @@
 package com.codecool.tasx.model.company;
 
+import com.codecool.tasx.model.requests.RequestStatus;
 import com.codecool.tasx.model.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -21,6 +22,8 @@ public interface CompanyDao extends JpaRepository<Company, Long> {
 
   @Query("SELECT c FROM Company c WHERE :user NOT MEMBER OF c.employees AND c.id NOT IN " +
     "(SELECT cr.company.id FROM CompanyJoinRequest cr " +
-    "WHERE cr.user = :user AND cr.status = 'PENDING')")
-  List<Company> findAllWithoutEmployeeAndPendingRequest(@Param("user") User user);
+    "WHERE cr.user = :user AND cr.status IN (:statuses))")
+  List<Company> findAllWithoutEmployeeAndJoinRequest(
+    @Param("user") User user,
+    @Param("statuses") List<RequestStatus> statuses);
 }
