@@ -8,7 +8,7 @@ import com.codecool.tasx.controller.dto.project.ProjectUpdateRequestDto;
 import com.codecool.tasx.exception.company.CompanyNotFoundException;
 import com.codecool.tasx.exception.project.ProjectNotFoundException;
 import com.codecool.tasx.service.company.CompanyService;
-import com.codecool.tasx.service.project.ProjectService;
+import com.codecool.tasx.service.company.project.ProjectService;
 import com.codecool.tasx.service.security.AuthProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -31,8 +31,7 @@ public class ProjectController {
 
   @Autowired
   public ProjectController(
-    CompanyService companyService, ProjectService projectService,
-    AuthProvider authProvider) {
+    CompanyService companyService, ProjectService projectService, AuthProvider authProvider) {
     this.companyService = companyService;
     this.projectService = projectService;
     this.authProvider = authProvider;
@@ -45,7 +44,9 @@ public class ProjectController {
     Long userId = authProvider.getUserId(request);
     CompanyResponsePrivateDTO company = companyService.getCompanyById(userId, companyId)
       .orElseThrow(() -> new CompanyNotFoundException(companyId));
-    List<ProjectResponsePublicDTO> projects = projectService.getAllProjects(company.companyId());
+    List<ProjectResponsePublicDTO> projects = projectService.getAllProjects(
+      company.companyId(),
+      userId);
     return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", projects));
   }
 
@@ -56,46 +57,43 @@ public class ProjectController {
     CompanyResponsePrivateDTO company = companyService.getCompanyById(userId, companyId)
       .orElseThrow(() -> new CompanyNotFoundException(companyId));
     ProjectResponsePrivateDTO project = projectService.getProjectById(
-        userId, projectId, company.companyId())
-      .orElseThrow(() -> new ProjectNotFoundException(projectId));
+      userId, projectId, company.companyId()).orElseThrow(
+      () -> new ProjectNotFoundException(projectId));
     return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", project));
   }
 
   @PostMapping
   public ResponseEntity<?> createProject(
-    @PathVariable Long companyId,
-    @RequestBody ProjectCreateRequestDto projectDetails, HttpServletRequest request) {
+    @RequestBody ProjectCreateRequestDto projectDetails,
+    HttpServletRequest request) {
     Long userId = authProvider.getUserId(request);
 
     ProjectResponsePrivateDTO projectResponseDetails = projectService.createProject(
       projectDetails, userId);
-    return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-      "message", "Project created successfully",
-      "data", projectResponseDetails));
+    return ResponseEntity.status(HttpStatus.CREATED).body(
+      Map.of("message", "Project created successfully", "data", projectResponseDetails));
   }
 
   @PutMapping("/{projectId}")
   public ResponseEntity<?> updateProject(
-    @PathVariable Long companyId, @PathVariable Long projectId, @RequestBody
-  ProjectUpdateRequestDto projectDetails, HttpServletRequest request) {
+    @PathVariable Long projectId,
+    @RequestBody ProjectUpdateRequestDto projectDetails, HttpServletRequest request) {
     Long userId = authProvider.getUserId(request);
 
-    ProjectResponsePrivateDTO projectResponseDetails =
-      projectService.updateProject(projectDetails, userId, projectId);
+    ProjectResponsePrivateDTO projectResponseDetails = projectService.updateProject(
+      projectDetails, userId, projectId);
 
-    return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-      "message", "Project with ID " + projectId + " updated successfully",
-      "data", projectResponseDetails));
+    return ResponseEntity.status(HttpStatus.OK).body(
+      Map.of("message", "Project with ID " + projectId + " updated successfully", "data",
+        projectResponseDetails));
   }
 
   @DeleteMapping("/{projectId}")
-  public ResponseEntity<?> deleteProject(
-    @PathVariable Long companyId, @PathVariable Long projectId, HttpServletRequest request) {
+  public ResponseEntity<?> deleteProject(@PathVariable Long projectId, HttpServletRequest request) {
     Long userId = authProvider.getUserId(request);
     projectService.deleteProject(projectId, userId);
 
-    return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-      "message",
-      "Project with ID " + projectId + " deleted successfully"));
+    return ResponseEntity.status(HttpStatus.OK).body(
+      Map.of("message", "Project with ID " + projectId + " deleted successfully"));
   }
 }
