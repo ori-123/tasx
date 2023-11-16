@@ -129,6 +129,7 @@ public class ProjectService {
 
     project.setName(updateRequestDto.name());
     project.setDescription(updateRequestDto.description());
+    project.setStartDate(updateRequestDto.startDate());
     project.setDeadline(updateRequestDto.deadline());
 
     Project savedProject = projectDao.save(project);
