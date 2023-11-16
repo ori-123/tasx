@@ -51,6 +51,7 @@ public class Project {
     this.assignedEmployees = new ArrayList<>();
     this.assignedEmployees.add(this.projectOwner);
     this.company = company;
+    this.tasks = new ArrayList<>();
   }
 
   public Long getId() {
