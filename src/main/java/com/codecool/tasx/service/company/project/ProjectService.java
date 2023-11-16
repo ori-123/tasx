@@ -75,9 +75,8 @@ public class ProjectService {
     }
     Project project = foundProject.get();
 
-    if (!userConverter.getUserIds(project.getAssignedEmployees()).contains(userId) ||
-      !userConverter.getUserIds(List.of(project.getProjectOwner())).contains(userId)) {
-      logger.error("User with ID " + userId + " not assigned to project " + projectId);
+    if (!userConverter.getUserIds(company.getEmployees()).contains(userId)) {
+      logger.error("User with ID " + userId + " does not have access to project " + projectId);
       throw new UnauthorizedException();
     }
 
