@@ -1,5 +1,6 @@
 package com.codecool.tasx.service.populate;
 
+import com.codecool.tasx.controller.dto.user.auth.RegisterRequestDto;
 import com.codecool.tasx.model.company.Company;
 import com.codecool.tasx.model.company.CompanyDao;
 import com.codecool.tasx.model.company.project.Project;
@@ -9,7 +10,7 @@ import com.codecool.tasx.model.company.reward.RewardDao;
 import com.codecool.tasx.model.requests.CompanyJoinRequest;
 import com.codecool.tasx.model.requests.CompanyJoinRequestDao;
 import com.codecool.tasx.model.user.User;
-import com.codecool.tasx.model.user.UserDao;
+import com.codecool.tasx.service.auth.AuthenticationService;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,8 +18,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 
 @Service
-public class MockDataProvider {
-  private final UserDao userDao;
+public class MockDataProvider {/*
+  private final AuthenticationService authService;
   private final CompanyDao companyDao;
   private final ProjectDao projectDao;
   private final TaskDao taskDao;
@@ -28,9 +29,10 @@ public class MockDataProvider {
 
   @Autowired
   public MockDataProvider(
-    UserDao userDao, CompanyDao companyDao, ProjectDao projectDao, TaskDao taskDao,
+    AuthenticationService authService, CompanyDao companyDao,
+    ProjectDao projectDao, TaskDao taskDao,
     ExpenseDao expenseDao, RewardDao rewardDao, CompanyJoinRequestDao joinRequestDao) {
-    this.userDao = userDao;
+    this.authService = authService;
     this.companyDao = companyDao;
     this.projectDao = projectDao;
     this.taskDao = taskDao;
@@ -41,10 +43,12 @@ public class MockDataProvider {
 
   @PostConstruct
   public void populate() {
-    User user1 = new User("User1", "asd.asd@asd.asd", "asdasdasd");
-    userDao.save(user1);
-    User user2 = new User("User2", "asdfg.asd@asd.asd", "asdfgasdasd");
-    userDao.save(user2);
+    User user1 = new User("Dani", "dani@tasx.com", "asdasdasd");
+    authService.register(new RegisterRequestDto(
+      user1.getActualUsername(), user1.getEmail(), user1.getPassword()));
+    User user2 = new User("Ori", "ori@tasx.com", "123123123");
+    authService.register(new RegisterRequestDto(
+      user2.getActualUsername(), user2.getEmail(), user2.getPassword()));
 
     Company company1 = new Company("Company1", "Company 1", user1);
     companyDao.save(company1);
@@ -72,5 +76,5 @@ public class MockDataProvider {
     joinRequestDao.save(joinRequest1);
     CompanyJoinRequest joinRequest2 = new CompanyJoinRequest(company2, user1);
     joinRequestDao.save(joinRequest2);
-  }
+  }*/
 }
