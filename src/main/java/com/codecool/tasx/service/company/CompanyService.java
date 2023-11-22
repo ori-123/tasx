@@ -11,9 +11,9 @@ import com.codecool.tasx.model.company.Company;
 import com.codecool.tasx.model.company.CompanyDao;
 import com.codecool.tasx.model.requests.RequestStatus;
 import com.codecool.tasx.model.user.User;
-import com.codecool.tasx.model.user.UserDao;
+import com.codecool.tasx.service.auth.CustomAccessControlService;
+import com.codecool.tasx.service.auth.UserProvider;
 import com.codecool.tasx.service.converter.CompanyConverter;
-import com.codecool.tasx.service.converter.UserConverter;
 import jakarta.transaction.Transactional;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
@@ -27,47 +27,42 @@ import java.util.Optional;
 @Service
 public class CompanyService {
   private final CompanyDao companyDao;
-  private final UserDao userDao;
   private final CompanyConverter companyConverter;
-  private final UserConverter userConverter;
+  private final UserProvider userProvider;
+  private final CustomAccessControlService accessControlService;
   private final Logger logger;
 
   @Autowired
   public CompanyService(
-    CompanyDao companyDao, UserDao userDao,
-    CompanyConverter companyConverter,
-    UserConverter userConverter) {
+    CompanyDao companyDao,
+    CompanyConverter companyConverter, UserProvider userProvider,
+    CustomAccessControlService accessControlService) {
     this.companyDao = companyDao;
-    this.userDao = userDao;
     this.companyConverter = companyConverter;
-    this.userConverter = userConverter;
+    this.userProvider = userProvider;
+    this.accessControlService = accessControlService;
     this.logger = LoggerFactory.getLogger(this.getClass());
   }
 
-  /*public List<CompanyResponsePublicDTO> getAllCompanies() {
-    List<Company> companies = companyDao.findAll();
-    return companyConverter.getCompanyResponsePublicDtos(companies);
-  }*/
-
-  @Transactional
-  public List<CompanyResponsePublicDTO> getCompaniesWithoutUserId(Long userId)
+  @Transactional()
+  public List<CompanyResponsePublicDTO> getCompaniesWithoutUser()
     throws UserNotFoundException {
-    User user = userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+    User user = userProvider.getAuthenticatedUser();
     List<Company> companies = companyDao.findAllWithoutEmployeeAndJoinRequest(user, List.of(
       RequestStatus.PENDING, RequestStatus.DECLINED));
     return companyConverter.getCompanyResponsePublicDtos(companies);
   }
 
-  @Transactional
-  public List<CompanyResponsePublicDTO> getCompaniesWithUserId(Long userId)
+  @Transactional()
+  public List<CompanyResponsePublicDTO> getCompaniesWithUser()
     throws UserNotFoundException {
-    User user = userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
-    List<Company> companies = companyDao.findAllWithEmployee(user);
+    User user = userProvider.getAuthenticatedUser();
+    List<Company> companies = user.getCompanies();
     return companyConverter.getCompanyResponsePublicDtos(companies);
   }
 
-  @Transactional
-  public Optional<CompanyResponsePrivateDTO> getCompanyById(Long userId, Long companyId)
+  @Transactional()
+  public Optional<CompanyResponsePrivateDTO> getCompanyById(Long companyId)
     throws UnauthorizedException {
     Optional<Company> foundCompany = companyDao.findById(companyId);
     if (foundCompany.isEmpty()) {
@@ -75,61 +70,43 @@ public class CompanyService {
       return Optional.empty();
     }
     Company company = foundCompany.get();
-
-    if (!userConverter.getUserIds(company.getEmployees()).contains(userId)) {
-      logger.error(
-        "User with ID " + userId + " is not an employee of company with ID " + companyId);
-      throw new UnauthorizedException();
-    }
-
+    User user = userProvider.getAuthenticatedUser();
+    accessControlService.verifyCompanyEmployeeAccess(company, user);
     return Optional.of(companyConverter.getCompanyResponsePrivateDto(company));
   }
 
-  @Transactional
+  @Transactional(rollbackOn = Exception.class)
   public CompanyResponsePrivateDTO createCompany(
-    CompanyCreateRequestDto createRequestDto,
-    Long userId)
+    CompanyCreateRequestDto createRequestDto)
     throws ConstraintViolationException {
-    User user =
-      userDao.findById(userId).orElseThrow(
-        () -> new UserNotFoundException(userId));
+    User user = userProvider.getAuthenticatedUser();
     Company savedCompany = companyDao.save(new Company(createRequestDto.name(),
       createRequestDto.description(), user));
     return companyConverter.getCompanyResponsePrivateDto(savedCompany);
   }
 
-  @Transactional
+  @Transactional(rollbackOn = Exception.class)
   public CompanyResponsePrivateDTO updateCompany(
-    CompanyUpdateRequestDto updateRequestDto, Long userId, Long companyId)
+    CompanyUpdateRequestDto updateRequestDto, Long companyId)
     throws ConstraintViolationException {
-    User user =
-      userDao.findById(userId).orElseThrow(
-        () -> new UserNotFoundException(userId));
+    User user = userProvider.getAuthenticatedUser();
     Company company = companyDao.findById(companyId).orElseThrow(
       () -> new CompanyNotFoundException(companyId)
     );
-    if (!user.getOwnedCompanies().contains(company)) {
-      throw new UnauthorizedException();
-    }
-
+    accessControlService.verifyCompanyOwnerAccess(company, user);
     company.setName(updateRequestDto.name());
     company.setDescription(updateRequestDto.description());
-
     Company savedCompany = companyDao.save(company);
     return companyConverter.getCompanyResponsePrivateDto(savedCompany);
   }
 
-  @Transactional
-  public void deleteCompany(Long companyId, Long userId) {
-    User user =
-      userDao.findById(userId).orElseThrow(
-        () -> new UserNotFoundException(userId));
+  @Transactional(rollbackOn = Exception.class)
+  public void deleteCompany(Long companyId) {
+    User user = userProvider.getAuthenticatedUser();
     Company company = companyDao.findById(companyId).orElseThrow(
       () -> new CompanyNotFoundException(companyId)
     );
-    if (!user.getOwnedCompanies().contains(company)) {
-      throw new UnauthorizedException();
-    }
+    accessControlService.verifyCompanyOwnerAccess(company, user);
     companyDao.deleteById(companyId);
   }
 }
