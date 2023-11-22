@@ -30,23 +30,23 @@ public class AuthenticationController {
   }
 
   @PostMapping("/login")
-  public ResponseEntity<LoginResponseDto> login(
+  public ResponseEntity<?> login(
     @RequestBody LoginRequestDto loginRequest, HttpServletResponse response) {
     LoginResponseDto loginResponse = authenticationService.login(loginRequest);
 
     String refreshToken = authenticationService.getNewRefreshToken(
       loginResponse.userInfo().email());
     addRefreshCookie(refreshToken, response);
-    return ResponseEntity.status(HttpStatus.OK).body(loginResponse);
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", loginResponse));
   }
 
   @GetMapping("/refresh")
-  public ResponseEntity<RefreshResponseDto> refresh(@CookieValue(required = false) String jwt) {
+  public ResponseEntity<?> refresh(@CookieValue(required = false) String jwt) {
     if (jwt == null) {
       throw new UnauthorizedException("Refresh token cookie not found");
     }
     RefreshResponseDto refreshResponse = authenticationService.refresh(new RefreshRequestDto(jwt));
-    return ResponseEntity.status(HttpStatus.OK).body(refreshResponse);
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", refreshResponse));
   }
 
   @GetMapping("/logout")

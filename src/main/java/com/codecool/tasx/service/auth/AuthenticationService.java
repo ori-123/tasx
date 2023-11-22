@@ -32,21 +32,17 @@ public class AuthenticationService {
   public void register(RegisterRequestDto registerRequest) {
     User user = new User(registerRequest.username(), registerRequest.email(),
       passwordEncoder.encode(registerRequest.password()));
-
     userDao.save(user);
   }
 
   public LoginResponseDto login(LoginRequestDto loginRequest) {
     authenticationManager.authenticate(
       new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password()));
-
     User user = getUserByEmail(loginRequest.email());
-
     String accessToken = jwtService.generateAccessToken(user);
-
     return new LoginResponseDto(
       accessToken,
-      new LoginResponseDto.UserInfoDto(
+      new UserInfoDto(
         user.getActualUsername(),
         user.getEmail(),
         user.getRoles()
@@ -67,16 +63,17 @@ public class AuthenticationService {
   public RefreshResponseDto refresh(RefreshRequestDto refreshRequest) {
     String refreshToken = refreshRequest.refreshToken();
     String email = jwtService.extractSubjectFromRefreshToken(refreshToken);
-
     User user = getUserByEmail(email);
-
     if (!jwtService.isRefreshTokenValid(refreshToken, user)) {
       throw new UnauthorizedException("Refresh token is invalid");
     }
-
     String accessToken = jwtService.generateAccessToken(user);
-
-    return new RefreshResponseDto(accessToken);
+    return new RefreshResponseDto(accessToken,
+      new UserInfoDto(
+        user.getActualUsername(),
+        user.getEmail(),
+        user.getRoles()
+      ));
   }
 }
 
