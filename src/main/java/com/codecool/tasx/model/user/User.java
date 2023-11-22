@@ -3,12 +3,16 @@ package com.codecool.tasx.model.user;
 import com.codecool.tasx.model.company.Company;
 import com.codecool.tasx.model.company.project.Project;
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "user_account")
-public class User {
+public class User implements UserDetails {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -19,6 +23,8 @@ public class User {
   @Column(unique = true)
   private String email;
   private String password;
+
+  @Enumerated(EnumType.STRING)
   private Set<Role> roles;
 
   @OneToMany(mappedBy = "companyOwner")
@@ -69,12 +75,42 @@ public class User {
     this.username = username;
     this.email = email;
     this.password = password;
-    this.roles=new HashSet<>();
+    this.roles = new HashSet<>();
     roles.add(Role.USER);
-    this.ownedCompanies=new ArrayList<>();
-    this.companies=new ArrayList<>();
-    this.ownedProjects=new ArrayList<>();
+    this.ownedCompanies = new ArrayList<>();
+    this.companies = new ArrayList<>();
+    this.ownedProjects = new ArrayList<>();
 
+  }
+
+  @Override
+  public Collection<? extends GrantedAuthority> getAuthorities() {
+    return roles.stream().map(role -> new SimpleGrantedAuthority(role.name())).collect(
+      Collectors.toSet());
+  }
+
+  @Override
+  public boolean isAccountNonExpired() {
+    //TODO: impl
+    return true;
+  }
+
+  @Override
+  public boolean isAccountNonLocked() {
+    //TODO: impl
+    return true;
+  }
+
+  @Override
+  public boolean isCredentialsNonExpired() {
+    //TODO: impl
+    return true;
+  }
+
+  @Override
+  public boolean isEnabled() {
+    //TODO: impl
+    return true;
   }
 
   @Override
