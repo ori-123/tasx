@@ -47,7 +47,7 @@ public class AuthenticationService {
     return new LoginResponseDto(
       accessToken,
       new LoginResponseDto.UserInfoDto(
-        user.getUsername(),
+        user.getActualUsername(),
         user.getEmail(),
         user.getRoles()
       ));

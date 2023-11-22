@@ -1,6 +1,5 @@
 package com.codecool.tasx.service.populate;
 
-import com.codecool.tasx.controller.dto.user.UserResponsePublicDto;
 import com.codecool.tasx.model.company.Company;
 import com.codecool.tasx.model.company.CompanyDao;
 import com.codecool.tasx.model.company.project.Project;
@@ -16,9 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class MockDataProvider {
@@ -76,21 +72,5 @@ public class MockDataProvider {
     joinRequestDao.save(joinRequest1);
     CompanyJoinRequest joinRequest2 = new CompanyJoinRequest(company2, user1);
     joinRequestDao.save(joinRequest2);
-  }
-
-  public List<UserResponsePublicDto> getAllUsers() {
-    List<User> users = userDao.findAll();
-    return users.stream().map(user -> new UserResponsePublicDto(user.getId(), user.getUsername()))
-      .collect(Collectors.toList());
-  }
-
-  public Optional<UserResponsePublicDto> getUserById(Long userId) {
-    Optional<User> foundUser = userDao.findById(userId);
-    if (foundUser.isPresent()) {
-      return Optional.of(
-        new UserResponsePublicDto(foundUser.get().getId(), foundUser.get().getUsername()));
-    } else {
-      return Optional.empty();
-    }
   }
 }

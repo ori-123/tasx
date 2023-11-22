@@ -6,7 +6,6 @@ import com.codecool.tasx.controller.dto.company.CompanyResponsePublicDTO;
 import com.codecool.tasx.controller.dto.company.CompanyUpdateRequestDto;
 import com.codecool.tasx.exception.auth.UnauthorizedException;
 import com.codecool.tasx.exception.company.CompanyNotFoundException;
-import com.codecool.tasx.exception.user.UserNotFoundException;
 import com.codecool.tasx.model.company.Company;
 import com.codecool.tasx.model.company.CompanyDao;
 import com.codecool.tasx.model.requests.RequestStatus;
@@ -46,7 +45,7 @@ public class CompanyService {
 
   @Transactional()
   public List<CompanyResponsePublicDTO> getCompaniesWithoutUser()
-    throws UserNotFoundException {
+    throws UnauthorizedException {
     User user = userProvider.getAuthenticatedUser();
     List<Company> companies = companyDao.findAllWithoutEmployeeAndJoinRequest(user, List.of(
       RequestStatus.PENDING, RequestStatus.DECLINED));
@@ -55,7 +54,7 @@ public class CompanyService {
 
   @Transactional()
   public List<CompanyResponsePublicDTO> getCompaniesWithUser()
-    throws UserNotFoundException {
+    throws UnauthorizedException {
     User user = userProvider.getAuthenticatedUser();
     List<Company> companies = user.getCompanies();
     return companyConverter.getCompanyResponsePublicDtos(companies);

@@ -17,31 +17,46 @@ public class User implements UserDetails {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @Column(unique = true)
+  @Column(unique = true, nullable = false)
   private String username;
 
-  @Column(unique = true)
+  @Column(unique = true, nullable = false)
   private String email;
+  @Column(nullable = false)
   private String password;
 
   @Enumerated(EnumType.STRING)
   private Set<Role> roles;
 
-  @OneToMany(mappedBy = "companyOwner")
+  @OneToMany(mappedBy = "companyOwner", fetch = FetchType.EAGER)
   private List<Company> ownedCompanies;
 
-  @ManyToMany(mappedBy = "employees")
+  @ManyToMany(mappedBy = "employees", fetch = FetchType.EAGER)
   private List<Company> companies;
 
-  @OneToMany(mappedBy = "projectOwner")
+  @OneToMany(mappedBy = "projectOwner", fetch = FetchType.EAGER)
   private List<Project> ownedProjects;
 
   public Long getId() {
     return id;
   }
 
-  public String getUsername() {
+  /**
+   * Returns the actual username, since getUsername is reserved for the subject, which is the email
+   */
+  public String getActualUsername() {
     return username;
+  }
+
+  /**
+   * In {@link UserDetails} the subject is always named "username"<br>
+   * In our application the subject is the email, but since {@link User} implements
+   * {@link UserDetails}, there must be a method named "getUsername" which actually returns the
+   * email...
+   */
+  @Override
+  public String getUsername() {
+    return email;
   }
 
   public String getEmail() {
