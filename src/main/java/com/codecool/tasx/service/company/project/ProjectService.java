@@ -81,10 +81,11 @@ public class ProjectService {
       () -> new CompanyNotFoundException(companyId));
     User user = userProvider.getAuthenticatedUser();
     accessControlService.verifyCompanyEmployeeAccess(company, user);
-    Project savedProject = projectDao.save(
-      new Project(createRequestDto.name(), createRequestDto.description(),
-        createRequestDto.startDate(), createRequestDto.deadline(), user, company));
-    return projectConverter.getProjectResponsePrivateDto(savedProject);
+    Project project = new Project(createRequestDto.name(), createRequestDto.description(),
+      createRequestDto.startDate(), createRequestDto.deadline(), user, company);
+    project.assignEmployee(user);
+    projectDao.save(project);
+    return projectConverter.getProjectResponsePrivateDto(project);
   }
 
   @Transactional(rollbackOn = Exception.class)

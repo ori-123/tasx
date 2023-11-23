@@ -79,9 +79,10 @@ public class CompanyService {
     CompanyCreateRequestDto createRequestDto)
     throws ConstraintViolationException {
     User user = userProvider.getAuthenticatedUser();
-    Company savedCompany = companyDao.save(new Company(createRequestDto.name(),
+    Company company = companyDao.save(new Company(createRequestDto.name(),
       createRequestDto.description(), user));
-    return companyConverter.getCompanyResponsePrivateDto(savedCompany);
+    company.addEmployee(user);
+    return companyConverter.getCompanyResponsePrivateDto(company);
   }
 
   @Transactional(rollbackOn = Exception.class)
@@ -95,8 +96,8 @@ public class CompanyService {
     accessControlService.verifyCompanyOwnerAccess(company, user);
     company.setName(updateRequestDto.name());
     company.setDescription(updateRequestDto.description());
-    Company savedCompany = companyDao.save(company);
-    return companyConverter.getCompanyResponsePrivateDto(savedCompany);
+    Company updatedCompany = companyDao.save(company);
+    return companyConverter.getCompanyResponsePrivateDto(updatedCompany);
   }
 
   @Transactional(rollbackOn = Exception.class)
