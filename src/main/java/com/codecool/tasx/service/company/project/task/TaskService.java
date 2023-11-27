@@ -108,4 +108,15 @@ public class TaskService {
         return taskConverter.getTaskResponsePublicDto(savedTask);
     }
 
+    @Transactional(rollbackOn = Exception.class)
+    public void deleteTask(Long taskId, Long projectId) {
+        User user = userProvider.getAuthenticatedUser();
+        Project project = projectDao.findById(projectId).orElseThrow(
+                () -> new ProjectNotFoundException(projectId));
+        Task task = taskDao.findById(taskId).orElseThrow(
+                () -> new TaskNotFoundException(taskId));
+        accessControlService.verifyAssignedToProjectAccess(project, user);
+        taskDao.deleteById(taskId);
+    }
+
 }
