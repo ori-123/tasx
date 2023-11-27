@@ -105,6 +105,54 @@ public class Task {
     assignedEmployees.add(user);
   }
 
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public void setImportance(Importance importance) {
+    this.importance = importance;
+  }
+
+  public void setDifficulty(int difficulty) {
+    this.difficulty = difficulty;
+  }
+
+  public void setStartDate(LocalDateTime startDate) {
+    this.startDate = startDate;
+  }
+
+  public void setDeadline(LocalDateTime deadline) {
+    this.deadline = deadline;
+  }
+
+  public void setTaskStatus(TaskStatus taskStatus) {
+    this.taskStatus = taskStatus;
+  }
+
+  public void setTaskOwner(User taskOwner) {
+    this.taskOwner = taskOwner;
+  }
+
+  public void setAssignedEmployees(List<User> assignedEmployees) {
+    this.assignedEmployees = assignedEmployees;
+  }
+
+  public void setProject(Project project) {
+    this.project = project;
+  }
+
+  public void setExpenses(List<Expense> expenses) {
+    this.expenses = expenses;
+  }
+
   @Override
   public boolean equals(Object object) {
     if (this == object) {
