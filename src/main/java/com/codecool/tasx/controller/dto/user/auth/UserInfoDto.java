@@ -4,5 +4,5 @@ import com.codecool.tasx.model.user.Role;
 
 import java.util.Set;
 
-public record MockUserInfoDto(String username, String email, Set<Role> roles) {
+public record UserInfoDto(String username, String email, Set<Role> roles) {
 }

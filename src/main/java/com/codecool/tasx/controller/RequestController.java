@@ -3,8 +3,6 @@ package com.codecool.tasx.controller;
 import com.codecool.tasx.controller.dto.requests.CompanyJoinRequestResponseDto;
 import com.codecool.tasx.controller.dto.requests.CompanyJoinRequestUpdateDto;
 import com.codecool.tasx.service.request.RequestService;
-import com.codecool.tasx.service.security.AuthProvider;
-import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,53 +17,41 @@ import java.util.Map;
 @RequestMapping("/api/v1/companies/{companyId}/requests")
 public class RequestController {
   private final RequestService requestService;
-  private final AuthProvider authProvider;
   private final Logger logger;
 
   @Autowired
-  public RequestController(RequestService requestService, AuthProvider authProvider) {
+  public RequestController(RequestService requestService) {
     this.requestService = requestService;
-    this.authProvider = authProvider;
     logger = LoggerFactory.getLogger(this.getClass());
   }
 
   @GetMapping()
   public ResponseEntity<?> readJoinRequestsOfCompany(
-    @PathVariable Long companyId,
-    HttpServletRequest request) {
-    Long userId = authProvider.getUserId(request);
+    @PathVariable Long companyId) {
 
-    List<CompanyJoinRequestResponseDto> requests =
-      requestService.getJoinRequestsOfCompany(companyId, userId);
+    List<CompanyJoinRequestResponseDto> requests = requestService.getJoinRequestsOfCompany(
+      companyId);
 
-    return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-      "data", requests));
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", requests));
   }
 
   @PostMapping()
-  public ResponseEntity<?> joinCompany(@PathVariable Long companyId, HttpServletRequest request) {
-    Long userId = authProvider.getUserId(request);
+  public ResponseEntity<?> joinCompany(@PathVariable Long companyId) {
+    CompanyJoinRequestResponseDto createdRequest = requestService.createJoinRequest(companyId);
 
-    CompanyJoinRequestResponseDto createdRequest = requestService.createJoinRequest(
-      userId,
-      companyId);
-
-    return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-      "message",
-      "Request created successfully",
-      "data", createdRequest));
+    return ResponseEntity.status(HttpStatus.CREATED).body(
+      Map.of("message", "Request created successfully", "data", createdRequest));
   }
 
   @PutMapping("/{requestId}")
   public ResponseEntity<?> updateJoinRequestById(
-    @PathVariable Long requestId,
-    @RequestBody CompanyJoinRequestUpdateDto requestDto, HttpServletRequest request) {
-    Long userId = authProvider.getUserId(request);
+    @PathVariable Long companyId,
+    @PathVariable Long requestId, @RequestBody CompanyJoinRequestUpdateDto requestDto) {
 
-    requestService.handleJoinRequest(userId, requestId, requestDto);
+    requestService.handleJoinRequest(companyId, requestId, requestDto);
 
     //TODO: notify the user who requested to join...
-    return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-      "message", "Request updated successfully"));
+    return ResponseEntity.status(HttpStatus.OK).body(
+      Map.of("message", "Request updated successfully"));
   }
 }

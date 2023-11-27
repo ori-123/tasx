@@ -11,15 +11,10 @@ import java.util.stream.Collectors;
 public class UserConverter {
 
   public UserResponsePublicDto getUserResponsePublicDto(User user) {
-    return new UserResponsePublicDto(user.getId(), user.getUsername());
+    return new UserResponsePublicDto(user.getId(), user.getActualUsername());
   }
 
   public List<UserResponsePublicDto> getUserResponsePublicDtos(List<User> users) {
     return users.stream().map(user -> getUserResponsePublicDto(user)).collect(Collectors.toList());
-  }
-
-  public List<Long> getUserIds(List<User> users) {
-    return users.stream().map(user -> user.getId()).collect(
-      Collectors.toList());
   }
 }

@@ -61,6 +61,6 @@ public class GeneralExceptionHandler {
   public ResponseEntity<?> handleDuplicateFields(ConstraintViolationException e) {
     logger.error(e.getMessage(), e);
     return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of(
-      "error", "Company with requested " + e.getConstraintName() + " already exists"));
+      "error", "The requested " + e.getConstraintName() + " already exists"));
   }
 }

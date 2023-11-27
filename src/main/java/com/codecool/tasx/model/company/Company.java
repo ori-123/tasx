@@ -44,7 +44,6 @@ public class Company {
     this.description = description;
     this.companyOwner = companyOwner;
     this.employees = new ArrayList<>();
-    this.employees.add(companyOwner);
     this.projects = new ArrayList<>();
     this.rewards = new ArrayList<>();
   }

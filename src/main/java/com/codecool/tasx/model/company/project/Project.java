@@ -49,7 +49,6 @@ public class Project {
     this.deadline = deadline;
     this.projectOwner = projectOwner;
     this.assignedEmployees = new ArrayList<>();
-    this.assignedEmployees.add(this.projectOwner);
     this.company = company;
     this.tasks = new ArrayList<>();
   }

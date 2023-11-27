@@ -7,15 +7,14 @@ import com.codecool.tasx.controller.dto.project.ProjectUpdateRequestDto;
 import com.codecool.tasx.exception.auth.UnauthorizedException;
 import com.codecool.tasx.exception.company.CompanyNotFoundException;
 import com.codecool.tasx.exception.project.ProjectNotFoundException;
-import com.codecool.tasx.exception.user.UserNotFoundException;
 import com.codecool.tasx.model.company.Company;
 import com.codecool.tasx.model.company.CompanyDao;
 import com.codecool.tasx.model.company.project.Project;
 import com.codecool.tasx.model.company.project.ProjectDao;
 import com.codecool.tasx.model.user.User;
-import com.codecool.tasx.model.user.UserDao;
+import com.codecool.tasx.service.auth.CustomAccessControlService;
+import com.codecool.tasx.service.auth.UserProvider;
 import com.codecool.tasx.service.converter.ProjectConverter;
-import com.codecool.tasx.service.converter.UserConverter;
 import jakarta.transaction.Transactional;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
@@ -30,43 +29,39 @@ import java.util.Optional;
 @Service
 public class ProjectService {
   private final ProjectDao projectDao;
-  private final UserDao userDao;
   private final CompanyDao companyDao;
   private final ProjectConverter projectConverter;
-  private final UserConverter userConverter;
+  private final UserProvider userProvider;
+  private final CustomAccessControlService accessControlService;
   private final Logger logger;
 
   @Autowired
   public ProjectService(
-    ProjectDao projectDao, UserDao userDao,
-    CompanyDao companyDao, ProjectConverter projectConverter, UserConverter userConverter) {
+    ProjectDao projectDao, CompanyDao companyDao, ProjectConverter projectConverter,
+    UserProvider userProvider, CustomAccessControlService accessControlService) {
     this.projectDao = projectDao;
-    this.userDao = userDao;
     this.companyDao = companyDao;
+    this.accessControlService = accessControlService;
     this.projectConverter = projectConverter;
-    this.userConverter = userConverter;
+    this.userProvider = userProvider;
     this.logger = LoggerFactory.getLogger(this.getClass());
   }
 
-  public List<ProjectResponsePublicDTO> getAllProjects(Long companyId, Long userId)
+  public List<ProjectResponsePublicDTO> getAllProjects(Long companyId)
     throws CompanyNotFoundException, UnauthorizedException {
-    Company company = companyDao.findById(companyId)
-      .orElseThrow(() -> new CompanyNotFoundException(companyId));
-    if (!userConverter.getUserIds(company.getEmployees()).contains(userId)) {
-      logger.error(
-        "User with ID " + userId + " is not an employee of company with ID " + companyId);
-      throw new UnauthorizedException();
-    }
+    Company company = companyDao.findById(companyId).orElseThrow(
+      () -> new CompanyNotFoundException(companyId));
+    User user = userProvider.getAuthenticatedUser();
+    accessControlService.verifyCompanyEmployeeAccess(company, user);
     List<Project> projects = company.getProjects();
     return projectConverter.getProjectResponsePublicDtos(projects);
   }
 
   @Transactional
-  public Optional<ProjectResponsePrivateDTO> getProjectById(
-    Long userId, Long projectId, Long companyId)
+  public Optional<ProjectResponsePrivateDTO> getProjectById(Long projectId, Long companyId)
     throws UnauthorizedException {
-    Company company = companyDao.findById(companyId)
-      .orElseThrow(() -> new CompanyNotFoundException(companyId));
+    Company company = companyDao.findById(companyId).orElseThrow(
+      () -> new CompanyNotFoundException(companyId));
     Optional<Project> foundProject = company.getProjects().stream().filter(
       project -> Objects.equals(project.getId(), projectId)).findFirst();
     if (foundProject.isEmpty()) {
@@ -74,78 +69,46 @@ public class ProjectService {
       return Optional.empty();
     }
     Project project = foundProject.get();
-
-    if (!userConverter.getUserIds(company.getEmployees()).contains(userId)) {
-      logger.error("User with ID " + userId + " does not have access to project " + projectId);
-      throw new UnauthorizedException();
-    }
-
+    User user = userProvider.getAuthenticatedUser();
+    accessControlService.verifyCompanyEmployeeAccess(company, user);
     return Optional.of(projectConverter.getProjectResponsePrivateDto(project));
   }
 
-  @Transactional
+  @Transactional(rollbackOn = Exception.class)
   public ProjectResponsePrivateDTO createProject(
-    ProjectCreateRequestDto createRequestDto, Long userId, Long companyId)
-    throws ConstraintViolationException {
-    User user = userDao.findById(userId)
-      .orElseThrow(() -> new UserNotFoundException(userId));
-    Company company = companyDao.findById(companyId)
-      .orElseThrow(() -> new CompanyNotFoundException(companyId));
-
-    if (!userConverter.getUserIds(company.getEmployees()).contains(userId)) {
-      logger.error(
-        "User with ID " + userId + " is not an employee of company with ID " + company.getId());
-      throw new UnauthorizedException();
-    }
-
-    Project savedProject = projectDao.save(
-      new Project(
-        createRequestDto.name(),
-        createRequestDto.description(),
-        createRequestDto.startDate(),
-        createRequestDto.deadline(),
-        user,
-        company
-      )
-    );
-
-    return projectConverter.getProjectResponsePrivateDto(savedProject);
+    ProjectCreateRequestDto createRequestDto, Long companyId) throws ConstraintViolationException {
+    Company company = companyDao.findById(companyId).orElseThrow(
+      () -> new CompanyNotFoundException(companyId));
+    User user = userProvider.getAuthenticatedUser();
+    accessControlService.verifyCompanyEmployeeAccess(company, user);
+    Project project = new Project(createRequestDto.name(), createRequestDto.description(),
+      createRequestDto.startDate(), createRequestDto.deadline(), user, company);
+    project.assignEmployee(user);
+    projectDao.save(project);
+    return projectConverter.getProjectResponsePrivateDto(project);
   }
 
-  @Transactional
+  @Transactional(rollbackOn = Exception.class)
   public ProjectResponsePrivateDTO updateProject(
-    ProjectUpdateRequestDto updateRequestDto, Long userId, Long projectId)
-    throws ConstraintViolationException {
-
-    User user = userDao.findById(userId)
-      .orElseThrow(() -> new UserNotFoundException(userId));
-    Project project = projectDao.findById(projectId)
-      .orElseThrow(() -> new ProjectNotFoundException(projectId));
-
-    if (!project.getProjectOwner().equals(user) ||
-      !project.getAssignedEmployees().contains(user)) {
-      throw new UnauthorizedException();
-    }
-
+    ProjectUpdateRequestDto updateRequestDto, Long projectId) throws ConstraintViolationException {
+    User user = userProvider.getAuthenticatedUser();
+    Project project = projectDao.findById(projectId).orElseThrow(
+      () -> new ProjectNotFoundException(projectId));
+    accessControlService.verifyAssignedToProjectAccess(project, user);
     project.setName(updateRequestDto.name());
     project.setDescription(updateRequestDto.description());
     project.setStartDate(updateRequestDto.startDate());
     project.setDeadline(updateRequestDto.deadline());
-
     Project savedProject = projectDao.save(project);
     return projectConverter.getProjectResponsePrivateDto(savedProject);
   }
 
-  @Transactional
-  public void deleteProject(Long projectId, Long userId) {
-    User user = userDao.findById(userId).orElseThrow(() -> new UserNotFoundException(userId));
+  @Transactional(rollbackOn = Exception.class)
+  public void deleteProject(Long projectId) {
+    User user = userProvider.getAuthenticatedUser();
     Project project = projectDao.findById(projectId).orElseThrow(
       () -> new ProjectNotFoundException(projectId));
-
-    if (!project.getProjectOwner().equals(user)) {
-      throw new UnauthorizedException();
-    }
-
+    accessControlService.verifyProjectOwnerAccess(project, user);
     projectDao.deleteById(projectId);
   }
 }
