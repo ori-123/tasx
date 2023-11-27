@@ -41,14 +41,14 @@ public class Task {
   }
 
   public Task(String name, String description, Importance importance, int difficulty,
-              LocalDateTime startDate, LocalDateTime deadline, TaskStatus taskStatus, User taskOwner, Project project) {
+              LocalDateTime startDate, LocalDateTime deadline, User taskOwner, Project project) {
     this.name = name;
     this.description = description;
     this.importance = importance;
     this.difficulty = difficulty;
     this.startDate = startDate;
     this.deadline = deadline;
-    this.taskStatus = taskStatus;
+    this.taskStatus = TaskStatus.BACKLOG;
     this.taskOwner = taskOwner;
     this.project = project;
   }
@@ -99,6 +99,10 @@ public class Task {
 
   public List<Expense> getExpenses() {
     return List.copyOf(expenses);
+  }
+
+  public void assignEmployee(User user) {
+    assignedEmployees.add(user);
   }
 
   @Override
