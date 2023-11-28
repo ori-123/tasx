@@ -37,6 +37,9 @@ public class User implements UserDetails {
   @OneToMany(mappedBy = "projectOwner", fetch = FetchType.EAGER)
   private List<Project> ownedProjects;
 
+  @ManyToMany(mappedBy = "assignedEmployees", fetch = FetchType.EAGER)
+  private List<Project> projects;
+
   public Long getId() {
     return id;
   }
@@ -73,6 +76,10 @@ public class User implements UserDetails {
 
   public List<Company> getOwnedCompanies() {
     return List.copyOf(ownedCompanies);
+  }
+
+  public List<Project> getProjects() {
+    return projects;
   }
 
   public List<Company> getCompanies() {
