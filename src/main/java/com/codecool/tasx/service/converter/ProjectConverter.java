@@ -2,7 +2,11 @@ package com.codecool.tasx.service.converter;
 
 import com.codecool.tasx.controller.dto.project.ProjectResponsePrivateDTO;
 import com.codecool.tasx.controller.dto.project.ProjectResponsePublicDTO;
+import com.codecool.tasx.controller.dto.requests.CompanyJoinRequestResponseDto;
+import com.codecool.tasx.controller.dto.requests.ProjectJoinRequestResponseDto;
 import com.codecool.tasx.model.company.project.Project;
+import com.codecool.tasx.model.requests.CompanyJoinRequest;
+import com.codecool.tasx.model.requests.ProjectJoinRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -38,5 +42,18 @@ public class ProjectConverter {
 
   public List<ProjectResponsePrivateDTO> getProjectResponsePrivateDtos(List<Project> projects) {
     return projects.stream().map(this::getProjectResponsePrivateDto).toList();
+  }
+
+  public ProjectJoinRequestResponseDto getProjectJoinRequestResponseDto(
+          ProjectJoinRequest request) {
+    return new ProjectJoinRequestResponseDto(request.getId(),
+            getProjectResponsePublicDto(request.getProject()),
+            userConverter.getUserResponsePublicDto(request.getUser()), request.getStatus());
+  }
+
+  public List<ProjectJoinRequestResponseDto> getProjectJoinRequestResponseDtos(
+          List<ProjectJoinRequest> requests) {
+    return requests.stream().map(request -> getProjectJoinRequestResponseDto(request)).collect(
+            Collectors.toList());
   }
 }

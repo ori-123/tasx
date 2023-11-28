@@ -11,6 +11,7 @@ import com.codecool.tasx.model.company.Company;
 import com.codecool.tasx.model.company.CompanyDao;
 import com.codecool.tasx.model.company.project.Project;
 import com.codecool.tasx.model.company.project.ProjectDao;
+import com.codecool.tasx.model.requests.RequestStatus;
 import com.codecool.tasx.model.user.User;
 import com.codecool.tasx.service.auth.CustomAccessControlService;
 import com.codecool.tasx.service.auth.UserProvider;
@@ -45,6 +46,23 @@ public class ProjectService {
     this.projectConverter = projectConverter;
     this.userProvider = userProvider;
     this.logger = LoggerFactory.getLogger(this.getClass());
+  }
+
+  @Transactional()
+  public List<ProjectResponsePublicDTO> getProjectsWithoutUser()
+          throws UnauthorizedException {
+    User user = userProvider.getAuthenticatedUser();
+    List<Project> projects = projectDao.findAllWithoutEmployeeAndJoinRequest(user, List.of(
+            RequestStatus.PENDING, RequestStatus.DECLINED));
+    return projectConverter.getProjectResponsePublicDtos(projects);
+  }
+
+  @Transactional()
+  public List<ProjectResponsePublicDTO> getProjectsWithUser()
+          throws UnauthorizedException {
+    User user = userProvider.getAuthenticatedUser();
+    List<Project> projects = user.getProjects();
+    return projectConverter.getProjectResponsePublicDtos(projects);
   }
 
   public List<ProjectResponsePublicDTO> getAllProjects(Long companyId)

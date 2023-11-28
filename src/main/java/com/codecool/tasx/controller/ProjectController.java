@@ -34,6 +34,24 @@ public class ProjectController {
     logger = LoggerFactory.getLogger(this.getClass());
   }
 
+  @GetMapping("/withoutUser")
+  public ResponseEntity<?> getProjectsWithoutUser(
+          @PathVariable Long companyId) {
+    CompanyResponsePrivateDTO company = companyService.getCompanyById(companyId)
+            .orElseThrow(() -> new CompanyNotFoundException(companyId));
+    List<ProjectResponsePublicDTO> projects = projectService.getProjectsWithoutUser();
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", projects));
+  }
+
+  @GetMapping("/withUser")
+  public ResponseEntity<?> getProjectsWithUser(
+          @PathVariable Long companyId) {
+    CompanyResponsePrivateDTO company = companyService.getCompanyById(companyId)
+            .orElseThrow(() -> new CompanyNotFoundException(companyId));
+    List<ProjectResponsePublicDTO> projects = projectService.getProjectsWithUser();
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", projects));
+  }
+
   @GetMapping
   public ResponseEntity<?> getAllProjects(
     @PathVariable Long companyId) {
