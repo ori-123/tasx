@@ -37,4 +37,12 @@ public class TaskController {
                 .orElseThrow(() -> new TaskNotFoundException(taskId));
         return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", task));
     }
+
+    @PostMapping
+    public ResponseEntity<?> createTask(@PathVariable Long companyId, @PathVariable Long projectId,
+                                        @RequestBody TaskCreateRequestDto taskDetails) {
+        TaskResponsePublicDto taskResponseDetails = taskService.createTask(taskDetails, projectId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                Map.of("message", "Task created successfully", "data", taskResponseDetails));
+    }
 }
