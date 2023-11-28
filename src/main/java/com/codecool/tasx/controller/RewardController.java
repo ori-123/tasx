@@ -2,6 +2,7 @@ package com.codecool.tasx.controller;
 
 import com.codecool.tasx.controller.dto.reward.RewardCreateRequestDto;
 import com.codecool.tasx.controller.dto.reward.RewardResponseDto;
+import com.codecool.tasx.controller.dto.reward.RewardUpdateRequestDto;
 import com.codecool.tasx.exception.reward.RewardNotFoundException;
 import com.codecool.tasx.service.company.reward.RewardService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,14 @@ public class RewardController {
         RewardResponseDto rewardResponseDetails = rewardService.createReward(rewardDetails, companyId);
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 Map.of("message", "Reward created successfully", "data", rewardResponseDetails));
+    }
+
+    @PutMapping("/{rewardId}")
+    public ResponseEntity<?> updateReward(@PathVariable Long companyId, @PathVariable Long rewardId,
+                                          @RequestBody RewardUpdateRequestDto rewardDetails) {
+        RewardResponseDto rewardResponseDetails = rewardService.updateReward(rewardDetails, rewardId, companyId);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                Map.of("message", "Reward with ID " + rewardId + " updated successfully", "data", rewardResponseDetails));
     }
 
 }
