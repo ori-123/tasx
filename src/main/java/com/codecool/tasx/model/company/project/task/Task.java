@@ -41,14 +41,14 @@ public class Task {
   }
 
   public Task(String name, String description, Importance importance, int difficulty,
-              LocalDateTime startDate, LocalDateTime deadline, TaskStatus taskStatus, User taskOwner, Project project) {
+              LocalDateTime startDate, LocalDateTime deadline, User taskOwner, Project project) {
     this.name = name;
     this.description = description;
     this.importance = importance;
     this.difficulty = difficulty;
     this.startDate = startDate;
     this.deadline = deadline;
-    this.taskStatus = taskStatus;
+    this.taskStatus = TaskStatus.BACKLOG;
     this.taskOwner = taskOwner;
     this.project = project;
   }
@@ -99,6 +99,58 @@ public class Task {
 
   public List<Expense> getExpenses() {
     return List.copyOf(expenses);
+  }
+
+  public void assignEmployee(User user) {
+    assignedEmployees.add(user);
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public void setImportance(Importance importance) {
+    this.importance = importance;
+  }
+
+  public void setDifficulty(int difficulty) {
+    this.difficulty = difficulty;
+  }
+
+  public void setStartDate(LocalDateTime startDate) {
+    this.startDate = startDate;
+  }
+
+  public void setDeadline(LocalDateTime deadline) {
+    this.deadline = deadline;
+  }
+
+  public void setTaskStatus(TaskStatus taskStatus) {
+    this.taskStatus = taskStatus;
+  }
+
+  public void setTaskOwner(User taskOwner) {
+    this.taskOwner = taskOwner;
+  }
+
+  public void setAssignedEmployees(List<User> assignedEmployees) {
+    this.assignedEmployees = assignedEmployees;
+  }
+
+  public void setProject(Project project) {
+    this.project = project;
+  }
+
+  public void setExpenses(List<Expense> expenses) {
+    this.expenses = expenses;
   }
 
   @Override
