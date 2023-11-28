@@ -6,13 +6,14 @@ import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "user_account")
-public class User implements UserDetails {
+public class User implements UserDetails, OAuth2User {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -36,6 +37,8 @@ public class User implements UserDetails {
 
   @OneToMany(mappedBy = "projectOwner", fetch = FetchType.EAGER)
   private List<Project> ownedProjects;
+
+  private boolean oAuth2User;
 
   public Long getId() {
     return id;
@@ -83,6 +86,14 @@ public class User implements UserDetails {
     return List.copyOf(ownedProjects);
   }
 
+  public boolean isOAuth2User() {
+    return this.oAuth2User;
+  }
+
+  public void setOAuth2User(boolean value) {
+    this.oAuth2User = value;
+  }
+
   public User() {
   }
 
@@ -95,7 +106,18 @@ public class User implements UserDetails {
     this.ownedCompanies = new ArrayList<>();
     this.companies = new ArrayList<>();
     this.ownedProjects = new ArrayList<>();
+    this.oAuth2User = false;
+  }
 
+  public User(String username, String email) {
+    this.username = username;
+    this.email = email;
+    this.roles = new HashSet<>();
+    roles.add(Role.USER);
+    this.ownedCompanies = new ArrayList<>();
+    this.companies = new ArrayList<>();
+    this.ownedProjects = new ArrayList<>();
+    this.oAuth2User = true;
   }
 
   @Override
@@ -126,6 +148,24 @@ public class User implements UserDetails {
   public boolean isEnabled() {
     //TODO: impl
     return true;
+  }
+
+  @Override
+  public <A> A getAttribute(String name) {
+    //TODO: impl
+    return (A) this.email;
+  }
+
+  @Override
+  public Map<String, Object> getAttributes() {
+    //TODO: impl
+    return null;
+  }
+
+  @Override
+  public String getName() {
+    //TODO: impl
+    return this.email;
   }
 
   @Override
