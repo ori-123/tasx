@@ -52,4 +52,11 @@ public class RewardController {
                 Map.of("message", "Reward with ID " + rewardId + " updated successfully", "data", rewardResponseDetails));
     }
 
+    @DeleteMapping("/{rewardId}")
+    public ResponseEntity<?> deleteReward(@PathVariable Long companyId, @PathVariable Long rewardId) {
+        rewardService.deleteReward(rewardId, companyId);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                Map.of("message", "Reward with ID " + rewardId + " deleted successfully"));
+    }
+
 }
