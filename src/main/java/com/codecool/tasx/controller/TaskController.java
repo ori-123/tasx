@@ -45,4 +45,13 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.CREATED).body(
                 Map.of("message", "Task created successfully", "data", taskResponseDetails));
     }
+
+    @PutMapping("/{taskId}")
+    public ResponseEntity<?> updateTask(@PathVariable Long projectId, @PathVariable Long taskId,
+                                        @RequestBody TaskUpdateRequestDto taskDetails) {
+        TaskResponsePublicDto taskResponseDetails = taskService.updateTask(taskDetails, taskId, projectId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                Map.of("message", "Task with ID " + taskId + " updated successfully", "data", taskResponseDetails));
+    }
 }
