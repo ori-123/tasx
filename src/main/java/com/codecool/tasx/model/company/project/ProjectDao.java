@@ -14,10 +14,10 @@ import java.util.List;
 @Repository
 public interface ProjectDao extends JpaRepository<Project,Long> {
 
-    @Query("SELECT p FROM Project p WHERE :user MEMBER OF p.employees")
+    @Query("SELECT p FROM Project p WHERE :user MEMBER OF p.assignedEmployees")
     List<Project> findAllWithEmployee(@Param("user") User user);
 
-    @Query("SELECT p FROM Project p WHERE :user NOT MEMBER OF p.employees AND p.id NOT IN " +
+    @Query("SELECT p FROM Project p WHERE :user NOT MEMBER OF p.assignedEmployees AND p.id NOT IN " +
             "(SELECT pr.project.id FROM ProjectJoinRequest pr " +
             "WHERE pr.user = :user AND pr.status IN (:statuses))")
     List<Project> findAllWithoutEmployeeAndJoinRequest(
