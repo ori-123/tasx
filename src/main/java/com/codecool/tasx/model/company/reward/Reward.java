@@ -14,6 +14,7 @@ public class Reward {
   private Long id;
   private String name;
   private String description;
+  private int pointCost;
 
   @ManyToOne
   @JoinColumn(name = "company_id")
@@ -28,15 +29,20 @@ public class Reward {
   public Reward() {
   }
 
-  public Reward(Long id, String name, String description, Company company) {
+  public Reward(Long id, String name, String description, Company company, int pointCost) {
     this.id = id;
     this.name = name;
     this.description = description;
     this.company = company;
+    this.pointCost = pointCost;
   }
 
   public Long getId() {
     return id;
+  }
+
+  public int getPointCost() {
+    return pointCost;
   }
 
   public String getName() {
