@@ -60,7 +60,7 @@ public class ProjectRequestService {
             throw new DuplicateProjectJoinRequestException();
         }
         ProjectJoinRequest savedRequest = requestDao.save(new ProjectJoinRequest(project, user));
-        return projectConverter.getProjec(savedRequest);
+        return projectConverter.getProjectJoinRequestResponseDto(savedRequest);
     }
 
     @Transactional
@@ -91,7 +91,7 @@ public class ProjectRequestService {
         Project project = projectDao.findById(projectId).orElseThrow(
                 () -> new ProjectNotFoundException(projectId));
         accessControlService.verifyProjectOwnerAccess(project, user);
-        request.setStatus(updateDto.status());
+        request.setStatus(updateDto.requestStatus());
         if (request.getStatus().equals(RequestStatus.APPROVED)) {
             addUserToProject(request.getUser(), request.getProject());
             requestDao.delete(request);
@@ -99,6 +99,6 @@ public class ProjectRequestService {
     }
 
     private void addUserToProject(User user, Project project) {
-        project.addEmployee(user);
+        project.assignEmployee(user);
     }
 }

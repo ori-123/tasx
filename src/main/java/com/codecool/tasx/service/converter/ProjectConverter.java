@@ -51,7 +51,7 @@ public class ProjectConverter {
             userConverter.getUserResponsePublicDto(request.getUser()), request.getStatus());
   }
 
-  public List<ProjectJoinRequestResponseDto> getCompanyJoinRequestResponseDtos(
+  public List<ProjectJoinRequestResponseDto> getProjectJoinRequestResponseDtos(
           List<ProjectJoinRequest> requests) {
     return requests.stream().map(request -> getProjectJoinRequestResponseDto(request)).collect(
             Collectors.toList());
