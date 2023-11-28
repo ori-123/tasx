@@ -1,15 +1,11 @@
 package com.codecool.tasx.service.company.reward;
 
 import com.codecool.tasx.controller.dto.reward.RewardResponseDto;
-import com.codecool.tasx.controller.dto.task.TaskResponsePublicDto;
 import com.codecool.tasx.exception.auth.UnauthorizedException;
 import com.codecool.tasx.exception.company.CompanyNotFoundException;
-import com.codecool.tasx.exception.project.ProjectNotFoundException;
 import com.codecool.tasx.model.company.Company;
 import com.codecool.tasx.model.company.CompanyDao;
-import com.codecool.tasx.model.company.project.Project;
 import com.codecool.tasx.model.company.project.ProjectDao;
-import com.codecool.tasx.model.company.project.task.Task;
 import com.codecool.tasx.model.company.reward.Reward;
 import com.codecool.tasx.model.company.reward.RewardDao;
 import com.codecool.tasx.model.user.User;
