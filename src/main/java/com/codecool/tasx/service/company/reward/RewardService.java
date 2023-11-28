@@ -5,6 +5,7 @@ import com.codecool.tasx.controller.dto.reward.RewardResponseDto;
 import com.codecool.tasx.controller.dto.reward.RewardUpdateRequestDto;
 import com.codecool.tasx.exception.auth.UnauthorizedException;
 import com.codecool.tasx.exception.company.CompanyNotFoundException;
+import com.codecool.tasx.exception.reward.RewardNotFoundException;
 import com.codecool.tasx.model.company.Company;
 import com.codecool.tasx.model.company.CompanyDao;
 import com.codecool.tasx.model.company.project.ProjectDao;
