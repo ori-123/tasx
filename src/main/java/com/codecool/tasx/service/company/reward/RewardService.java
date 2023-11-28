@@ -1,5 +1,6 @@
 package com.codecool.tasx.service.company.reward;
 
+import com.codecool.tasx.controller.dto.reward.RewardCreateRequestDto;
 import com.codecool.tasx.controller.dto.reward.RewardResponseDto;
 import com.codecool.tasx.exception.auth.UnauthorizedException;
 import com.codecool.tasx.exception.company.CompanyNotFoundException;
@@ -12,6 +13,8 @@ import com.codecool.tasx.model.user.User;
 import com.codecool.tasx.service.auth.CustomAccessControlService;
 import com.codecool.tasx.service.auth.UserProvider;
 import com.codecool.tasx.service.converter.RewardConverter;
+import jakarta.transaction.Transactional;
+import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,7 +57,7 @@ public class RewardService {
         return rewardConverter.getRewardResponseDtos(rewards);
     }
 
-    public Optional<RewardResponseDto> getRewardkById(Long rewardId, Long companyId) throws UnauthorizedException {
+    public Optional<RewardResponseDto> getRewardById(Long rewardId, Long companyId) throws UnauthorizedException {
         Company company = companyDao.findById(companyId).orElseThrow(
                 () -> new CompanyNotFoundException(companyId));
         Optional<Reward> foundReward = company.getRewards().stream().filter(
@@ -68,4 +71,16 @@ public class RewardService {
         accessControlService.verifyCompanyEmployeeAccess(company, user);
         return Optional.of(rewardConverter.getRewardResponseDto(reward));
     }
+
+    @Transactional(rollbackOn = Exception.class)
+    public RewardResponseDto createReward(RewardCreateRequestDto createRequestDto, Long companyId) throws ConstraintViolationException {
+        Company company = companyDao.findById(companyId).orElseThrow(
+                () -> new CompanyNotFoundException(companyId));
+        User user = userProvider.getAuthenticatedUser();
+        accessControlService.verifyCompanyEmployeeAccess(company, user);
+        Reward reward = new Reward(createRequestDto.id(), createRequestDto.name(), createRequestDto.description(), company, createRequestDto.pointCost());
+        rewardDao.save(reward);
+        return rewardConverter.getRewardResponseDto(reward);
+    }
+
 }
