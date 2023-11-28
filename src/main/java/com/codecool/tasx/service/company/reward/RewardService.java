@@ -77,7 +77,7 @@ public class RewardService {
         Company company = companyDao.findById(companyId).orElseThrow(
                 () -> new CompanyNotFoundException(companyId));
         User user = userProvider.getAuthenticatedUser();
-        accessControlService.verifyCompanyEmployeeAccess(company, user);
+        accessControlService.verifyCompanyOwnerAccess(company, user);
         Reward reward = new Reward(createRequestDto.id(), createRequestDto.name(), createRequestDto.description(), company, createRequestDto.pointCost());
         rewardDao.save(reward);
         return rewardConverter.getRewardResponseDto(reward);
