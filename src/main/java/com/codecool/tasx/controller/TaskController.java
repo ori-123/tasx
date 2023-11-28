@@ -54,4 +54,12 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.OK).body(
                 Map.of("message", "Task with ID " + taskId + " updated successfully", "data", taskResponseDetails));
     }
+
+    @DeleteMapping("/{taskId}")
+    public ResponseEntity<?> deleteTask(@PathVariable Long projectId, @PathVariable Long taskId) {
+        taskService.deleteTask(taskId, projectId);
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                Map.of("message", "Task with ID " + taskId + " deleted successfully"));
+    }
 }
