@@ -100,5 +100,15 @@ public class RewardService {
         return rewardConverter.getRewardResponseDto(savedReward);
     }
 
+    @Transactional(rollbackOn = Exception.class)
+    public void deleteReward(Long rewardId, Long companyId) {
+        User user = userProvider.getAuthenticatedUser();
+        Company company = companyDao.findById(companyId).orElseThrow(
+                () -> new CompanyNotFoundException(companyId));
+        Reward reward = rewardDao.findById(rewardId).orElseThrow(
+                () -> new RewardNotFoundException(rewardId));
+        accessControlService.verifyCompanyOwnerAccess(company, user);
+        rewardDao.deleteById(rewardId);
+    }
 
 }
