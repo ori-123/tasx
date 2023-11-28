@@ -2,6 +2,7 @@ package com.codecool.tasx.service.company.reward;
 
 import com.codecool.tasx.controller.dto.reward.RewardCreateRequestDto;
 import com.codecool.tasx.controller.dto.reward.RewardResponseDto;
+import com.codecool.tasx.controller.dto.reward.RewardUpdateRequestDto;
 import com.codecool.tasx.exception.auth.UnauthorizedException;
 import com.codecool.tasx.exception.company.CompanyNotFoundException;
 import com.codecool.tasx.model.company.Company;
@@ -82,5 +83,21 @@ public class RewardService {
         rewardDao.save(reward);
         return rewardConverter.getRewardResponseDto(reward);
     }
+
+    @Transactional(rollbackOn = Exception.class)
+    public RewardResponseDto updateReward(RewardUpdateRequestDto updateRequestDto, Long rewardId, Long companyId) throws ConstraintViolationException {
+        User user = userProvider.getAuthenticatedUser();
+        Company company = companyDao.findById(companyId).orElseThrow(
+                () -> new CompanyNotFoundException(companyId));
+        Reward reward = rewardDao.findById(rewardId).orElseThrow(
+                () -> new RewardNotFoundException(rewardId));
+        accessControlService.verifyCompanyOwnerAccess(company, user);
+        reward.setName(updateRequestDto.name());
+        reward.setDescription(updateRequestDto.description());
+        reward.setPointCost(updateRequestDto.pointCost());
+        Reward savedReward = rewardDao.save(reward);
+        return rewardConverter.getRewardResponseDto(savedReward);
+    }
+
 
 }

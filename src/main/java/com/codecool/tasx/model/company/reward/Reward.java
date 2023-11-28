@@ -61,6 +61,30 @@ public class Reward {
     return List.copyOf(tasks);
   }
 
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public void setPointCost(int pointCost) {
+    this.pointCost = pointCost;
+  }
+
+  public void setCompany(Company company) {
+    this.company = company;
+  }
+
+  public void setTasks(List<Task> tasks) {
+    this.tasks = tasks;
+  }
+
   @Override
   public boolean equals(Object object) {
     if (this == object) {
