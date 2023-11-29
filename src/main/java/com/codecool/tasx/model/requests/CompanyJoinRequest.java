@@ -54,6 +54,11 @@ public class CompanyJoinRequest {
   }
 
   @Override
+  public int hashCode() {
+    return Objects.hash(id, company, user, status);
+  }
+
+  @Override
   public boolean equals(Object object) {
     if (this == object) {
       return true;
@@ -64,11 +69,6 @@ public class CompanyJoinRequest {
     CompanyJoinRequest that = (CompanyJoinRequest) object;
     return Objects.equals(id, that.id) && Objects.equals(company, that.company) && Objects.equals(
       user, that.user) && status == that.status;
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, company, user, status);
   }
 
   @Override

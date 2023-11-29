@@ -1,10 +1,11 @@
 package com.codecool.tasx.exception.user;
 
-public class UserNotFoundException extends RuntimeException{
+public class UserNotFoundException extends RuntimeException {
   private final Long id;
+
   public UserNotFoundException(Long id) {
     super();
-    this.id=id;
+    this.id = id;
   }
 
   public Long getId() {

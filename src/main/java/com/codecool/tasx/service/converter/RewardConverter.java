@@ -24,6 +24,7 @@ public class RewardConverter {
   }
 
   public List<RewardResponseDto> getRewardResponseDtos(List<Reward> rewards) {
-    return rewards.stream().map(reward -> getRewardResponseDto(reward)).collect(Collectors.toList());
+    return rewards.stream().map(reward -> getRewardResponseDto(reward)).collect(
+      Collectors.toList());
   }
 }

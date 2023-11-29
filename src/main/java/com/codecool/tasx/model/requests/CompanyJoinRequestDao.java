@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface CompanyJoinRequestDao extends JpaRepository<CompanyJoinRequest,Long> {
+public interface CompanyJoinRequestDao extends JpaRepository<CompanyJoinRequest, Long> {
   List<CompanyJoinRequest> findByCompanyAndStatus(Company company, RequestStatus status);
 
   Optional<CompanyJoinRequest> findOneByCompanyAndUser(Company company, User user);

@@ -48,6 +48,11 @@ public class Expense {
   }
 
   @Override
+  public int hashCode() {
+    return Objects.hash(id, name, price, paid, task);
+  }
+
+  @Override
   public boolean equals(Object object) {
     if (this == object) {
       return true;
@@ -59,11 +64,6 @@ public class Expense {
     return Double.compare(price, expense.price) == 0 && paid == expense.paid &&
       Objects.equals(id, expense.id) && Objects.equals(name, expense.name) &&
       Objects.equals(task, expense.task);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, name, price, paid, task);
   }
 
   @Override
