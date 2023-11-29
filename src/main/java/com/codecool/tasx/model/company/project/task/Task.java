@@ -5,6 +5,7 @@ import com.codecool.tasx.model.user.User;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,8 +41,9 @@ public class Task {
   public Task() {
   }
 
-  public Task(String name, String description, Importance importance, int difficulty,
-              LocalDateTime startDate, LocalDateTime deadline, User taskOwner, Project project) {
+  public Task(
+    String name, String description, Importance importance, int difficulty,
+    LocalDateTime startDate, LocalDateTime deadline, User taskOwner, Project project) {
     this.name = name;
     this.description = description;
     this.importance = importance;
@@ -51,6 +53,8 @@ public class Task {
     this.taskStatus = TaskStatus.BACKLOG;
     this.taskOwner = taskOwner;
     this.project = project;
+    this.assignedEmployees = new ArrayList<>();
+    this.expenses = new ArrayList<>();
   }
 
   public Long getId() {
