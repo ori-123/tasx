@@ -30,93 +30,103 @@ import java.util.Optional;
 
 @Service
 public class TaskService {
-    private final TaskDao taskDao;
-    private final CompanyDao companyDao;
-    private final ProjectDao projectDao;
-    private final TaskConverter taskConverter;
-    private final UserProvider userProvider;
-    private final CustomAccessControlService accessControlService;
-    private final Logger logger;
+  private final TaskDao taskDao;
+  private final CompanyDao companyDao;
+  private final ProjectDao projectDao;
+  private final TaskConverter taskConverter;
+  private final UserProvider userProvider;
+  private final CustomAccessControlService accessControlService;
+  private final Logger logger;
 
-    @Autowired
-    public TaskService(TaskDao taskDao, CompanyDao companyDao, ProjectDao projectDao,
-                       TaskConverter taskConverter, UserProvider userProvider,
-                       CustomAccessControlService accessControlService) {
-        this.taskDao = taskDao;
-        this.companyDao = companyDao;
-        this.projectDao = projectDao;
-        this.taskConverter = taskConverter;
-        this.userProvider = userProvider;
-        this.accessControlService = accessControlService;
-        this.logger = LoggerFactory.getLogger(this.getClass());
-    }
+  @Autowired
+  public TaskService(
+    TaskDao taskDao, CompanyDao companyDao, ProjectDao projectDao,
+    TaskConverter taskConverter, UserProvider userProvider,
+    CustomAccessControlService accessControlService) {
+    this.taskDao = taskDao;
+    this.companyDao = companyDao;
+    this.projectDao = projectDao;
+    this.taskConverter = taskConverter;
+    this.userProvider = userProvider;
+    this.accessControlService = accessControlService;
+    this.logger = LoggerFactory.getLogger(this.getClass());
+  }
 
-    public List<TaskResponsePublicDto> getAllTasks(Long projectId, Long companyId) throws ProjectNotFoundException, UnauthorizedException {
-        Company company = companyDao.findById(companyId).orElseThrow(
-                () -> new CompanyNotFoundException(companyId));
-        Project project = projectDao.findById(projectId).orElseThrow(
-                () -> new ProjectNotFoundException(projectId));
-        User user = userProvider.getAuthenticatedUser();
-        accessControlService.verifyCompanyEmployeeAccess(company, user);
-        List<Task> tasks = project.getTasks();
-        return taskConverter.getTaskResponsePublicDtos(tasks);
-    }
+  public List<TaskResponsePublicDto> getAllTasks(Long projectId, Long companyId)
+    throws ProjectNotFoundException, UnauthorizedException {
+    Company company = companyDao.findById(companyId).orElseThrow(
+      () -> new CompanyNotFoundException(companyId));
+    Project project = projectDao.findById(projectId).orElseThrow(
+      () -> new ProjectNotFoundException(projectId));
+    User user = userProvider.getAuthenticatedUser();
+    accessControlService.verifyCompanyEmployeeAccess(company, user);
+    List<Task> tasks = project.getTasks();
+    return taskConverter.getTaskResponsePublicDtos(tasks);
+  }
 
-    public Optional<TaskResponsePublicDto> getTaskById(Long taskId, Long projectId, Long companyId) throws UnauthorizedException {
-        Company company = companyDao.findById(companyId).orElseThrow(
-                () -> new CompanyNotFoundException(companyId));
-        Project project = projectDao.findById(projectId).orElseThrow(
-                () -> new ProjectNotFoundException(projectId));
-        Optional<Task> foundTask = project.getTasks().stream().filter(
-                task -> Objects.equals(task.getId(), taskId)).findFirst();
-        if (foundTask.isEmpty()) {
-            logger.error("Task with ID " + taskId + " was not found");
-            return Optional.empty();
-        }
-        Task task = foundTask.get();
-        User user = userProvider.getAuthenticatedUser();
-        accessControlService.verifyCompanyEmployeeAccess(company, user);
-        return Optional.of(taskConverter.getTaskResponsePublicDto(task));
+  public Optional<TaskResponsePublicDto> getTaskById(Long taskId, Long projectId, Long companyId)
+    throws UnauthorizedException {
+    Company company = companyDao.findById(companyId).orElseThrow(
+      () -> new CompanyNotFoundException(companyId));
+    Project project = projectDao.findById(projectId).orElseThrow(
+      () -> new ProjectNotFoundException(projectId));
+    Optional<Task> foundTask = project.getTasks().stream().filter(
+      task -> Objects.equals(task.getId(), taskId)).findFirst();
+    if (foundTask.isEmpty()) {
+      logger.error("Task with ID " + taskId + " was not found");
+      return Optional.empty();
     }
+    Task task = foundTask.get();
+    User user = userProvider.getAuthenticatedUser();
+    accessControlService.verifyCompanyEmployeeAccess(company, user);
+    return Optional.of(taskConverter.getTaskResponsePublicDto(task));
+  }
 
-    @Transactional(rollbackOn = Exception.class)
-    public TaskResponsePublicDto createTask(TaskCreateRequestDto createRequestDto, Long projectId) throws ConstraintViolationException {
-        Project project = projectDao.findById(projectId).orElseThrow(
-                () -> new ProjectNotFoundException(projectId));
-        User user = userProvider.getAuthenticatedUser();
-        accessControlService.verifyAssignedToProjectAccess(project, user);
-        Task task = new Task(createRequestDto.name(), createRequestDto.description(), createRequestDto.importance(), createRequestDto.difficulty(),
-                createRequestDto.startDate(), createRequestDto.deadline(), user, project);
-        task.assignEmployee(user);
-        taskDao.save(task);
-        return taskConverter.getTaskResponsePublicDto(task);
-    }
+  @Transactional(rollbackOn = Exception.class)
+  public TaskResponsePublicDto createTask(TaskCreateRequestDto createRequestDto, Long projectId)
+    throws ConstraintViolationException {
+    Project project = projectDao.findById(projectId).orElseThrow(
+      () -> new ProjectNotFoundException(projectId));
+    User user = userProvider.getAuthenticatedUser();
+    accessControlService.verifyAssignedToProjectAccess(project, user);
+    Task task = new Task(createRequestDto.name(), createRequestDto.description(),
+      createRequestDto.importance(), createRequestDto.difficulty(),
+      createRequestDto.startDate(), createRequestDto.deadline(), user, project);
+    task.assignEmployee(user);
+    taskDao.save(task);
+    return taskConverter.getTaskResponsePublicDto(task);
+  }
 
-    @Transactional(rollbackOn = Exception.class)
-    public TaskResponsePublicDto updateTask(TaskUpdateRequestDto updateRequestDto, Long taskId, Long projectId) throws ConstraintViolationException {
-        User user = userProvider.getAuthenticatedUser();
-        Project project = projectDao.findById(projectId).orElseThrow(
-                () -> new ProjectNotFoundException(projectId));
-        Task task = taskDao.findById(taskId).orElseThrow(
-                () -> new TaskNotFoundException(taskId));
-        accessControlService.verifyAssignedToProjectAccess(project, user);
-        task.setName(updateRequestDto.name());
-        task.setDescription(updateRequestDto.description());
-        task.setStartDate(updateRequestDto.startDate());
-        task.setDeadline(updateRequestDto.deadline());
-        Task savedTask = taskDao.save(task);
-        return taskConverter.getTaskResponsePublicDto(savedTask);
-    }
+  @Transactional(rollbackOn = Exception.class)
+  public TaskResponsePublicDto updateTask(
+    TaskUpdateRequestDto updateRequestDto, Long taskId, Long projectId)
+    throws ConstraintViolationException {
+    User user = userProvider.getAuthenticatedUser();
+    Project project = projectDao.findById(projectId).orElseThrow(
+      () -> new ProjectNotFoundException(projectId));
+    Task task = taskDao.findById(taskId).orElseThrow(
+      () -> new TaskNotFoundException(taskId));
+    accessControlService.verifyAssignedToProjectAccess(project, user);
+    task.setName(updateRequestDto.name());
+    task.setDescription(updateRequestDto.description());
+    task.setImportance(updateRequestDto.importance());
+    task.setDifficulty(updateRequestDto.difficulty());
+    task.setStartDate(updateRequestDto.startDate());
+    task.setDeadline(updateRequestDto.deadline());
+    task.setTaskStatus(updateRequestDto.taskStatus());
+    Task savedTask = taskDao.save(task);
+    return taskConverter.getTaskResponsePublicDto(savedTask);
+  }
 
-    @Transactional(rollbackOn = Exception.class)
-    public void deleteTask(Long taskId, Long projectId) {
-        User user = userProvider.getAuthenticatedUser();
-        Project project = projectDao.findById(projectId).orElseThrow(
-                () -> new ProjectNotFoundException(projectId));
-        Task task = taskDao.findById(taskId).orElseThrow(
-                () -> new TaskNotFoundException(taskId));
-        accessControlService.verifyAssignedToProjectAccess(project, user);
-        taskDao.deleteById(taskId);
-    }
+  @Transactional(rollbackOn = Exception.class)
+  public void deleteTask(Long taskId, Long projectId) {
+    User user = userProvider.getAuthenticatedUser();
+    Project project = projectDao.findById(projectId).orElseThrow(
+      () -> new ProjectNotFoundException(projectId));
+    Task task = taskDao.findById(taskId).orElseThrow(
+      () -> new TaskNotFoundException(taskId));
+    accessControlService.verifyAssignedToProjectAccess(project, user);
+    taskDao.deleteById(taskId);
+  }
 
 }
