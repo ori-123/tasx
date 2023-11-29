@@ -89,6 +89,11 @@ public class Company {
   }
 
   @Override
+  public int hashCode() {
+    return Objects.hash(id, name, description, companyOwner, employees, projects, rewards);
+  }
+
+  @Override
   public boolean equals(Object object) {
     if (this == object) {
       return true;
@@ -101,11 +106,6 @@ public class Company {
       description, company.description) && Objects.equals(companyOwner, company.companyOwner) &&
       Objects.equals(employees, company.employees) && Objects.equals(projects, company.projects) &&
       Objects.equals(rewards, company.rewards);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, name, description, companyOwner, employees, projects, rewards);
   }
 
   @Override

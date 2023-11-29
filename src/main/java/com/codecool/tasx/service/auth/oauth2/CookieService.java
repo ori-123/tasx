@@ -3,12 +3,16 @@ package com.codecool.tasx.service.auth.oauth2;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.stereotype.Service;
 import org.springframework.util.SerializationUtils;
 
 import java.util.Base64;
 import java.util.Optional;
 
-public class CookieUtils {
+@Service
+public class CookieService {
+
+  //OAuth2
 
   public static Optional<Cookie> getCookie(HttpServletRequest request, String name) {
     Cookie[] cookies = request.getCookies();
@@ -59,5 +63,15 @@ public class CookieUtils {
       Base64.getUrlDecoder().decode(cookie.getValue())));
   }
 
+  //JWT Auth
+
+  public void addRefreshCookie(String refreshToken, HttpServletResponse response) {
+    response.setHeader(
+      "Set-Cookie", "jwt=" + refreshToken + "; HttpOnly; Secure; SameSite=Strict; Path=/");
+  }
+
+  public void clearRefreshCookie(HttpServletResponse response) {
+    response.setHeader("Set-Cookie", "jwt=; HttpOnly; Secure; SameSite=Strict; Path=/");
+  }
 
 }

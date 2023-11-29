@@ -1,21 +1,6 @@
 package com.codecool.tasx.service.populate;
 
-import com.codecool.tasx.controller.dto.user.auth.RegisterRequestDto;
-import com.codecool.tasx.model.company.Company;
-import com.codecool.tasx.model.company.CompanyDao;
-import com.codecool.tasx.model.company.project.Project;
-import com.codecool.tasx.model.company.project.ProjectDao;
-import com.codecool.tasx.model.company.project.task.*;
-import com.codecool.tasx.model.company.reward.RewardDao;
-import com.codecool.tasx.model.requests.CompanyJoinRequest;
-import com.codecool.tasx.model.requests.CompanyJoinRequestDao;
-import com.codecool.tasx.model.user.User;
-import com.codecool.tasx.service.auth.AuthenticationService;
-import jakarta.annotation.PostConstruct;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
 
 @Service
 public class MockDataProvider {/*

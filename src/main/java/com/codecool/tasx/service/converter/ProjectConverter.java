@@ -24,11 +24,12 @@ public class ProjectConverter {
   }
 
   public ProjectResponsePrivateDTO getProjectResponsePrivateDto(Project project) {
-    return new ProjectResponsePrivateDTO(project.getCompany().getId(), project.getId(), project.getName(),
-            project.getDescription(), project.getStartDate(), project.getDeadline(),
-            userConverter.getUserResponsePublicDto(project.getProjectOwner()),
-            userConverter.getUserResponsePublicDtos(project.getAssignedEmployees()),
-            taskConverter.getTaskResponsePublicDtos(project.getTasks()));
+    return new ProjectResponsePrivateDTO(project.getCompany().getId(), project.getId(),
+      project.getName(),
+      project.getDescription(), project.getStartDate(), project.getDeadline(),
+      userConverter.getUserResponsePublicDto(project.getProjectOwner()),
+      userConverter.getUserResponsePublicDtos(project.getAssignedEmployees()),
+      taskConverter.getTaskResponsePublicDtos(project.getTasks()));
   }
 
   public List<ProjectResponsePublicDTO> getProjectResponsePublicDtos(List<Project> projects) {

@@ -1,15 +1,18 @@
 package com.codecool.tasx.config.auth;
 
 import com.codecool.tasx.filter.auth.JwtAuthenticationFilter;
+import com.codecool.tasx.service.auth.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
-import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
@@ -20,8 +23,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityFilterChainConfig {
   private final JwtAuthenticationFilter jwtAuthenticationFilter;
   private final AuthenticationProvider authenticationProvider;
-  private final HttpSessionOAuth2AuthorizationRequestRepository authorizationRequestRepository;
-  private final OAuth2UserService oAuth2UserService;
+  private final HttpCookieOAuth2AuthorizationRequestRepository authorizationRequestRepository;
+  private final OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService;
   private final AuthenticationSuccessHandler authenticationSuccessHandler;
   private final AuthenticationFailureHandler authenticationFailureHandler;
 
@@ -29,8 +32,8 @@ public class SecurityFilterChainConfig {
   public SecurityFilterChainConfig(
     JwtAuthenticationFilter jwtAuthenticationFilter,
     AuthenticationProvider authenticationProvider,
-    HttpSessionOAuth2AuthorizationRequestRepository authorizationRequestRepository,
-    OAuth2UserService oAuth2UserService,
+    HttpCookieOAuth2AuthorizationRequestRepository authorizationRequestRepository,
+    OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService,
     AuthenticationSuccessHandler authenticationSuccessHandler,
     AuthenticationFailureHandler authenticationFailureHandler) {
     this.jwtAuthenticationFilter = jwtAuthenticationFilter;
@@ -53,15 +56,13 @@ public class SecurityFilterChainConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
     httpSecurity
-      .csrf(csrfConfigurer -> csrfConfigurer.disable())
-      .formLogin(configurer -> configurer
-        .disable())
-      .httpBasic(configurer -> configurer
-        .disable())
+      .csrf(AbstractHttpConfigurer::disable)
+      .formLogin(AbstractHttpConfigurer::disable)
+      .httpBasic(AbstractHttpConfigurer::disable)
       .sessionManagement(sessionManagementConfigurer -> sessionManagementConfigurer
         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
       .authenticationProvider(authenticationProvider)
-      .authorizeHttpRequests(authorizeRequestsConfigurer -> authorizeRequestsConfigurer
+      .authorizeRequests(authorizeRequestsConfigurer -> authorizeRequestsConfigurer
         .requestMatchers(
           "/error",
           "/favicon.ico")
@@ -76,7 +77,7 @@ public class SecurityFilterChainConfig {
           .baseUri("/oauth2/authorize")
           .authorizationRequestRepository(authorizationRequestRepository))
         .redirectionEndpoint(redirectionEndpointConfig -> redirectionEndpointConfig
-          .baseUri("oauth2/callback"))
+          .baseUri("/oauth2/callback/*"))
         .userInfoEndpoint(userInfoEndpointConfig -> userInfoEndpointConfig
           .userService(oAuth2UserService))
         .successHandler(authenticationSuccessHandler)

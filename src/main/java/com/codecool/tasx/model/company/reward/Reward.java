@@ -56,6 +56,11 @@ public class Reward {
   }
 
   @Override
+  public int hashCode() {
+    return Objects.hash(id, name, description, company, tasks);
+  }
+
+  @Override
   public boolean equals(Object object) {
     if (this == object) {
       return true;
@@ -67,11 +72,6 @@ public class Reward {
     return Objects.equals(id, reward.id) && Objects.equals(name, reward.name) &&
       Objects.equals(description, reward.description) && Objects.equals(
       company, reward.company) && Objects.equals(tasks, reward.tasks);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, name, description, company, tasks);
   }
 
   @Override

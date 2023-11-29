@@ -40,8 +40,10 @@ public class Task {
   public Task() {
   }
 
-  public Task(String name, String description, Importance importance, int difficulty,
-              LocalDateTime startDate, LocalDateTime deadline, TaskStatus taskStatus, User taskOwner, Project project) {
+  public Task(
+    String name, String description, Importance importance, int difficulty,
+    LocalDateTime startDate, LocalDateTime deadline, TaskStatus taskStatus, User taskOwner,
+    Project project) {
     this.name = name;
     this.description = description;
     this.importance = importance;
@@ -102,6 +104,12 @@ public class Task {
   }
 
   @Override
+  public int hashCode() {
+    return Objects.hash(id, name, description, importance, difficulty, startDate, deadline,
+      taskStatus, taskOwner, assignedEmployees, project, expenses);
+  }
+
+  @Override
   public boolean equals(Object object) {
     if (this == object) {
       return true;
@@ -117,12 +125,6 @@ public class Task {
       taskStatus == task.taskStatus && Objects.equals(taskOwner, task.taskOwner) &&
       Objects.equals(assignedEmployees, task.assignedEmployees) && Objects.equals(
       project, task.project) && Objects.equals(expenses, task.expenses);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, name, description, importance, difficulty, startDate, deadline,
-      taskStatus, taskOwner, assignedEmployees, project, expenses);
   }
 
   @Override

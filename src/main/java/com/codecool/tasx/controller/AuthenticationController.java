@@ -3,6 +3,7 @@ package com.codecool.tasx.controller;
 import com.codecool.tasx.controller.dto.user.auth.*;
 import com.codecool.tasx.exception.auth.UnauthorizedException;
 import com.codecool.tasx.service.auth.AuthenticationService;
+import com.codecool.tasx.service.auth.oauth2.CookieService;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,10 +16,14 @@ import java.util.Map;
 @RequestMapping("/api/v1/auth")
 public class AuthenticationController {
   private final AuthenticationService authenticationService;
+  private final CookieService cookieService;
 
   @Autowired
-  public AuthenticationController(AuthenticationService authenticationService) {
+  public AuthenticationController(
+    AuthenticationService authenticationService,
+    CookieService cookieService) {
     this.authenticationService = authenticationService;
+    this.cookieService = cookieService;
   }
 
   @PostMapping("/register")
@@ -36,7 +41,7 @@ public class AuthenticationController {
 
     String refreshToken = authenticationService.getNewRefreshToken(
       loginResponse.userInfo().email());
-    addRefreshCookie(refreshToken, response);
+    cookieService.addRefreshCookie(refreshToken, response);
     return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", loginResponse));
   }
 
@@ -56,17 +61,10 @@ public class AuthenticationController {
     if (jwt == null) {
       return ResponseEntity.noContent().build();
     }
-    clearRefreshCookie(response);
+    cookieService.clearRefreshCookie(response);
     return ResponseEntity.status(HttpStatus.OK).body(Map.of(
       "message", "Account logged out successfully"));
   }
 
-  private void addRefreshCookie(String refreshToken, HttpServletResponse response) {
-    response.setHeader(
-      "Set-Cookie", "jwt=" + refreshToken + "; HttpOnly; Secure; SameSite=Strict; Path=/");
-  }
 
-  private void clearRefreshCookie(HttpServletResponse response) {
-    response.setHeader("Set-Cookie", "jwt=; HttpOnly; Secure; SameSite=Strict; Path=/");
-  }
 }
