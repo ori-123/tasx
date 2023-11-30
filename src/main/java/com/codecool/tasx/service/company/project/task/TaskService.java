@@ -91,7 +91,8 @@ public class TaskService {
     accessControlService.verifyAssignedToProjectAccess(project, user);
     Task task = new Task(createRequestDto.name(), createRequestDto.description(),
       createRequestDto.importance(), createRequestDto.difficulty(),
-      createRequestDto.startDate(), createRequestDto.deadline(), user, project);
+      createRequestDto.startDate(), createRequestDto.deadline(), createRequestDto.taskStatus(),
+      user, project);
     task.assignEmployee(user);
     taskDao.save(task);
     return taskConverter.getTaskResponsePublicDto(task);

@@ -43,14 +43,15 @@ public class Task {
 
   public Task(
     String name, String description, Importance importance, int difficulty,
-    LocalDateTime startDate, LocalDateTime deadline, User taskOwner, Project project) {
+    LocalDateTime startDate, LocalDateTime deadline, TaskStatus taskStatus, User taskOwner,
+    Project project) {
     this.name = name;
     this.description = description;
     this.importance = importance;
     this.difficulty = difficulty;
     this.startDate = startDate;
     this.deadline = deadline;
-    this.taskStatus = TaskStatus.BACKLOG;
+    this.taskStatus = taskStatus;
     this.taskOwner = taskOwner;
     this.project = project;
     this.assignedEmployees = new ArrayList<>();
