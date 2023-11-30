@@ -40,29 +40,19 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
   public void onAuthenticationSuccess(
     HttpServletRequest request, HttpServletResponse response, Authentication authentication)
     throws IOException, OAuth2ProcessingException {
-    /*Optional<String> redirectUri = CookieService.getCookie(
-        request, HttpCookieOAuth2AuthorizationRequestRepository.REDIRECT_URI_PARAM_COOKIE_NAME)
-      .map(Cookie::getValue);
-    if (redirectUri.isPresent() && !isAuthorizedRedirectUri(redirectUri.get())) {
-      throw new UnauthorizedException();
-    }
-    String targetUrl = redirectUri.orElse(getDefaultTargetUrl());*/
-
     if (response.isCommitted()) {
       throw new OAuth2ProcessingException(
         "Response has already been committed. Unable to redirect to " + FRONTEND_REDIRECT_URI);
     }
-
     httpCookieOAuth2AuthorizationRequestRepository.removeAuthorizationRequestCookies(
       request,
       response);
-
     User user = getUser(authentication);
-
     String refreshToken = jwtService.generateRefreshToken(user);
     cookieService.addRefreshCookie(refreshToken, response);
     super.getRedirectStrategy().sendRedirect(request, response, FRONTEND_REDIRECT_URI);
   }
+
 
   private User getUser(Authentication authentication) throws OAuth2ProcessingException {
     User user;

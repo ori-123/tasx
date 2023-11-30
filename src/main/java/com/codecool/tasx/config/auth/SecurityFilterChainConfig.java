@@ -1,6 +1,6 @@
 package com.codecool.tasx.config.auth;
 
-import com.codecool.tasx.filter.auth.JwtAuthenticationFilter;
+import com.codecool.tasx.exception.auth.UnauthorizedException;
 import com.codecool.tasx.service.auth.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -27,6 +27,7 @@ public class SecurityFilterChainConfig {
   private final OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService;
   private final AuthenticationSuccessHandler authenticationSuccessHandler;
   private final AuthenticationFailureHandler authenticationFailureHandler;
+  private final AuthExceptionHandlerFilter authExceptionHandlerFilter;
 
   @Autowired
   public SecurityFilterChainConfig(
@@ -35,13 +36,15 @@ public class SecurityFilterChainConfig {
     HttpCookieOAuth2AuthorizationRequestRepository authorizationRequestRepository,
     OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService,
     AuthenticationSuccessHandler authenticationSuccessHandler,
-    AuthenticationFailureHandler authenticationFailureHandler) {
+    AuthenticationFailureHandler authenticationFailureHandler,
+    AuthExceptionHandlerFilter authExceptionHandlerFilter) {
     this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     this.authenticationProvider = authenticationProvider;
     this.authorizationRequestRepository = authorizationRequestRepository;
     this.oAuth2UserService = oAuth2UserService;
     this.authenticationSuccessHandler = authenticationSuccessHandler;
     this.authenticationFailureHandler = authenticationFailureHandler;
+    this.authExceptionHandlerFilter = authExceptionHandlerFilter;
   }
 
   /**
@@ -72,6 +75,7 @@ public class SecurityFilterChainConfig {
           "/oauth2/**")
         .permitAll()
         .anyRequest().authenticated())
+      .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
       .oauth2Login(configurer -> configurer
         .authorizationEndpoint(authorizationEndpointConfig -> authorizationEndpointConfig
           .baseUri("/oauth2/authorize")
@@ -82,8 +86,7 @@ public class SecurityFilterChainConfig {
           .userService(oAuth2UserService))
         .successHandler(authenticationSuccessHandler)
         .failureHandler(authenticationFailureHandler)
-      )
-      .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+      );
 
     return httpSecurity.build();
   }

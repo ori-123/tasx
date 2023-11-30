@@ -11,7 +11,7 @@ public class UserProvider {
     try {
       return (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     } catch (Exception e) {
-      throw new UnauthorizedException("Failed to retrieve user details from security context");
+      throw new UnauthorizedException();
     }
   }
 }

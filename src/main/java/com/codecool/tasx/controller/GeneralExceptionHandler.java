@@ -5,6 +5,7 @@ import com.codecool.tasx.exception.company.CompanyNotFoundException;
 import com.codecool.tasx.exception.company.DuplicateCompanyJoinRequestException;
 import com.codecool.tasx.exception.company.UserAlreadyInCompanyException;
 import com.codecool.tasx.exception.user.UserNotFoundException;
+import io.jsonwebtoken.JwtException;
 import org.hibernate.exception.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
