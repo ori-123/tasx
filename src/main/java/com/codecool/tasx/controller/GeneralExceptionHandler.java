@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -27,8 +28,16 @@ public class GeneralExceptionHandler {
     ));
   }
 
+  @ExceptionHandler(UsernameNotFoundException.class)
+  public ResponseEntity<?> handleCustomUnauthorized(UsernameNotFoundException e) {
+    logger.error(e.getMessage(), e);
+    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
+      "error", "Unauthorized"
+    ));
+  }
+
   @ExceptionHandler(UserNotFoundException.class)
-  public ResponseEntity<?> handleUserNotFound(UserNotFoundException e) {
+  public ResponseEntity<?> handleCustomUnauthorized(UserNotFoundException e) {
     logger.error(e.getMessage(), e);
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of(
       "error", "Unauthorized"
