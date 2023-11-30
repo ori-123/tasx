@@ -105,8 +105,6 @@ public class RewardService {
         User user = userProvider.getAuthenticatedUser();
         Company company = companyDao.findById(companyId).orElseThrow(
                 () -> new CompanyNotFoundException(companyId));
-        Reward reward = rewardDao.findById(rewardId).orElseThrow(
-                () -> new RewardNotFoundException(rewardId));
         accessControlService.verifyCompanyOwnerAccess(company, user);
         rewardDao.deleteById(rewardId);
     }

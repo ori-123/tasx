@@ -1,6 +1,8 @@
 package com.codecool.tasx.controller;
 
 import com.codecool.tasx.controller.dto.requests.CompanyJoinRequestResponseDto;
+import com.codecool.tasx.controller.dto.requests.ProjectJoinRequestResponseDto;
+import com.codecool.tasx.service.request.ProjectRequestService;
 import com.codecool.tasx.service.request.RequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,10 +18,12 @@ import java.util.Map;
 @RequestMapping("/api/v1/user")
 public class UserController {
   private final RequestService requestService;
+  private final ProjectRequestService projectRequestService;
 
   @Autowired
-  public UserController(RequestService requestService) {
+  public UserController(RequestService requestService, ProjectRequestService projectRequestService) {
     this.requestService = requestService;
+    this.projectRequestService = projectRequestService;
   }
 
   @GetMapping("/requests")
@@ -28,5 +32,11 @@ public class UserController {
     return ResponseEntity.status(HttpStatus.OK).body(Map.of(
       "data", joinRequests
     ));
+  }
+
+  @GetMapping("/project_requests")
+  public ResponseEntity<?> getProjectJoinRequestOfUser() {
+    List<ProjectJoinRequestResponseDto> projectJoinRequests = projectRequestService.getJoinRequestsOfUser();
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", projectJoinRequests));
   }
 }
