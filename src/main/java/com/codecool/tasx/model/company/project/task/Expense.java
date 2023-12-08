@@ -35,6 +35,18 @@ public class Expense {
     return name;
   }
 
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public void setPrice(double price) {
+    this.price = price;
+  }
+
+  public void setPaid(boolean paid) {
+    this.paid = paid;
+  }
+
   public double getPrice() {
     return price;
   }
