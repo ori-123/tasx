@@ -43,7 +43,7 @@ public class CompanyService {
     this.logger = LoggerFactory.getLogger(this.getClass());
   }
 
-  @Transactional()
+  @Transactional
   public List<CompanyResponsePublicDTO> getCompaniesWithoutUser()
     throws UnauthorizedException {
     User user = userProvider.getAuthenticatedUser();
@@ -52,7 +52,7 @@ public class CompanyService {
     return companyConverter.getCompanyResponsePublicDtos(companies);
   }
 
-  @Transactional()
+  @Transactional
   public List<CompanyResponsePublicDTO> getCompaniesWithUser()
     throws UnauthorizedException {
     User user = userProvider.getAuthenticatedUser();
@@ -60,7 +60,7 @@ public class CompanyService {
     return companyConverter.getCompanyResponsePublicDtos(companies);
   }
 
-  @Transactional()
+  @Transactional
   public Optional<CompanyResponsePrivateDTO> getCompanyById(Long companyId)
     throws UnauthorizedException {
     Optional<Company> foundCompany = companyDao.findById(companyId);

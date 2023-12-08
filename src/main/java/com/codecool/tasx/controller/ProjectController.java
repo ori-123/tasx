@@ -36,46 +36,37 @@ public class ProjectController {
 
   @GetMapping("/withoutUser")
   public ResponseEntity<?> getProjectsWithoutUser(
-          @PathVariable Long companyId) {
-    CompanyResponsePrivateDTO company = companyService.getCompanyById(companyId)
-            .orElseThrow(() -> new CompanyNotFoundException(companyId));
-    List<ProjectResponsePublicDTO> projects = projectService.getProjectsWithoutUser();
+    @PathVariable Long companyId) {
+    List<ProjectResponsePublicDTO> projects = projectService.getProjectsWithoutUser(companyId);
     return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", projects));
   }
 
   @GetMapping("/withUser")
   public ResponseEntity<?> getProjectsWithUser(
-          @PathVariable Long companyId) {
-    CompanyResponsePrivateDTO company = companyService.getCompanyById(companyId)
-            .orElseThrow(() -> new CompanyNotFoundException(companyId));
-    List<ProjectResponsePublicDTO> projects = projectService.getProjectsWithUser();
+    @PathVariable Long companyId) {
+    List<ProjectResponsePublicDTO> projects = projectService.getProjectsWithUser(companyId);
     return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", projects));
   }
 
   @GetMapping
   public ResponseEntity<?> getAllProjects(
     @PathVariable Long companyId) {
-    CompanyResponsePrivateDTO company = companyService.getCompanyById(companyId)
-      .orElseThrow(() -> new CompanyNotFoundException(companyId));
+    CompanyResponsePrivateDTO company = companyService.getCompanyById(companyId).orElseThrow(
+      () -> new CompanyNotFoundException(companyId));
     List<ProjectResponsePublicDTO> projects = projectService.getAllProjects(company.companyId());
     return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", projects));
   }
 
   @GetMapping("/{projectId}")
-  public ResponseEntity<?> getProjectById(
-    @PathVariable Long companyId, @PathVariable Long projectId) {
-    CompanyResponsePrivateDTO company = companyService.getCompanyById(companyId)
-      .orElseThrow(() -> new CompanyNotFoundException(companyId));
-    ProjectResponsePrivateDTO project = projectService.getProjectById(
-      projectId, company.companyId()).orElseThrow(
+  public ResponseEntity<?> getProjectById(@PathVariable Long projectId) {
+    ProjectResponsePrivateDTO project = projectService.getProjectById(projectId).orElseThrow(
       () -> new ProjectNotFoundException(projectId));
     return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", project));
   }
 
   @PostMapping
   public ResponseEntity<?> createProject(
-    @PathVariable Long companyId,
-    @RequestBody ProjectCreateRequestDto projectDetails) {
+    @PathVariable Long companyId, @RequestBody ProjectCreateRequestDto projectDetails) {
     ProjectResponsePrivateDTO projectResponseDetails = projectService.createProject(
       projectDetails, companyId);
     return ResponseEntity.status(HttpStatus.CREATED).body(
@@ -84,8 +75,7 @@ public class ProjectController {
 
   @PutMapping("/{projectId}")
   public ResponseEntity<?> updateProject(
-    @PathVariable Long projectId,
-    @RequestBody ProjectUpdateRequestDto projectDetails) {
+    @PathVariable Long projectId, @RequestBody ProjectUpdateRequestDto projectDetails) {
     ProjectResponsePrivateDTO projectResponseDetails = projectService.updateProject(
       projectDetails, projectId);
 

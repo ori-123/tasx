@@ -16,48 +16,49 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/companies/{companyId}/projects/{projectId}/tasks")
 public class TaskController {
-    private final TaskService taskService;
+  private final TaskService taskService;
 
-    @Autowired
-    public TaskController(TaskService taskService) {
-        this.taskService = taskService;
-    }
+  @Autowired
+  public TaskController(TaskService taskService) {
+    this.taskService = taskService;
+  }
 
-    @GetMapping
-    public ResponseEntity<?> getAllTasks(@PathVariable Long companyId, @PathVariable Long projectId) {
-        List<TaskResponsePublicDto> tasks = taskService.getAllTasks(projectId, companyId);
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", tasks));
-    }
+  @GetMapping
+  public ResponseEntity<?> getAllTasks(@PathVariable Long projectId) {
+    List<TaskResponsePublicDto> tasks = taskService.getAllTasks(projectId);
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", tasks));
+  }
 
-    @GetMapping("/{taskId}")
-    public ResponseEntity<?> getTaskById(@PathVariable Long companyId, @PathVariable Long projectId, @PathVariable Long taskId) {
-        TaskResponsePublicDto task = taskService.getTaskById(taskId, projectId, companyId)
-                .orElseThrow(() -> new TaskNotFoundException(taskId));
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", task));
-    }
+  @GetMapping("/{taskId}")
+  public ResponseEntity<?> getTaskById(@PathVariable Long taskId) {
+    TaskResponsePublicDto task = taskService.getTaskById(taskId).orElseThrow(
+      () -> new TaskNotFoundException(taskId));
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", task));
+  }
 
-    @PostMapping
-    public ResponseEntity<?> createTask(@PathVariable Long companyId, @PathVariable Long projectId,
-                                        @RequestBody TaskCreateRequestDto taskDetails) {
-        TaskResponsePublicDto taskResponseDetails = taskService.createTask(taskDetails, projectId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                Map.of("message", "Task created successfully", "data", taskResponseDetails));
-    }
+  @PostMapping
+  public ResponseEntity<?> createTask(
+    @PathVariable Long projectId, @RequestBody TaskCreateRequestDto taskDetails) {
+    TaskResponsePublicDto taskResponseDetails = taskService.createTask(taskDetails, projectId);
+    return ResponseEntity.status(HttpStatus.CREATED).body(
+      Map.of("message", "Task created successfully", "data", taskResponseDetails));
+  }
 
-    @PutMapping("/{taskId}")
-    public ResponseEntity<?> updateTask(@PathVariable Long projectId, @PathVariable Long taskId,
-                                        @RequestBody TaskUpdateRequestDto taskDetails) {
-        TaskResponsePublicDto taskResponseDetails = taskService.updateTask(taskDetails, taskId, projectId);
+  @PutMapping("/{taskId}")
+  public ResponseEntity<?> updateTask(
+    @PathVariable Long taskId, @RequestBody TaskUpdateRequestDto taskDetails) {
+    TaskResponsePublicDto taskResponseDetails = taskService.updateTask(taskDetails, taskId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(
-                Map.of("message", "Task with ID " + taskId + " updated successfully", "data", taskResponseDetails));
-    }
+    return ResponseEntity.status(HttpStatus.OK).body(
+      Map.of("message", "Task with ID " + taskId + " updated successfully", "data",
+        taskResponseDetails));
+  }
 
-    @DeleteMapping("/{taskId}")
-    public ResponseEntity<?> deleteTask(@PathVariable Long projectId, @PathVariable Long taskId) {
-        taskService.deleteTask(taskId, projectId);
+  @DeleteMapping("/{taskId}")
+  public ResponseEntity<?> deleteTask(@PathVariable Long taskId) {
+    taskService.deleteTask(taskId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(
-                Map.of("message", "Task with ID " + taskId + " deleted successfully"));
-    }
+    return ResponseEntity.status(HttpStatus.OK).body(
+      Map.of("message", "Task with ID " + taskId + " deleted successfully"));
+  }
 }

@@ -16,47 +16,48 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/companies/{companyId}/rewards")
 public class RewardController {
-    private final RewardService rewardService;
+  private final RewardService rewardService;
 
-    @Autowired
-    public RewardController(RewardService rewardService) {
-        this.rewardService = rewardService;
-    }
+  @Autowired
+  public RewardController(RewardService rewardService) {
+    this.rewardService = rewardService;
+  }
 
-    @GetMapping
-    public ResponseEntity<?> getAllRewards(@PathVariable Long companyId) {
-        List<RewardResponseDto> rewards = rewardService.getAllRewards(companyId);
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", rewards));
-    }
+  @GetMapping
+  public ResponseEntity<?> getAllRewards(@PathVariable Long companyId) {
+    List<RewardResponseDto> rewards = rewardService.getAllRewards(companyId);
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", rewards));
+  }
 
-    @GetMapping("/{rewardId}")
-    public ResponseEntity<?> getRewardById(@PathVariable Long companyId, @PathVariable Long rewardId) {
-        RewardResponseDto reward = rewardService.getRewardById(rewardId, companyId)
-                .orElseThrow(() -> new RewardNotFoundException(rewardId));
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", reward));
-    }
+  @GetMapping("/{rewardId}")
+  public ResponseEntity<?> getRewardById(@PathVariable Long rewardId) {
+    RewardResponseDto reward = rewardService.getRewardById(rewardId).orElseThrow(
+      () -> new RewardNotFoundException(rewardId));
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", reward));
+  }
 
-    @PostMapping
-    public ResponseEntity<?> createReward(@PathVariable Long companyId,
-                                          @RequestBody RewardCreateRequestDto rewardDetails) {
-        RewardResponseDto rewardResponseDetails = rewardService.createReward(rewardDetails, companyId);
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                Map.of("message", "Reward created successfully", "data", rewardResponseDetails));
-    }
+  @PostMapping
+  public ResponseEntity<?> createReward(
+    @PathVariable Long companyId, @RequestBody RewardCreateRequestDto rewardDetails) {
+    RewardResponseDto rewardResponseDetails = rewardService.createReward(rewardDetails, companyId);
+    return ResponseEntity.status(HttpStatus.CREATED).body(
+      Map.of("message", "Reward created successfully", "data", rewardResponseDetails));
+  }
 
-    @PutMapping("/{rewardId}")
-    public ResponseEntity<?> updateReward(@PathVariable Long companyId, @PathVariable Long rewardId,
-                                          @RequestBody RewardUpdateRequestDto rewardDetails) {
-        RewardResponseDto rewardResponseDetails = rewardService.updateReward(rewardDetails, rewardId, companyId);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                Map.of("message", "Reward with ID " + rewardId + " updated successfully", "data", rewardResponseDetails));
-    }
+  @PutMapping("/{rewardId}")
+  public ResponseEntity<?> updateReward(
+    @PathVariable Long rewardId, @RequestBody RewardUpdateRequestDto rewardDetails) {
+    RewardResponseDto rewardResponseDetails = rewardService.updateReward(rewardDetails, rewardId);
+    return ResponseEntity.status(HttpStatus.OK).body(
+      Map.of("message", "Reward with ID " + rewardId + " updated successfully", "data",
+        rewardResponseDetails));
+  }
 
-    @DeleteMapping("/{rewardId}")
-    public ResponseEntity<?> deleteReward(@PathVariable Long companyId, @PathVariable Long rewardId) {
-        rewardService.deleteReward(rewardId, companyId);
-        return ResponseEntity.status(HttpStatus.OK).body(
-                Map.of("message", "Reward with ID " + rewardId + " deleted successfully"));
-    }
+  @DeleteMapping("/{rewardId}")
+  public ResponseEntity<?> deleteReward(@PathVariable Long companyId, @PathVariable Long rewardId) {
+    rewardService.deleteReward(rewardId, companyId);
+    return ResponseEntity.status(HttpStatus.OK).body(
+      Map.of("message", "Reward with ID " + rewardId + " deleted successfully"));
+  }
 
 }

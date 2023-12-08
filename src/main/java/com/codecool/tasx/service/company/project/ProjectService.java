@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -48,20 +47,26 @@ public class ProjectService {
     this.logger = LoggerFactory.getLogger(this.getClass());
   }
 
-  @Transactional()
-  public List<ProjectResponsePublicDTO> getProjectsWithoutUser()
-          throws UnauthorizedException {
+  @Transactional
+  public List<ProjectResponsePublicDTO> getProjectsWithoutUser(Long companyId)
+    throws UnauthorizedException {
     User user = userProvider.getAuthenticatedUser();
-    List<Project> projects = projectDao.findAllWithoutEmployeeAndJoinRequest(user, List.of(
-            RequestStatus.PENDING, RequestStatus.DECLINED));
+    Company company = companyDao.findById(companyId).orElseThrow(
+      () -> new CompanyNotFoundException(companyId));
+    accessControlService.verifyCompanyEmployeeAccess(company, user);
+    List<Project> projects = projectDao.findAllWithoutEmployeeAndJoinRequestAndCompany(
+      user, List.of(RequestStatus.PENDING, RequestStatus.DECLINED), company);
     return projectConverter.getProjectResponsePublicDtos(projects);
   }
 
-  @Transactional()
-  public List<ProjectResponsePublicDTO> getProjectsWithUser()
-          throws UnauthorizedException {
+  @Transactional
+  public List<ProjectResponsePublicDTO> getProjectsWithUser(Long companyId)
+    throws UnauthorizedException {
     User user = userProvider.getAuthenticatedUser();
-    List<Project> projects = user.getProjects();
+    Company company = companyDao.findById(companyId).orElseThrow(
+      () -> new CompanyNotFoundException(companyId));
+    accessControlService.verifyCompanyEmployeeAccess(company, user);
+    List<Project> projects = projectDao.findAllWithEmployeeAndCompany(user, company);
     return projectConverter.getProjectResponsePublicDtos(projects);
   }
 
@@ -76,19 +81,16 @@ public class ProjectService {
   }
 
   @Transactional
-  public Optional<ProjectResponsePrivateDTO> getProjectById(Long projectId, Long companyId)
+  public Optional<ProjectResponsePrivateDTO> getProjectById(Long projectId)
     throws UnauthorizedException {
-    Company company = companyDao.findById(companyId).orElseThrow(
-      () -> new CompanyNotFoundException(companyId));
-    Optional<Project> foundProject = company.getProjects().stream().filter(
-      project -> Objects.equals(project.getId(), projectId)).findFirst();
+    Optional<Project> foundProject = projectDao.findById(projectId);
     if (foundProject.isEmpty()) {
       logger.error("Project with ID " + projectId + " was not found");
       return Optional.empty();
     }
     Project project = foundProject.get();
     User user = userProvider.getAuthenticatedUser();
-    accessControlService.verifyCompanyEmployeeAccess(company, user);
+    accessControlService.verifyCompanyEmployeeAccess(foundProject.get().getCompany(), user);
     return Optional.of(projectConverter.getProjectResponsePrivateDto(project));
   }
 

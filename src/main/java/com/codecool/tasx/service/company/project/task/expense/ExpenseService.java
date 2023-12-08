@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -50,6 +49,7 @@ public class ExpenseService {
     this.logger = LoggerFactory.getLogger(this.getClass());
   }
 
+  @Transactional
   public List<ExpenseResponseDto> getAllExpenses(Long taskId)
     throws ProjectNotFoundException, UnauthorizedException {
     Task task = taskDao.findById(taskId).orElseThrow(() -> new TaskNotFoundException(taskId));
@@ -62,6 +62,7 @@ public class ExpenseService {
         expense.isPaid())).collect(Collectors.toList());
   }
 
+  @Transactional
   public Optional<ExpenseResponseDto> getExpense(Long expenseId) throws UnauthorizedException {
     Optional<Expense> expense = expenseDao.findById(expenseId);
     if (expense.isEmpty()) {
