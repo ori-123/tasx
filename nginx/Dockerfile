@@ -1,6 +1,6 @@
 FROM node:latest as build_frontend
 
-COPY frontend/package.json /home/app/package.json
+COPY frontend /home/app
 
 COPY frontend/src /home/app/src
 COPY frontend/public /home/app/public
