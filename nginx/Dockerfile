@@ -22,5 +22,4 @@ COPY --chmod=600 --chown=nginx:nginx  ssl/ssl-cert-snakeoil.key /etc/nginx/ssl/s
 COPY --chmod=600 --chown=nginx:nginx  ssl/ssl-cert-snakeoil.crt /etc/nginx/ssl/ssl-cert-snakeoil.crt
 
 # config
-COPY --chown=nginx_nginx --chmod=644 nginx/nginx.conf /etc/nginx/conf.d/default.conf
-RUN chmod 644 /etc/nginx/conf.d/default.conf && chown nginx:nginx /etc/nginx/conf.d/default.conf
+COPY --chown=nginx:nginx --chmod=644 nginx/nginx.conf /etc/nginx/conf.d/default.conf
