@@ -14,6 +14,10 @@ export default defineConfig(({mode}) => {
         "/api": {
           target: "http://backend:8080",
           changeOrigin: true
+        },
+        "/oauth2": {
+          target: "http://backend:8080",
+          changeOrigin: true
         }
       },
       port: parseInt(env.VITE_PORT, 10) || 3000

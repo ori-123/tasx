@@ -128,7 +128,7 @@ function RegisterForm({
             >
               Sign Up
             </StyledButton>
-            <a href={`${import.meta.env.VITE_API_BASE_URL}/${import.meta.env.VITE_OAUTH2_FRONTEND_AUTHORIZATION_URL}`}>
+            <a href={`${import.meta.env.VITE_OAUTH2_FRONTEND_AUTHORIZATION_URL}`}>
               <StyledButton
                 type="button"
                 fullWidth
