@@ -4,6 +4,7 @@ import com.codecool.tasx.model.company.project.Project;
 import com.codecool.tasx.model.user.User;
 import jakarta.persistence.*;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -156,6 +157,19 @@ public class Task {
 
   public void setExpenses(List<Expense> expenses) {
     this.expenses = expenses;
+  }
+
+  public long calculateScore() {
+    long hoursToDeadline = Duration.between(LocalDateTime.now(), deadline).toHours();
+    int basePoints = difficulty * 50;
+    long bonusPoints = hoursToDeadline * difficulty;
+    if (LocalDateTime.now().isBefore(deadline)) {
+      return basePoints + bonusPoints;
+    } else if (deadline.equals(LocalDateTime.now())) {
+      return basePoints;
+    } else {
+      return 0;
+    }
   }
 
   @Override
