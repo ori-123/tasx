@@ -6,6 +6,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,11 +35,13 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
   private final JwtService jwtService;
   private final UserDetailsService userDetailsService;
+  private final Logger logger;
 
   @Autowired
   public JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService) {
     this.jwtService = jwtService;
     this.userDetailsService = userDetailsService;
+    this.logger = LoggerFactory.getLogger(this.getClass());
   }
 
   @Override
@@ -46,6 +50,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @NonNull FilterChain filterChain)
     throws ServletException, IOException {
     try {
+      logger.info(request.getRequestURI());
       final String authHeader = request.getHeader("Authorization");
       final String accessTokenString;
       final String userEmail;
