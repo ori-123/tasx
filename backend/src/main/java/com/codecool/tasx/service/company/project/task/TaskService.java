@@ -10,6 +10,7 @@ import com.codecool.tasx.model.company.project.Project;
 import com.codecool.tasx.model.company.project.ProjectDao;
 import com.codecool.tasx.model.company.project.task.Task;
 import com.codecool.tasx.model.company.project.task.TaskDao;
+import com.codecool.tasx.model.company.project.task.TaskStatus;
 import com.codecool.tasx.model.user.User;
 import com.codecool.tasx.service.auth.CustomAccessControlService;
 import com.codecool.tasx.service.auth.UserProvider;
@@ -67,6 +68,17 @@ public class TaskService {
     User user = userProvider.getAuthenticatedUser();
     accessControlService.verifyCompanyEmployeeAccess(task.getProject().getCompany(), user);
     return Optional.of(taskConverter.getTaskResponsePublicDto(task));
+  }
+
+  @Transactional
+  public List<TaskResponsePublicDto> getTasksByStatus(Long projectId, TaskStatus status)
+          throws ProjectNotFoundException, UnauthorizedException {
+    Project project = projectDao.findById(projectId).orElseThrow(
+            () -> new ProjectNotFoundException(projectId));
+    User user = userProvider.getAuthenticatedUser();
+    accessControlService.verifyAssignedToProjectAccess(project, user);
+    List<Task> tasks = project.getTasks().stream().filter(task -> task.getTaskStatus().equals(status)).toList();
+    return taskConverter.getTaskResponsePublicDtos(tasks);
   }
 
   @Transactional(rollbackOn = Exception.class)
