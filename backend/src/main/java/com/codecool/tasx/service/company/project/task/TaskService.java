@@ -72,6 +72,18 @@ public class TaskService {
   }
 
   @Transactional
+  public List<User> acquirePointsForTask(Long taskId) throws UnauthorizedException {
+    Task task = taskDao.findById(taskId).get();
+    User user = userProvider.getAuthenticatedUser();
+    accessControlService.verifyCompanyEmployeeAccess(task.getProject().getCompany(), user);
+    List<User> assignedEmployees = task.getAssignedEmployees();
+    for (User employee : assignedEmployees) {
+      employee.setScore(employee.getScore() + task.calculatePoints());
+    }
+    return assignedEmployees;
+  }
+
+  @Transactional
   public List<TaskResponsePublicDto> getTasksByStatus(Long projectId, TaskStatus status)
           throws ProjectNotFoundException, UnauthorizedException {
     Project project = projectDao.findById(projectId).orElseThrow(
@@ -146,6 +158,11 @@ public class TaskService {
     task.setStartDate(updateRequestDto.startDate());
     task.setDeadline(updateRequestDto.deadline());
     task.setTaskStatus(updateRequestDto.taskStatus());
+    if (task.getTaskStatus().equals(TaskStatus.DONE)) {
+      task.setAssignedEmployees(acquirePointsForTask(taskId));
+    } else {
+      task.setAssignedEmployees(updateRequestDto.assignedEmployees());
+    }
     Task savedTask = taskDao.save(task);
     return taskConverter.getTaskResponsePublicDto(savedTask);
   }

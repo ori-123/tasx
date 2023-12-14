@@ -107,6 +107,42 @@ public class User implements UserDetails, OAuth2User {
     this.score = score;
   }
 
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public void setRoles(Set<Role> roles) {
+    this.roles = roles;
+  }
+
+  public void setOwnedCompanies(List<Company> ownedCompanies) {
+    this.ownedCompanies = ownedCompanies;
+  }
+
+  public void setCompanies(List<Company> companies) {
+    this.companies = companies;
+  }
+
+  public void setOwnedProjects(List<Project> ownedProjects) {
+    this.ownedProjects = ownedProjects;
+  }
+
+  public void setProjects(List<Project> projects) {
+    this.projects = projects;
+  }
+
   public List<Company> getCompanies() {
     return List.copyOf(companies);
   }

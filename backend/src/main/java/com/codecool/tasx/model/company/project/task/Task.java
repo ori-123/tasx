@@ -65,6 +65,7 @@ public class Task {
     return id;
   }
 
+
   public String getName() {
     return name;
   }
@@ -165,7 +166,7 @@ public class Task {
     return points;
   }
 
-  private long calculatePoints() {
+  public long calculatePoints() {
     long hoursToDeadline = Duration.between(LocalDateTime.now(), deadline).toHours();
     int basePoints = difficulty * 50;
     long bonusPoints = hoursToDeadline * difficulty;
