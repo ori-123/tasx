@@ -28,7 +28,8 @@ function UserLayout() {
         <Toolbar sx={{flexGrow: 1}}>
           <AccountCircle sx={{marginRight: 1}}/>
           <Typography variant={"h6"}>Logged in as {auth.username}</Typography>
-          <NavButton path="/user" text="Dashboard"/>
+          <NavButton path="/companies" text="Company Browser"/>
+          <NavButton path="/user" text="User Dashboard"/>
           <Button variant="contained" color={"primary"} sx={{marginLeft: 2}}
                   onClick={async () => {
                     await logout(true);

@@ -72,7 +72,7 @@ function Login() {
         setAuth({
           "username": receivedUsername, "email": receivedEmail, "roles": receivedRoles, "accessToken": accessToken
         });
-        navigate("/user");
+        navigate("/companies");
       } else {
         throw new Error("Login failed");
       }

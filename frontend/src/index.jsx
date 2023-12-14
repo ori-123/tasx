@@ -23,6 +23,7 @@ import OAuth2Redirect from "./auth/pages/OAuth2Redirect.jsx";
 import CreateTask from "./user/pages/CreateTask.jsx";
 import UpdateTask from "./user/pages/UpdateTask.jsx";
 import TaskDetails from "./user/pages/TaskDetails.jsx";
+import CompanyBrowser from "./user/pages/CompanyBrowser.jsx";
 
 const theme = createTheme({
   palette: {
@@ -104,7 +105,9 @@ const router = createBrowserRouter([
         ]
       }
     ]
-  }, {
+  },
+  /* user */
+  {
     path: "/companies",
     element: <RequireAuth allowedRoles={["USER"]}/>,
     errorElement: <ErrorPage/>,
@@ -112,6 +115,10 @@ const router = createBrowserRouter([
       {
         element: <UserLayout/>,
         children: [
+          {
+            path: "",
+            element: <CompanyBrowser/>
+          },
           {
             path: "create",
             element: <CreateCompany/>
