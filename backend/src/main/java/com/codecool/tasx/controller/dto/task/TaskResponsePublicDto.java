@@ -10,5 +10,5 @@ public record TaskResponsePublicDto(Long projectId, Long taskId, String name, St
                                     Importance importance, Integer difficulty,
                                     LocalDateTime startDate,
                                     LocalDateTime deadline, TaskStatus taskStatus,
-                                    UserResponsePublicDto owner) {
+                                    UserResponsePublicDto owner, long points) {
 }

@@ -22,7 +22,7 @@ public class Task {
   private LocalDateTime startDate;
   private LocalDateTime deadline;
   private TaskStatus taskStatus;
-  private long score;
+  private long points;
 
   @ManyToOne
   @JoinColumn(name = "task_owner_id")
@@ -58,7 +58,7 @@ public class Task {
     this.project = project;
     this.assignedEmployees = new ArrayList<>();
     this.expenses = new ArrayList<>();
-    score = calculateScore();
+    points = calculatePoints();
   }
 
   public Long getId() {
@@ -161,11 +161,11 @@ public class Task {
     this.expenses = expenses;
   }
 
-  public long getScore() {
-    return score;
+  public long getPoints() {
+    return points;
   }
 
-  private long calculateScore() {
+  private long calculatePoints() {
     long hoursToDeadline = Duration.between(LocalDateTime.now(), deadline).toHours();
     int basePoints = difficulty * 50;
     long bonusPoints = hoursToDeadline * difficulty;

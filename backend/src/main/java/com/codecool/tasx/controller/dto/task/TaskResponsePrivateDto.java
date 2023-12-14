@@ -12,5 +12,5 @@ public record TaskResponsePrivateDto(Long projectId, Long taskId, String name, S
                                      LocalDateTime startDate,
                                      LocalDateTime deadline, TaskStatus taskStatus,
                                      UserResponsePublicDto owner,
-                                     List<UserResponsePublicDto> assignedEmployees) {
+                                     List<UserResponsePublicDto> assignedEmployees, long points) {
 }
