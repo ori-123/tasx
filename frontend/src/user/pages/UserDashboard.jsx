@@ -36,6 +36,7 @@ function UserDashboard() {
   const [joinedCompanies, setJoinedCompanies] = useState([]);
   const [companiesToJoin, setCompaniesToJoin] = useState([]);
   const [joinRequests, setJoinRequests] = useState([]);
+  const [projectJoinRequests, setProjectJoinRequests] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("error");
@@ -44,16 +45,17 @@ function UserDashboard() {
     try {
       setLoading(true);
       const { httpResponse, responseObject } = await authFetch(
-        "GET",
-        "companies?withUser=true"
+          "GET",
+          "companies?withUser=true"
       );
       if (httpResponse?.status !== 200 || !responseObject?.data) {
         setErrorMessage(
-          responseObject?.error ?? "Failed to load joined companies"
+            responseObject?.error ?? "Failed to load joined companies"
         );
         setJoinedCompanies([]);
         return;
       }
+      console.log(responseObject.data);
       setJoinedCompanies(responseObject.data);
     } catch (e) {
       console.error(e);
@@ -68,16 +70,17 @@ function UserDashboard() {
     try {
       setLoading(true);
       const { httpResponse, responseObject } = await authFetch(
-        "GET",
-        "companies?withUser=false"
+          "GET",
+          "companies?withUser=false"
       );
       if (httpResponse?.status !== 200 || !responseObject?.data) {
         setErrorMessage(
-          responseObject?.error ?? "Failed to load companies to join"
+            responseObject?.error ?? "Failed to load companies to join"
         );
         setCompaniesToJoin([]);
         return;
       }
+      console.log(responseObject.data);
       setCompaniesToJoin(responseObject.data);
     } catch (e) {
       console.error(e);
@@ -92,16 +95,17 @@ function UserDashboard() {
     try {
       setLoading(true);
       const { httpResponse, responseObject } = await authFetch(
-        "GET",
-        `user/requests`
+          "GET",
+          `user/requests`
       );
       if (httpResponse?.status !== 200 || !responseObject?.data) {
         setErrorMessage(
-          responseObject?.error ?? "Failed to load join requests"
+            responseObject?.error ?? "Failed to load join requests"
         );
         setCompaniesToJoin([]);
         return;
       }
+      console.log(responseObject.data);
       setJoinRequests(responseObject.data);
     } catch (e) {
       console.error(e);
@@ -112,23 +116,46 @@ function UserDashboard() {
     }
   }
 
+  async function loadProjectJoinRequests() {
+    try {
+      setLoading(true);
+      const { httpResponse, responseObject } = await authFetch(
+          "GET",
+          `user/project_requests`
+      );
+      if (httpResponse?.status !== 200 || !responseObject?.data) {
+        setErrorMessage(
+            responseObject?.error ?? "Failed to load project joint requests"
+        );
+        return;
+      }
+    } catch (e) {
+      console.error(e);
+      setErrorMessage("Failed to load project join requests");
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     loadJoinedCompanies();
     loadCompaniesToJoin();
     loadJoinRequests();
+    loadProjectJoinRequests();
   }, []);
 
   async function handleJoinCompany(companyId) {
     try {
       setLoading(true);
       const { httpResponse, responseObject } = await authFetch(
-        "POST",
-        `companies/${companyId}/requests`
+          "POST",
+          `companies/${companyId}/requests`
       );
+      console.log(httpResponse, responseObject);
       if (httpResponse?.status !== 201 || !responseObject?.data) {
         setSnackbarSeverity("error");
         setSnackbarMessage(
-          responseObject?.error ?? "Failed to process join request"
+            responseObject?.error ?? "Failed to process join request"
         );
         setSnackbarOpen(true);
       } else {
@@ -141,7 +168,7 @@ function UserDashboard() {
         await loadCompaniesToJoin();
         await loadJoinRequests();
         setSnackbarMessage(
-          `Request to join ${companyName} sent successfully`
+            `Request to join ${companyName} sent successfully`
         );
         setSnackbarOpen(true);
       }
@@ -153,104 +180,124 @@ function UserDashboard() {
   }
 
   return loading ? (
-    <LoadingSpinner />
+      <LoadingSpinner />
   ) : (
-    <Container>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
-        onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-      >
-        <Alert
-          onClose={() => setSnackbarOpen(false)}
-          severity={snackbarSeverity}
+      <Container>
+        <Snackbar
+            open={snackbarOpen}
+            autoHideDuration={6000}
+            onClose={() => setSnackbarOpen(false)}
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
         >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
-      <Grid container spacing={4} justifyContent="center">
-        <Grid item xs={12} md={12} lg={12}>
-          <StyledPaper>
-            {errorMessage && (
-              <Typography component="h5" variant="h6" color="error">
-                {errorMessage}
-              </Typography>
-            )}
+          <Alert
+              onClose={() => setSnackbarOpen(false)}
+              severity={snackbarSeverity}
+          >
+            {snackbarMessage}
+          </Alert>
+        </Snackbar>
+        <Grid container spacing={4} justifyContent="center">
+          <Grid item xs={12} md={12} lg={12}>
+            <StyledPaper>
+              {errorMessage && (
+                  <Typography component="h5" variant="h6" color="error">
+                    {errorMessage}
+                  </Typography>
+              )}
 
-            <StyledTypography variant="h2">Your companies</StyledTypography>
-            {joinedCompanies?.length ? (
-              <ul className={"companyList"}>
-                {joinedCompanies.map((company) => {
-                  return (
-                    <li className={"companyItem"} key={company?.companyId}>
-                      <Link
-                        to={`/companies/${company.companyId}`}
-                        style={{ color: "#FFFFFF" }}
-                      >
-                        {company.name}
-                      </Link>
-                      <p>Description: {company.description}</p>
-                    </li>
-                  );
-                })}
-              </ul>
-            ) : (
-              <div>
-                <p>No companies found</p>
-              </div>
-            )}
+              <StyledTypography variant="h2">Your companies</StyledTypography>
+              {joinedCompanies?.length ? (
+                  <ul className={"companyList"}>
+                    {joinedCompanies.map((company) => {
+                      return (
+                          <li className={"companyItem"} key={company?.companyId}>
+                            <Link
+                                to={`/companies/${company.companyId}`}
+                                style={{ color: "#FFFFFF" }}
+                            >
+                              {company.name}
+                            </Link>
+                            <p>Description: {company.description}</p>
+                          </li>
+                      );
+                    })}
+                  </ul>
+              ) : (
+                  <div>
+                    <p>No companies found</p>
+                  </div>
+              )}
 
-            <StyledTypography variant="h2">Companies to join</StyledTypography>
-            {companiesToJoin?.length ? (
-              <ul className={"companyList"}>
-                {companiesToJoin.map((company) => {
-                  return (
-                    <li className={"companyItem"} key={company?.comapnyId}>
-                      <Button variant={"contained"}
-                        onClick={() => {
-                          handleJoinCompany(company.companyId);
-                        }}
-                        style={{ color: "#FFFFFF" }}
-                      >
-                        {company.name}
-                      </Button>
-                      <p>Description: {company.description}</p>
-                    </li>
-                  );
-                })}
-              </ul>
-            ) : (
-              <p>No companies to join</p>
-            )}
+              <StyledTypography variant="h2">Companies to join</StyledTypography>
+              {companiesToJoin?.length ? (
+                  <ul className={"companyList"}>
+                    {companiesToJoin.map((company) => {
+                      return (
+                          <li className={"companyItem"} key={company?.comapnyId}>
+                            <Button variant={"contained"}
+                                    onClick={() => {
+                                      handleJoinCompany(company.companyId);
+                                    }}
+                                    style={{ color: "#FFFFFF" }}
+                            >
+                              {company.name}
+                            </Button>
+                            <p>Description: {company.description}</p>
+                          </li>
+                      );
+                    })}
+                  </ul>
+              ) : (
+                  <p>No companies to join</p>
+              )}
 
-            <Link to={"/companies/create"} style={{ color: "#FFFFFF" }}>
-              <h3>Create new company</h3>
-            </Link>
+              <Link to={"/companies/create"} style={{ color: "#FFFFFF" }}>
+                <h3>Create new company</h3>
+              </Link>
 
-            {joinRequests?.length ? (
-              <>
-                <StyledTypography variant="h2">Requests</StyledTypography>
-                <ul className={"joinRequestList"}>
-                  {joinRequests.map((request) => {
-                    return (
-                      <li className={"joinRequestItem"} key={request?.requestId}>
-                        <p>
-                          Join company <strong>{request.company.name}</strong> -{" "}
-                          {request.status}
-                        </p>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </>
-            ) : (
-              <></>
-            )}
-          </StyledPaper>
+              {joinRequests?.length ? (
+                  <>
+                    <StyledTypography variant="h2">Company Join Requests</StyledTypography>
+                    <ul className={"joinRequestList"}>
+                      {joinRequests.map((request) => {
+                        return (
+                            <li className={"joinRequestItem"} key={request?.requestId}>
+                              <p>
+                                Join company <strong>{request.company.name}</strong> -{" "}
+                                {request.status}
+                              </p>
+                            </li>
+                        );
+                      })}
+                    </ul>
+                  </>
+              ) : (
+                  <></>
+              )}
+
+              {projectJoinRequests?.length ? (
+                  <>
+                    <StyledTypography variant="h2">Project Join Requests</StyledTypography>
+                    <ul className={"joinRequestList"}>
+                      {projectJoinRequests.map((request) => {
+                        return (
+                            <li className={"joinRequestItem"} key={request?.requestId}>
+                              <p>
+                                Join project <strong>{request.project.name}</strong> -{" "}
+                                {request.status}
+                              </p>
+                            </li>
+                        );
+                      })}
+                    </ul>
+                  </>
+              ) : (
+                  <></>
+              )}
+            </StyledPaper>
+          </Grid>
         </Grid>
-      </Grid>
-    </Container>
+      </Container>
   );
 }
 

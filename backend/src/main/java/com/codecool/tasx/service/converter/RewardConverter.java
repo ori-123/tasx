@@ -20,7 +20,7 @@ public class RewardConverter {
   public RewardResponseDto getRewardResponseDto(Reward reward) {
     return new RewardResponseDto(reward.getCompany().getId(),
       reward.getId(), reward.getName(), reward.getDescription(),
-      taskConverter.getTaskResponsePublicDtos(reward.getTasks()));
+      taskConverter.getTaskResponsePublicDtos(reward.getTasks()), reward.getPointCost());
   }
 
   public List<RewardResponseDto> getRewardResponseDtos(List<Reward> rewards) {
