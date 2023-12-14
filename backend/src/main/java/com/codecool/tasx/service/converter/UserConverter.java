@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public class UserConverter {
 
   public UserResponsePublicDto getUserResponsePublicDto(User user) {
-    return new UserResponsePublicDto(user.getId(), user.getActualUsername());
+    return new UserResponsePublicDto(user.getId(), user.getActualUsername(), user.getScore());
   }
 
   public List<UserResponsePublicDto> getUserResponsePublicDtos(List<User> users) {
