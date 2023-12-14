@@ -23,9 +23,6 @@ function UserDashboard() {
   const authFetch = useAuthFetch();
 
   const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState(null);
-  const [joinedCompanies, setJoinedCompanies] = useState([]);
-  const [companiesToJoin, setCompaniesToJoin] = useState([]);
   const [joinRequests, setJoinRequests] = useState([]);
   const [projectJoinRequests, setProjectJoinRequests] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -77,53 +74,53 @@ function UserDashboard() {
 
 
   return loading ? (<LoadingSpinner/>) : (<Container>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={6000}
+    <Snackbar
+      open={snackbarOpen}
+      autoHideDuration={6000}
+      onClose={() => setSnackbarOpen(false)}
+      anchorOrigin={{vertical: "top", horizontal: "center"}}
+    >
+      <Alert
         onClose={() => setSnackbarOpen(false)}
-        anchorOrigin={{vertical: "top", horizontal: "center"}}
+        severity={snackbarSeverity}
       >
-        <Alert
-          onClose={() => setSnackbarOpen(false)}
-          severity={snackbarSeverity}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
-      <Grid container spacing={4} justifyContent="center">
-        <Grid item xs={12} md={12} lg={12}>
-          <StyledPaper>
-            {joinRequests?.length ? (<>
-                <StyledTypography variant="h2">Company join requests</StyledTypography>
-                <ul className={"joinRequestList"}>
-                  {joinRequests.map((request) => {
-                    return (<li className={"joinRequestItem"} key={request?.requestId}>
-                        <p>
-                          <strong>{request.company.name}</strong>{" - "}
-                          {request.status}
-                        </p>
-                      </li>);
-                  })}
-                </ul>
-              </>) : (<></>)}
+        {snackbarMessage}
+      </Alert>
+    </Snackbar>
+    <Grid container spacing={4} justifyContent="center">
+      <Grid item xs={12} md={12} lg={12}>
+        <StyledPaper>
+          {joinRequests?.length ? (<>
+            <StyledTypography variant="h2">Company join requests</StyledTypography>
+            <ul className={"joinRequestList"}>
+              {joinRequests.map((request) => {
+                return (<li className={"joinRequestItem"} key={request?.requestId}>
+                  <p>
+                    <strong>{request.company.name}</strong>{" - "}
+                    {request.status}
+                  </p>
+                </li>);
+              })}
+            </ul>
+          </>) : (<></>)}
 
-            {projectJoinRequests?.length ? (<>
-                <StyledTypography variant="h2">Project join requests</StyledTypography>
-                <ul className={"joinRequestList"}>
-                  {projectJoinRequests.map((request) => {
-                    return (<li className={"joinRequestItem"} key={request?.requestId}>
-                        <p>
-                          <strong>{request.company.name}</strong>{" - "}
-                          {request.status}
-                        </p>
-                      </li>);
-                  })}
-                </ul>
-              </>) : (<></>)}
-          </StyledPaper>
-        </Grid>
+          {projectJoinRequests?.length ? (<>
+            <StyledTypography variant="h2">Project join requests</StyledTypography>
+            <ul className={"joinRequestList"}>
+              {projectJoinRequests.map((request) => {
+                return (<li className={"joinRequestItem"} key={request?.requestId}>
+                  <p>
+                    <strong>{request.project.name}</strong>{" - "}
+                    {request.status}
+                  </p>
+                </li>);
+              })}
+            </ul>
+          </>) : (<></>)}
+        </StyledPaper>
       </Grid>
-    </Container>);
+    </Grid>
+  </Container>);
 }
 
 export default UserDashboard;

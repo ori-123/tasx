@@ -26,79 +26,78 @@ import java.util.Optional;
 
 @Service
 public class ProjectRequestService {
-    private final ProjectDao projectDao;
-    private final ProjectJoinRequestDao requestDao;
-    private final UserProvider userProvider;
-    private final CustomAccessControlService accessControlService;
-    private final ProjectConverter projectConverter;
-    private final Logger logger;
+  private final ProjectDao projectDao;
+  private final ProjectJoinRequestDao requestDao;
+  private final UserProvider userProvider;
+  private final CustomAccessControlService accessControlService;
+  private final ProjectConverter projectConverter;
+  private final Logger logger;
 
-    @Autowired
-    public ProjectRequestService(
-            ProjectDao projectDao, ProjectJoinRequestDao requestDao, UserProvider userProvider,
-            CustomAccessControlService accessControlService, ProjectConverter projectConverter) {
-        this.projectDao = projectDao;
-        this.requestDao = requestDao;
-        this.userProvider = userProvider;
-        this.accessControlService = accessControlService;
-        this.projectConverter = projectConverter;
-        this.logger = LoggerFactory.getLogger(this.getClass());
-    }
+  @Autowired
+  public ProjectRequestService(
+    ProjectDao projectDao, ProjectJoinRequestDao requestDao, UserProvider userProvider,
+    CustomAccessControlService accessControlService, ProjectConverter projectConverter) {
+    this.projectDao = projectDao;
+    this.requestDao = requestDao;
+    this.userProvider = userProvider;
+    this.accessControlService = accessControlService;
+    this.projectConverter = projectConverter;
+    this.logger = LoggerFactory.getLogger(this.getClass());
+  }
 
-    @Transactional
-    public ProjectJoinRequestResponseDto createJoinRequest(Long projectId) {
-        User user = userProvider.getAuthenticatedUser();
-        Project project = projectDao.findById(projectId).orElseThrow(
-                () -> new ProjectNotFoundException(projectId));
-        if (project.getAssignedEmployees().contains(user)) {
-            throw new UserAlreadyInProjectException();
-        }
-        Optional<ProjectJoinRequest> duplicateRequest = requestDao.findOneByProjectAndUser(
-                project,
-                user);
-        if (duplicateRequest.isPresent()) {
-            throw new DuplicateProjectJoinRequestException();
-        }
-        ProjectJoinRequest savedRequest = requestDao.save(new ProjectJoinRequest(project, user));
-        return projectConverter.getProjectJoinRequestResponseDto(savedRequest);
+  @Transactional
+  public ProjectJoinRequestResponseDto createJoinRequest(Long projectId) {
+    User user = userProvider.getAuthenticatedUser();
+    Project project = projectDao.findById(projectId).orElseThrow(
+      () -> new ProjectNotFoundException(projectId));
+    if (project.getAssignedEmployees().contains(user)) {
+      throw new UserAlreadyInProjectException();
     }
+    Optional<ProjectJoinRequest> duplicateRequest = requestDao.findOneByProjectAndUser(
+      project,
+      user);
+    if (duplicateRequest.isPresent()) {
+      throw new DuplicateProjectJoinRequestException();
+    }
+    ProjectJoinRequest savedRequest = requestDao.save(new ProjectJoinRequest(project, user));
+    return projectConverter.getProjectJoinRequestResponseDto(savedRequest);
+  }
 
-    @Transactional
-    public List<ProjectJoinRequestResponseDto> getJoinRequestsOfProject(Long projectId) {
-        User user = userProvider.getAuthenticatedUser();
-        Project project = projectDao.findById(projectId).orElseThrow(
-                () -> new ProjectNotFoundException(projectId));
-        accessControlService.verifyProjectOwnerAccess(project, user);
-        List<ProjectJoinRequest> requests = requestDao.findByProjectAndStatus(
-                project,
-                RequestStatus.PENDING);
-        return projectConverter.getProjectJoinRequestResponseDtos(requests);
-    }
+  @Transactional
+  public List<ProjectJoinRequestResponseDto> getJoinRequestsOfProject(Long projectId) {
+    User user = userProvider.getAuthenticatedUser();
+    Project project = projectDao.findById(projectId).orElseThrow(
+      () -> new ProjectNotFoundException(projectId));
+    accessControlService.verifyProjectOwnerAccess(project, user);
+    List<ProjectJoinRequest> requests = requestDao.findByProjectAndStatus(
+      project,
+      RequestStatus.PENDING);
+    return projectConverter.getProjectJoinRequestResponseDtos(requests);
+  }
 
-    @Transactional
-    public List<ProjectJoinRequestResponseDto> getJoinRequestsOfUser() {
-        User user = userProvider.getAuthenticatedUser();
-        List<ProjectJoinRequest> requests = requestDao.findByUser(user);
-        return projectConverter.getProjectJoinRequestResponseDtos(requests);
-    }
+  @Transactional
+  public List<ProjectJoinRequestResponseDto> getJoinRequestsOfUser() {
+    User user = userProvider.getAuthenticatedUser();
+    List<ProjectJoinRequest> requests = requestDao.findByUser(user);
+    return projectConverter.getProjectJoinRequestResponseDtos(requests);
+  }
 
-    @Transactional(rollbackOn = Exception.class)
-    public void handleJoinRequest(
-            Long projectId, Long requestId, ProjectJoinRequestUpdateDto updateDto) {
-        ProjectJoinRequest request = requestDao.findById(requestId).orElseThrow(
-                () -> new ProjectJoinRequestNotFoundException(requestId));
-        User user = userProvider.getAuthenticatedUser();
-        Project project = projectDao.findById(projectId).orElseThrow(
-                () -> new ProjectNotFoundException(projectId));
-        accessControlService.verifyProjectOwnerAccess(project, user);
-        request.setStatus(updateDto.requestStatus());
-        if (request.getStatus().equals(RequestStatus.APPROVED)) {
-            addUserToProject(request.getUser(), request.getProject());
-            requestDao.delete(request);
-        }
+  @Transactional(rollbackOn = Exception.class)
+  public void handleJoinRequest(Long requestId, ProjectJoinRequestUpdateDto updateDto) {
+    ProjectJoinRequest request = requestDao.findById(requestId).orElseThrow(
+      () -> new ProjectJoinRequestNotFoundException(requestId));
+    User user = userProvider.getAuthenticatedUser();
+    Project project = projectDao.findById(request.getProject().getId()).orElseThrow(
+      () -> new ProjectNotFoundException(request.getProject().getId()));
+    accessControlService.verifyAssignedToProjectAccess(project, user);
+    request.setStatus(updateDto.status());
+    if (request.getStatus().equals(RequestStatus.APPROVED)) {
+      addUserToProject(request.getUser(), request.getProject());
+      requestDao.delete(request);
     }
+  }
 
-    private void addUserToProject(User user, Project project) {
-        project.assignEmployee(user);
-    }
+  private void addUserToProject(User user, Project project) {
+    project.assignEmployee(user);
+  }
 }

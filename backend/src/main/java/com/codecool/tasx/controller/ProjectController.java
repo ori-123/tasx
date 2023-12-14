@@ -1,11 +1,9 @@
 package com.codecool.tasx.controller;
 
-import com.codecool.tasx.controller.dto.company.CompanyResponsePrivateDTO;
 import com.codecool.tasx.controller.dto.project.ProjectCreateRequestDto;
 import com.codecool.tasx.controller.dto.project.ProjectResponsePrivateDTO;
 import com.codecool.tasx.controller.dto.project.ProjectResponsePublicDTO;
 import com.codecool.tasx.controller.dto.project.ProjectUpdateRequestDto;
-import com.codecool.tasx.exception.company.CompanyNotFoundException;
 import com.codecool.tasx.exception.project.ProjectNotFoundException;
 import com.codecool.tasx.service.company.CompanyService;
 import com.codecool.tasx.service.company.project.ProjectService;
@@ -47,15 +45,6 @@ public class ProjectController {
     List<ProjectResponsePublicDTO> projects = projectService.getProjectsWithUser(companyId);
     return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", projects));
   }
-
-  /*@GetMapping
-  public ResponseEntity<?> getAllProjects(
-    @PathVariable Long companyId) {
-    CompanyResponsePrivateDTO company = companyService.getCompanyById(companyId).orElseThrow(
-      () -> new CompanyNotFoundException(companyId));
-    List<ProjectResponsePublicDTO> projects = projectService.getAllProjects(company.companyId());
-    return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", projects));
-  }*/
 
   @GetMapping("/{projectId}")
   public ResponseEntity<?> getProjectById(@PathVariable Long projectId) {
