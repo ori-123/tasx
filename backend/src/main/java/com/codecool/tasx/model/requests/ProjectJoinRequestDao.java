@@ -12,7 +12,7 @@ import java.util.Optional;
 public interface ProjectJoinRequestDao extends JpaRepository<ProjectJoinRequest,Long> {
     List<ProjectJoinRequest> findByProjectAndStatus(Project project, RequestStatus status);
 
-    Optional<ProjectJoinRequest> findOneByProjectAndUser(Project project, User user);
+  Optional<ProjectJoinRequest> findOneByProjectAndUser(Project project, User user);
 
     List<ProjectJoinRequest> findByUser(User user);
 }

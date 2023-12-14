@@ -34,7 +34,7 @@ public class UserController {
     ));
   }
 
-  @GetMapping("/project_requests")
+  @GetMapping("/project-requests")
   public ResponseEntity<?> getProjectJoinRequestOfUser() {
     List<ProjectJoinRequestResponseDto> projectJoinRequests = projectRequestService.getJoinRequestsOfUser();
     return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", projectJoinRequests));

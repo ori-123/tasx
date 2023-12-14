@@ -48,14 +48,14 @@ public class ProjectController {
     return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", projects));
   }
 
-  @GetMapping
+  /*@GetMapping
   public ResponseEntity<?> getAllProjects(
     @PathVariable Long companyId) {
     CompanyResponsePrivateDTO company = companyService.getCompanyById(companyId).orElseThrow(
       () -> new CompanyNotFoundException(companyId));
     List<ProjectResponsePublicDTO> projects = projectService.getAllProjects(company.companyId());
     return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", projects));
-  }
+  }*/
 
   @GetMapping("/{projectId}")
   public ResponseEntity<?> getProjectById(@PathVariable Long projectId) {

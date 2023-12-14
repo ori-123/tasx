@@ -70,7 +70,7 @@ public class ProjectService {
     return projectConverter.getProjectResponsePublicDtos(projects);
   }
 
-  public List<ProjectResponsePublicDTO> getAllProjects(Long companyId)
+  /*public List<ProjectResponsePublicDTO> getAllProjects(Long companyId)
     throws CompanyNotFoundException, UnauthorizedException {
     Company company = companyDao.findById(companyId).orElseThrow(
       () -> new CompanyNotFoundException(companyId));
@@ -78,7 +78,7 @@ public class ProjectService {
     accessControlService.verifyCompanyEmployeeAccess(company, user);
     List<Project> projects = company.getProjects();
     return projectConverter.getProjectResponsePublicDtos(projects);
-  }
+  }*/
 
   @Transactional
   public Optional<ProjectResponsePrivateDTO> getProjectById(Long projectId)
