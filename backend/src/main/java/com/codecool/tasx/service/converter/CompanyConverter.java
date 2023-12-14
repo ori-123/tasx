@@ -36,7 +36,6 @@ public class CompanyConverter {
     return new CompanyResponsePrivateDTO(company.getId(), company.getName(),
       company.getDescription(), userConverter.getUserResponsePublicDto(company.getCompanyOwner()),
       userConverter.getUserResponsePublicDtos(company.getEmployees()),
-      projectConverter.getProjectResponsePublicDtos(company.getProjects()),
       rewardConverter.getRewardResponseDtos(company.getRewards()));
   }
 

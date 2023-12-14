@@ -16,43 +16,41 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/companies/{companyId}/projects/{projectId}/requests")
 public class ProjectRequestController {
-    private final ProjectRequestService projectJoinRequestService;
-    private final Logger logger;
+  private final ProjectRequestService projectJoinRequestService;
+  private final Logger logger;
 
-    @Autowired
-    public ProjectRequestController(ProjectRequestService projectJoinRequestService) {
-        this.projectJoinRequestService = projectJoinRequestService;
-        logger = LoggerFactory.getLogger(this.getClass());
-    }
+  @Autowired
+  public ProjectRequestController(ProjectRequestService projectJoinRequestService) {
+    this.projectJoinRequestService = projectJoinRequestService;
+    logger = LoggerFactory.getLogger(this.getClass());
+  }
 
-    @GetMapping()
-    public ResponseEntity<?> readJoinRequestsOfProject(
-            @PathVariable Long companyId, @PathVariable Long projectId) {
+  @GetMapping()
+  public ResponseEntity<?> readJoinRequestsOfProject(@PathVariable Long projectId) {
 
-        List<ProjectJoinRequestResponseDto> requests = projectJoinRequestService
-                .getJoinRequestsOfProject(projectId);
+    List<ProjectJoinRequestResponseDto> requests = projectJoinRequestService
+      .getJoinRequestsOfProject(projectId);
 
-        return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", requests));
-    }
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", requests));
+  }
 
-    @PostMapping()
-    public ResponseEntity<?> joinProject(@PathVariable Long companyId, @PathVariable Long projectId) {
-        ProjectJoinRequestResponseDto createdRequest = projectJoinRequestService
-                .createJoinRequest(projectId);
+  @PostMapping()
+  public ResponseEntity<?> joinProject(@PathVariable Long projectId) {
+    ProjectJoinRequestResponseDto createdRequest = projectJoinRequestService
+      .createJoinRequest(projectId);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(
-                Map.of("message", "Request created successfully", "data", createdRequest));
-    }
+    return ResponseEntity.status(HttpStatus.CREATED).body(
+      Map.of("message", "Request created successfully", "data", createdRequest));
+  }
 
-    @PutMapping("/{requestId}")
-    public ResponseEntity<?> updateJoinRequestById(
-            @PathVariable Long companyId, @PathVariable Long projectId,
-            @PathVariable Long requestId, @RequestBody ProjectJoinRequestUpdateDto requestDto) {
+  @PutMapping("/{requestId}")
+  public ResponseEntity<?> updateJoinRequestById(@PathVariable Long requestId, @RequestBody
+  ProjectJoinRequestUpdateDto requestDto) {
 
-        projectJoinRequestService.handleJoinRequest(companyId, projectId, requestDto);
+    projectJoinRequestService.handleJoinRequest(requestId, requestDto);
 
-        //TODO: notify the user who requested to join...
-        return ResponseEntity.status(HttpStatus.OK).body(
-                Map.of("message", "Request updated successfully"));
-    }
+    //TODO: notify the user who requested to join...
+    return ResponseEntity.status(HttpStatus.OK).body(
+      Map.of("message", "Request updated successfully"));
+  }
 }
