@@ -63,7 +63,7 @@ public class TaskController {
   public ResponseEntity<?> updateTask(
     @PathVariable Long taskId, @RequestBody TaskUpdateRequestDto taskDetails) {
     if (taskDetails.taskStatus().equals(TaskStatus.DONE)) {
-
+      throw new IllegalArgumentException();
     }
 
     TaskResponsePublicDto taskResponseDetails = taskService.updateTask(taskDetails, taskId);

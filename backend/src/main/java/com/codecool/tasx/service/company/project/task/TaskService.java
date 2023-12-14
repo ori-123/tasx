@@ -75,7 +75,7 @@ public class TaskService {
   public List<User> acquirePointsForTask(Long taskId) throws UnauthorizedException {
     Task task = taskDao.findById(taskId).get();
     User user = userProvider.getAuthenticatedUser();
-    accessControlService.verifyCompanyEmployeeAccess(task.getProject().getCompany(), user);
+    accessControlService.verifyAssignedToProjectAccess(task.getProject(), user);
     List<User> assignedEmployees = task.getAssignedEmployees();
     for (User employee : assignedEmployees) {
       employee.setScore(employee.getScore() + task.calculatePoints());

@@ -24,7 +24,7 @@ function CreateTask() {
         setLoading(true);
         //TODO: fetch from backend
         setImportanceOptions(["MUST_HAVE", "NICE_TO_HAVE"]);
-        setTaskStatusOptions(["BACKLOG", "IN_PROGRESS", "DONE", "FAILED"]);
+        setTaskStatusOptions(["BACKLOG", "IN_PROGRESS"]);
       } catch (e) {
         console.error(e);
         throw new Error("Failed to load options for task creation");

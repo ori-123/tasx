@@ -29,7 +29,7 @@ public class UserService {
     private final TaskService taskService;
 
     public UserService(UserDao userDao, UserConverter userConverter,
-                       CustomAccessControlService accessControlService, Logger logger,
+                       CustomAccessControlService accessControlService,
                        UserProvider userProvider, TaskService taskService) {
         this.userDao = userDao;
         this.userConverter = userConverter;

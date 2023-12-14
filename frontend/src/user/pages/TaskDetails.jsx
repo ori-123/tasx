@@ -4,7 +4,7 @@ import LoadingSpinner from "../../components/LoadingSpinner.jsx";
 import {Link, useParams} from "react-router-dom";
 import BackButton from "../../components/BackButton.jsx";
 import useAuth from "../../auth/hooks/useAuth.js";
-import {Alert, Container, Paper, Snackbar, Typography,} from "@mui/material";
+import {Alert, Container, Paper, Snackbar, Typography} from "@mui/material";
 import {styled} from "@mui/system";
 
 const StyledPaper = styled(Paper)(({theme}) => ({
@@ -12,20 +12,20 @@ const StyledPaper = styled(Paper)(({theme}) => ({
   borderRadius: theme.spacing(2),
   background: "linear-gradient(45deg, #516d79 30%, #11508d 90%)",
   color: "#FFFFFF",
-  accentColor: "#FFFFFF",
+  accentColor: "#FFFFFF"
 }));
 
 const StyledTypography = styled(Typography)(({theme}) => ({
   fontWeight: "bold",
   fontSize: "2rem",
   color: "#FFFFFF",
-  marginBottom: theme.spacing(2),
+  marginBottom: theme.spacing(2)
 }));
 
 const StyledSubtitle = styled(Typography)(({theme}) => ({
   fontSize: "1.2rem",
   color: "#FFFFFF",
-  marginBottom: theme.spacing(2),
+  marginBottom: theme.spacing(2)
 }));
 
 function TaskDetails() {
@@ -99,7 +99,9 @@ function TaskDetails() {
         <Link to={`/companies/${companyId}/projects/${projectId}/tasks/update/${taskId}`}>
           Update task details
         </Link>
-        <BackButton path={`/companies/${companyId}`}/>
+        <div>
+          <BackButton path={`/companies/${companyId}`}/>
+        </div>
       </StyledPaper>
     </Container>
   );
