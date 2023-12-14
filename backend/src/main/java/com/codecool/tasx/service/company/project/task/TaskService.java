@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -76,9 +77,45 @@ public class TaskService {
     Project project = projectDao.findById(projectId).orElseThrow(
             () -> new ProjectNotFoundException(projectId));
     User user = userProvider.getAuthenticatedUser();
+
     accessControlService.verifyAssignedToProjectAccess(project, user);
+
     List<Task> tasks = project.getTasks().stream().filter(task -> task.getTaskStatus().equals(status)).toList();
     return taskConverter.getTaskResponsePublicDtos(tasks);
+  }
+
+  @Transactional
+  public List<TaskResponsePublicDto> getFinishedTasks(Long projectId)
+          throws ProjectNotFoundException, UnauthorizedException {
+    Project project = projectDao.findById(projectId).orElseThrow(
+            () -> new ProjectNotFoundException(projectId));
+    User user = userProvider.getAuthenticatedUser();
+
+    accessControlService.verifyAssignedToProjectAccess(project, user);
+
+    List<TaskResponsePublicDto> doneTasks = getTasksByStatus(projectId, TaskStatus.DONE);
+    List<TaskResponsePublicDto> failedTasks = getTasksByStatus(projectId, TaskStatus.FAILED);
+    List<TaskResponsePublicDto> tasks = new ArrayList<>();
+    tasks.addAll(doneTasks);
+    tasks.addAll(failedTasks);
+    return tasks;
+  }
+
+  @Transactional
+  public List<TaskResponsePublicDto> getUnfinishedTasks(Long projectId)
+          throws ProjectNotFoundException, UnauthorizedException {
+    Project project = projectDao.findById(projectId).orElseThrow(
+            () -> new ProjectNotFoundException(projectId));
+    User user = userProvider.getAuthenticatedUser();
+
+    accessControlService.verifyAssignedToProjectAccess(project, user);
+
+    List<TaskResponsePublicDto> doneTasks = getTasksByStatus(projectId, TaskStatus.BACKLOG);
+    List<TaskResponsePublicDto> failedTasks = getTasksByStatus(projectId, TaskStatus.IN_PROGRESS);
+    List<TaskResponsePublicDto> tasks = new ArrayList<>();
+    tasks.addAll(doneTasks);
+    tasks.addAll(failedTasks);
+    return tasks;
   }
 
   @Transactional(rollbackOn = Exception.class)

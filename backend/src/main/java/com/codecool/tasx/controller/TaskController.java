@@ -29,6 +29,18 @@ public class TaskController {
     return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", tasks));
   }
 
+  @GetMapping("/finishedtasks")
+  public ResponseEntity<?> getFinishedTasks(@PathVariable Long projectId) {
+    List<TaskResponsePublicDto> tasks = taskService.getFinishedTasks(projectId);
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", tasks));
+  }
+
+  @GetMapping("/unfinishedtasks")
+  public ResponseEntity<?> getUnfinishedTasks(@PathVariable Long projectId) {
+    List<TaskResponsePublicDto> tasks = taskService.getUnfinishedTasks(projectId);
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", tasks));
+  }
+
   @GetMapping("/{taskId}")
   public ResponseEntity<?> getTaskById(@PathVariable Long taskId) {
     TaskResponsePublicDto task = taskService.getTaskById(taskId).orElseThrow(
