@@ -4,6 +4,9 @@ import com.codecool.tasx.controller.dto.task.TaskCreateRequestDto;
 import com.codecool.tasx.controller.dto.task.TaskResponsePublicDto;
 import com.codecool.tasx.controller.dto.task.TaskUpdateRequestDto;
 import com.codecool.tasx.exception.task.TaskNotFoundException;
+import com.codecool.tasx.model.company.project.task.Task;
+import com.codecool.tasx.model.company.project.task.TaskStatus;
+import com.codecool.tasx.model.user.User;
 import com.codecool.tasx.service.company.project.task.TaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -29,6 +32,18 @@ public class TaskController {
     return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", tasks));
   }
 
+  @GetMapping("/finishedtasks")
+  public ResponseEntity<?> getFinishedTasks(@PathVariable Long projectId) {
+    List<TaskResponsePublicDto> tasks = taskService.getFinishedTasks(projectId);
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", tasks));
+  }
+
+  @GetMapping("/unfinishedtasks")
+  public ResponseEntity<?> getUnfinishedTasks(@PathVariable Long projectId) {
+    List<TaskResponsePublicDto> tasks = taskService.getUnfinishedTasks(projectId);
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", tasks));
+  }
+
   @GetMapping("/{taskId}")
   public ResponseEntity<?> getTaskById(@PathVariable Long taskId) {
     TaskResponsePublicDto task = taskService.getTaskById(taskId).orElseThrow(
@@ -47,6 +62,10 @@ public class TaskController {
   @PutMapping("/{taskId}")
   public ResponseEntity<?> updateTask(
     @PathVariable Long taskId, @RequestBody TaskUpdateRequestDto taskDetails) {
+    if (taskDetails.taskStatus().equals(TaskStatus.DONE)) {
+
+    }
+
     TaskResponsePublicDto taskResponseDetails = taskService.updateTask(taskDetails, taskId);
 
     return ResponseEntity.status(HttpStatus.OK).body(

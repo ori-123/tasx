@@ -85,6 +85,7 @@ function TaskDetails() {
       </Snackbar>
       <StyledPaper>
         <h2>{task.name}</h2>
+        <p>Points to be earned: {task.points}</p>
         <p>Start date: {task.startDate}</p>
         <p>Deadline: {task.deadline}</p>
         <h4>Importance: {task.importance.replaceAll("_", " ")}</h4>

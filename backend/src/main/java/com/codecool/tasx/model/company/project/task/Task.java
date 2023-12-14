@@ -4,6 +4,7 @@ import com.codecool.tasx.model.company.project.Project;
 import com.codecool.tasx.model.user.User;
 import jakarta.persistence.*;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +22,7 @@ public class Task {
   private LocalDateTime startDate;
   private LocalDateTime deadline;
   private TaskStatus taskStatus;
+  private long points;
 
   @ManyToOne
   @JoinColumn(name = "task_owner_id")
@@ -56,11 +58,13 @@ public class Task {
     this.project = project;
     this.assignedEmployees = new ArrayList<>();
     this.expenses = new ArrayList<>();
+    points = calculatePoints();
   }
 
   public Long getId() {
     return id;
   }
+
 
   public String getName() {
     return name;
@@ -156,6 +160,23 @@ public class Task {
 
   public void setExpenses(List<Expense> expenses) {
     this.expenses = expenses;
+  }
+
+  public long getPoints() {
+    return points;
+  }
+
+  public long calculatePoints() {
+    long hoursToDeadline = Duration.between(LocalDateTime.now(), deadline).toHours();
+    int basePoints = difficulty * 50;
+    long bonusPoints = hoursToDeadline * difficulty;
+    if (LocalDateTime.now().isBefore(deadline)) {
+      return Math.round(basePoints + bonusPoints);
+    } else if (deadline.equals(LocalDateTime.now())) {
+      return basePoints;
+    } else {
+      return 0;
+    }
   }
 
   @Override

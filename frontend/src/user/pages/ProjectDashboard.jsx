@@ -4,7 +4,7 @@ import LoadingSpinner from "../../components/LoadingSpinner.jsx";
 import {Link, useParams} from "react-router-dom";
 import BackButton from "../../components/BackButton.jsx";
 import useAuth from "../../auth/hooks/useAuth.js";
-import {Alert, Button, Container, List, ListItem, Paper, Snackbar, Typography} from "@mui/material";
+import {Alert, Container, Paper, Snackbar, Typography,} from "@mui/material";
 import {styled} from "@mui/system";
 import {format, parseISO} from "date-fns";
 
@@ -33,6 +33,7 @@ function ProjectDashboard() {
   const projectId = useParams()?.projectId;
   const [project, setProject] = useState(null);
   const [joinRequests, setJoinRequests] = useState([]);
+  const [unfinishedTasks, setUnfinishedTasks] = useState(null)
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("error");
@@ -56,6 +57,28 @@ function ProjectDashboard() {
       setSnackbarMessage("Failed to load project");
       setSnackbarOpen(true);
       setProject(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function loadUnfinishedTasks() {
+    try {
+      setLoading(true);
+      const {httpResponse, responseObject} = await authFetch(
+          "GET",
+          `companies/${companyId}/projects/${projectId}/tasks/unfinishedtasks`
+      );
+      if (httpResponse?.status !== 200 || !responseObject?.data) {
+        setErrorMessage(responseObject?.error ?? "Failed to load tasks");
+        setUnfinishedTasks(null);
+        return;
+      }
+      setUnfinishedTasks(responseObject.data);
+    } catch (e) {
+      console.error(e);
+      setErrorMessage("Failed to load tasks");
+      setUnfinishedTasks(null);
     } finally {
       setLoading(false);
     }
@@ -112,6 +135,7 @@ function ProjectDashboard() {
 
   useEffect(() => {
     loadProject();
+    loadUnfinishedTasks();
   }, []);
 
   useEffect(() => {
@@ -151,26 +175,31 @@ function ProjectDashboard() {
           </ul>
         </>) : (<></>)}
 
-        <StyledSubtitle>Tasks:</StyledSubtitle>
-        <ul className={"projectList"}>
-          {project.tasks?.length ? (project.tasks.map((task) => {
-            return (<li key={task.taskId}>
-              <Link
-                to={`/companies/${companyId}/projects/${projectId}/tasks/${task.taskId}`}
-                style={{color: "#FFFFFF"}}
-              >
-                {task.name}
+            <StyledSubtitle>Tasks:</StyledSubtitle>
+            <ul className={"projectList"}>
+              {unfinishedTasks?.length ? (
+                unfinishedTasks.map((task) => {
+                  return (
+                    <li key={task.taskId}>
+                      <Link
+                        to={`/companies/${companyId}/projects/${projectId}/tasks/${task.taskId}`}
+                        style={{color: "#FFFFFF"}}
+                      >
+                        {task.name}
+                      </Link>
+                      <p>{task.description}</p>
+                    </li>
+                  );
+                })
+              ) : (
+                <p>
+                  No tasks found
+                </p>
+              )}
+              <Link to={`/companies/${companyId}/projects/${projectId}/tasks/create`} style={{color: "#FFFFFF"}}>
+                Create a new task
               </Link>
-              <p>{task.description}</p>
-            </li>);
-          })) : (<p>
-            No tasks found
-          </p>)}
-          <Link to={`/companies/${companyId}/projects/${projectId}/tasks/create`}
-                style={{color: "#FFFFFF"}}>
-            Create a new task
-          </Link>
-        </ul>
+            </ul>
 
         <Typography variant="h6">
           Start date: {format(parseISO(project.startDate), "yyyy-MM-dd HH:mm")}

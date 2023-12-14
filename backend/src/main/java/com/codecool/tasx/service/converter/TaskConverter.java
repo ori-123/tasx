@@ -22,7 +22,7 @@ public class TaskConverter {
       task.getId(), task.getName(), task.getDescription(), task.getImportance(),
       task.getDifficulty(),
       task.getStartDate(), task.getDeadline(), task.getTaskStatus(),
-      userConverter.getUserResponsePublicDto(task.getTaskOwner()));
+      userConverter.getUserResponsePublicDto(task.getTaskOwner()), task.getPoints());
   }
 
   public List<TaskResponsePublicDto> getTaskResponsePublicDtos(List<Task> tasks) {

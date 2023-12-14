@@ -43,6 +43,8 @@ public class User implements UserDetails, OAuth2User {
 
   private boolean OAuth2User;
 
+  private long score;
+
   public User() {
   }
 
@@ -56,6 +58,7 @@ public class User implements UserDetails, OAuth2User {
     this.companies = new ArrayList<>();
     this.ownedProjects = new ArrayList<>();
     this.OAuth2User = false;
+    score = 0;
   }
 
   public User(String username, String email) {
@@ -84,6 +87,10 @@ public class User implements UserDetails, OAuth2User {
     return email;
   }
 
+  public long getScore() {
+    return score;
+  }
+
   public Set<Role> getRoles() {
     return Set.copyOf(roles);
   }
@@ -94,6 +101,46 @@ public class User implements UserDetails, OAuth2User {
 
   public List<Project> getProjects() {
     return projects;
+  }
+
+  public void setScore(long score) {
+    this.score = score;
+  }
+
+  public void setId(Long id) {
+    this.id = id;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
+  public void setRoles(Set<Role> roles) {
+    this.roles = roles;
+  }
+
+  public void setOwnedCompanies(List<Company> ownedCompanies) {
+    this.ownedCompanies = ownedCompanies;
+  }
+
+  public void setCompanies(List<Company> companies) {
+    this.companies = companies;
+  }
+
+  public void setOwnedProjects(List<Project> ownedProjects) {
+    this.ownedProjects = ownedProjects;
+  }
+
+  public void setProjects(List<Project> projects) {
+    this.projects = projects;
   }
 
   public List<Company> getCompanies() {

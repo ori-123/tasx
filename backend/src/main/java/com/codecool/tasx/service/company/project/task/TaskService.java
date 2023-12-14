@@ -10,6 +10,7 @@ import com.codecool.tasx.model.company.project.Project;
 import com.codecool.tasx.model.company.project.ProjectDao;
 import com.codecool.tasx.model.company.project.task.Task;
 import com.codecool.tasx.model.company.project.task.TaskDao;
+import com.codecool.tasx.model.company.project.task.TaskStatus;
 import com.codecool.tasx.model.user.User;
 import com.codecool.tasx.service.auth.CustomAccessControlService;
 import com.codecool.tasx.service.auth.UserProvider;
@@ -21,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -69,6 +71,65 @@ public class TaskService {
     return Optional.of(taskConverter.getTaskResponsePublicDto(task));
   }
 
+  @Transactional
+  public List<User> acquirePointsForTask(Long taskId) throws UnauthorizedException {
+    Task task = taskDao.findById(taskId).get();
+    User user = userProvider.getAuthenticatedUser();
+    accessControlService.verifyCompanyEmployeeAccess(task.getProject().getCompany(), user);
+    List<User> assignedEmployees = task.getAssignedEmployees();
+    for (User employee : assignedEmployees) {
+      employee.setScore(employee.getScore() + task.calculatePoints());
+    }
+    return assignedEmployees;
+  }
+
+  @Transactional
+  public List<TaskResponsePublicDto> getTasksByStatus(Long projectId, TaskStatus status)
+          throws ProjectNotFoundException, UnauthorizedException {
+    Project project = projectDao.findById(projectId).orElseThrow(
+            () -> new ProjectNotFoundException(projectId));
+    User user = userProvider.getAuthenticatedUser();
+
+    accessControlService.verifyAssignedToProjectAccess(project, user);
+
+    List<Task> tasks = project.getTasks().stream().filter(task -> task.getTaskStatus().equals(status)).toList();
+    return taskConverter.getTaskResponsePublicDtos(tasks);
+  }
+
+  @Transactional
+  public List<TaskResponsePublicDto> getFinishedTasks(Long projectId)
+          throws ProjectNotFoundException, UnauthorizedException {
+    Project project = projectDao.findById(projectId).orElseThrow(
+            () -> new ProjectNotFoundException(projectId));
+    User user = userProvider.getAuthenticatedUser();
+
+    accessControlService.verifyAssignedToProjectAccess(project, user);
+
+    List<TaskResponsePublicDto> doneTasks = getTasksByStatus(projectId, TaskStatus.DONE);
+    List<TaskResponsePublicDto> failedTasks = getTasksByStatus(projectId, TaskStatus.FAILED);
+    List<TaskResponsePublicDto> tasks = new ArrayList<>();
+    tasks.addAll(doneTasks);
+    tasks.addAll(failedTasks);
+    return tasks;
+  }
+
+  @Transactional
+  public List<TaskResponsePublicDto> getUnfinishedTasks(Long projectId)
+          throws ProjectNotFoundException, UnauthorizedException {
+    Project project = projectDao.findById(projectId).orElseThrow(
+            () -> new ProjectNotFoundException(projectId));
+    User user = userProvider.getAuthenticatedUser();
+
+    accessControlService.verifyAssignedToProjectAccess(project, user);
+
+    List<TaskResponsePublicDto> doneTasks = getTasksByStatus(projectId, TaskStatus.BACKLOG);
+    List<TaskResponsePublicDto> failedTasks = getTasksByStatus(projectId, TaskStatus.IN_PROGRESS);
+    List<TaskResponsePublicDto> tasks = new ArrayList<>();
+    tasks.addAll(doneTasks);
+    tasks.addAll(failedTasks);
+    return tasks;
+  }
+
   @Transactional(rollbackOn = Exception.class)
   public TaskResponsePublicDto createTask(TaskCreateRequestDto createRequestDto, Long projectId)
     throws ConstraintViolationException {
@@ -97,6 +158,11 @@ public class TaskService {
     task.setStartDate(updateRequestDto.startDate());
     task.setDeadline(updateRequestDto.deadline());
     task.setTaskStatus(updateRequestDto.taskStatus());
+    if (task.getTaskStatus().equals(TaskStatus.DONE)) {
+      task.setAssignedEmployees(acquirePointsForTask(taskId));
+    } else {
+      task.setAssignedEmployees(updateRequestDto.assignedEmployees());
+    }
     Task savedTask = taskDao.save(task);
     return taskConverter.getTaskResponsePublicDto(savedTask);
   }
