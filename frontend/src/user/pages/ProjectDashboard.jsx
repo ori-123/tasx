@@ -38,6 +38,7 @@ function ProjectDashboard() {
   const companyId = useParams()?.companyId;
   const projectId = useParams()?.projectId;
   const [project, setProject] = useState(null);
+  const [unfinishedTasks, setUnfinishedTasks] = useState(null)
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("error");
@@ -69,8 +70,31 @@ function ProjectDashboard() {
     }
   }
 
+  async function loadUnfinishedTasks() {
+    try {
+      setLoading(true);
+      const {httpResponse, responseObject} = await authFetch(
+          "GET",
+          `companies/${companyId}/projects/${projectId}/tasks/unfinishedtasks`
+      );
+      if (httpResponse?.status !== 200 || !responseObject?.data) {
+        setErrorMessage(responseObject?.error ?? "Failed to load tasks");
+        setUnfinishedTasks(null);
+        return;
+      }
+      setUnfinishedTasks(responseObject.data);
+    } catch (e) {
+      console.error(e);
+      setErrorMessage("Failed to load tasks");
+      setUnfinishedTasks(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   useEffect(() => {
     loadProject();
+    loadUnfinishedTasks();
   }, []);
 
   return loading ? (
@@ -124,8 +148,8 @@ function ProjectDashboard() {
 
             <StyledSubtitle>Tasks:</StyledSubtitle>
             <ul className={"projectList"}>
-              {project.tasks?.length ? (
-                project.tasks.map((task) => {
+              {unfinishedTasks?.length ? (
+                unfinishedTasks.map((task) => {
                   return (
                     <li key={task.taskId}>
                       <Link
