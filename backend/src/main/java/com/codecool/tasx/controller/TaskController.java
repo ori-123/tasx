@@ -32,13 +32,21 @@ public class TaskController {
     return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", tasks));
   }
 
-  @GetMapping("/finishedtasks")
+  @GetMapping("/status/{taskStatus}")
+  public ResponseEntity<?> getTasksByStatus(
+    @PathVariable Long projectId,
+    @PathVariable TaskStatus taskStatus) {
+    List<TaskResponsePublicDto> tasks = taskService.getTasksByStatus(projectId, taskStatus);
+    return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", tasks));
+  }
+
+  @GetMapping("/finished")
   public ResponseEntity<?> getFinishedTasks(@PathVariable Long projectId) {
     List<TaskResponsePublicDto> tasks = taskService.getFinishedTasks(projectId);
     return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", tasks));
   }
 
-  @GetMapping("/unfinishedtasks")
+  @GetMapping("/unfinished")
   public ResponseEntity<?> getUnfinishedTasks(@PathVariable Long projectId) {
     List<TaskResponsePublicDto> tasks = taskService.getUnfinishedTasks(projectId);
     return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", tasks));
@@ -62,10 +70,6 @@ public class TaskController {
   @PutMapping("/{taskId}")
   public ResponseEntity<?> updateTask(
     @PathVariable Long taskId, @RequestBody TaskUpdateRequestDto taskDetails) {
-    if (taskDetails.taskStatus().equals(TaskStatus.DONE)) {
-      throw new IllegalArgumentException();
-    }
-
     TaskResponsePublicDto taskResponseDetails = taskService.updateTask(taskDetails, taskId);
 
     return ResponseEntity.status(HttpStatus.OK).body(

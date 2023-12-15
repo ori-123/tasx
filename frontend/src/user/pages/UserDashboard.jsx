@@ -23,11 +23,32 @@ function UserDashboard() {
   const authFetch = useAuthFetch();
 
   const [loading, setLoading] = useState(true);
+  const [userDetails, setUserDetails] = useState(null);
   const [joinRequests, setJoinRequests] = useState([]);
   const [projectJoinRequests, setProjectJoinRequests] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("error");
+
+  async function loadUserDetails() {
+    try {
+      setLoading(true);
+      const {httpResponse, responseObject} = await authFetch("GET", `user`);
+      if (httpResponse?.status !== 200 || !responseObject?.data) {
+        throw new Error(responseObject?.error ?? "Failed to load user details");
+      }
+      setUserDetails(responseObject.data);
+      console.log(responseObject.data);
+    } catch (e) {
+      console.error(e);
+      setJoinRequests([]);
+      setSnackbarSeverity("error");
+      setSnackbarMessage(e.message ?? "Failed to load user details");
+      setSnackbarOpen(true);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function loadJoinRequests() {
     try {
@@ -68,6 +89,7 @@ function UserDashboard() {
   }
 
   useEffect(() => {
+    loadUserDetails();
     loadJoinRequests();
     loadProjectJoinRequests();
   }, []);
@@ -90,6 +112,12 @@ function UserDashboard() {
     <Grid container spacing={4} justifyContent="center">
       <Grid item xs={12} md={12} lg={12}>
         <StyledPaper>
+          {userDetails ? <>
+            <StyledTypography variant="h2">Account details</StyledTypography>
+            <p>Username: {userDetails.username}</p>
+            <p>E-mail: {userDetails.email}</p>
+            <p>Score: {userDetails.score}</p>
+          </> : <></>}
           {joinRequests?.length ? (<>
             <StyledTypography variant="h2">Company join requests</StyledTypography>
             <ul className={"joinRequestList"}>

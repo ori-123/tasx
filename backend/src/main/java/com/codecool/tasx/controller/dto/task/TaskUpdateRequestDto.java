@@ -11,5 +11,5 @@ public record TaskUpdateRequestDto(String name, String description,
                                    Importance importance, Integer difficulty,
                                    LocalDateTime startDate,
                                    LocalDateTime deadline, TaskStatus taskStatus,
-                                   long points, List<User> assignedEmployees) {
+                                   Long points) {
 }

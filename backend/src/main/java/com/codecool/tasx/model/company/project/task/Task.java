@@ -99,7 +99,7 @@ public class Task {
   }
 
   public List<User> getAssignedEmployees() {
-    return List.copyOf(assignedEmployees);
+    return List.copyOf(this.assignedEmployees);
   }
 
   public Project getProject() {
@@ -111,7 +111,7 @@ public class Task {
   }
 
   public void assignEmployee(User user) {
-    assignedEmployees.add(user);
+    this.assignedEmployees.add(user);
   }
 
   public void setId(Long id) {

@@ -5,6 +5,7 @@ import com.codecool.tasx.controller.dto.task.TaskResponsePublicDto;
 import com.codecool.tasx.controller.dto.task.TaskUpdateRequestDto;
 import com.codecool.tasx.exception.auth.UnauthorizedException;
 import com.codecool.tasx.exception.project.ProjectNotFoundException;
+import com.codecool.tasx.exception.task.TaskNotEditableException;
 import com.codecool.tasx.exception.task.TaskNotFoundException;
 import com.codecool.tasx.model.company.project.Project;
 import com.codecool.tasx.model.company.project.ProjectDao;
@@ -12,6 +13,7 @@ import com.codecool.tasx.model.company.project.task.Task;
 import com.codecool.tasx.model.company.project.task.TaskDao;
 import com.codecool.tasx.model.company.project.task.TaskStatus;
 import com.codecool.tasx.model.user.User;
+import com.codecool.tasx.model.user.UserDao;
 import com.codecool.tasx.service.auth.CustomAccessControlService;
 import com.codecool.tasx.service.auth.UserProvider;
 import com.codecool.tasx.service.converter.TaskConverter;
@@ -30,17 +32,21 @@ import java.util.Optional;
 public class TaskService {
   private final TaskDao taskDao;
   private final ProjectDao projectDao;
+  private final UserDao userDao;
   private final TaskConverter taskConverter;
   private final UserProvider userProvider;
   private final CustomAccessControlService accessControlService;
   private final Logger logger;
+  private static final List<TaskStatus> finishedTaskStatuses = List.of(TaskStatus.DONE,
+    TaskStatus.FAILED);
 
   @Autowired
   public TaskService(
-    TaskDao taskDao, ProjectDao projectDao, TaskConverter taskConverter, UserProvider userProvider,
-    CustomAccessControlService accessControlService) {
+    TaskDao taskDao, ProjectDao projectDao, UserDao userDao, TaskConverter taskConverter,
+    UserProvider userProvider, CustomAccessControlService accessControlService) {
     this.taskDao = taskDao;
     this.projectDao = projectDao;
+    this.userDao = userDao;
     this.taskConverter = taskConverter;
     this.userProvider = userProvider;
     this.accessControlService = accessControlService;
@@ -71,36 +77,34 @@ public class TaskService {
     return Optional.of(taskConverter.getTaskResponsePublicDto(task));
   }
 
-  @Transactional
-  public List<User> acquirePointsForTask(Long taskId) throws UnauthorizedException {
-    Task task = taskDao.findById(taskId).get();
-    User user = userProvider.getAuthenticatedUser();
-    accessControlService.verifyAssignedToProjectAccess(task.getProject(), user);
+  @Transactional(rollbackOn = Exception.class)
+  public void acquirePointsForTask(Task task) throws UnauthorizedException {
     List<User> assignedEmployees = task.getAssignedEmployees();
     for (User employee : assignedEmployees) {
       employee.setScore(employee.getScore() + task.calculatePoints());
+      userDao.save(employee);
     }
-    return assignedEmployees;
   }
 
   @Transactional
   public List<TaskResponsePublicDto> getTasksByStatus(Long projectId, TaskStatus status)
-          throws ProjectNotFoundException, UnauthorizedException {
+    throws ProjectNotFoundException, UnauthorizedException {
     Project project = projectDao.findById(projectId).orElseThrow(
-            () -> new ProjectNotFoundException(projectId));
+      () -> new ProjectNotFoundException(projectId));
     User user = userProvider.getAuthenticatedUser();
 
     accessControlService.verifyAssignedToProjectAccess(project, user);
 
-    List<Task> tasks = project.getTasks().stream().filter(task -> task.getTaskStatus().equals(status)).toList();
+    List<Task> tasks = project.getTasks().stream().filter(
+      task -> task.getTaskStatus().equals(status)).toList();
     return taskConverter.getTaskResponsePublicDtos(tasks);
   }
 
   @Transactional
   public List<TaskResponsePublicDto> getFinishedTasks(Long projectId)
-          throws ProjectNotFoundException, UnauthorizedException {
+    throws ProjectNotFoundException, UnauthorizedException {
     Project project = projectDao.findById(projectId).orElseThrow(
-            () -> new ProjectNotFoundException(projectId));
+      () -> new ProjectNotFoundException(projectId));
     User user = userProvider.getAuthenticatedUser();
 
     accessControlService.verifyAssignedToProjectAccess(project, user);
@@ -115,9 +119,9 @@ public class TaskService {
 
   @Transactional
   public List<TaskResponsePublicDto> getUnfinishedTasks(Long projectId)
-          throws ProjectNotFoundException, UnauthorizedException {
+    throws ProjectNotFoundException, UnauthorizedException {
     Project project = projectDao.findById(projectId).orElseThrow(
-            () -> new ProjectNotFoundException(projectId));
+      () -> new ProjectNotFoundException(projectId));
     User user = userProvider.getAuthenticatedUser();
 
     accessControlService.verifyAssignedToProjectAccess(project, user);
@@ -150,7 +154,23 @@ public class TaskService {
     TaskUpdateRequestDto updateRequestDto, Long taskId) throws ConstraintViolationException {
     User user = userProvider.getAuthenticatedUser();
     Task task = taskDao.findById(taskId).orElseThrow(() -> new TaskNotFoundException(taskId));
+    verifyEditable(task);
     accessControlService.verifyAssignedToProjectAccess(task.getProject(), user);
+    updateTaskDetails(updateRequestDto, task);
+    if (task.getTaskStatus().equals(TaskStatus.DONE)) {
+      acquirePointsForTask(task);
+    }
+    Task savedTask = taskDao.save(task);
+    return taskConverter.getTaskResponsePublicDto(savedTask);
+  }
+
+  private void verifyEditable(Task task) {
+    if (finishedTaskStatuses.contains(task.getTaskStatus())) {
+      throw new TaskNotEditableException(task.getId());
+    }
+  }
+
+  private void updateTaskDetails(TaskUpdateRequestDto updateRequestDto, Task task) {
     task.setName(updateRequestDto.name());
     task.setDescription(updateRequestDto.description());
     task.setImportance(updateRequestDto.importance());
@@ -158,13 +178,6 @@ public class TaskService {
     task.setStartDate(updateRequestDto.startDate());
     task.setDeadline(updateRequestDto.deadline());
     task.setTaskStatus(updateRequestDto.taskStatus());
-    if (task.getTaskStatus().equals(TaskStatus.DONE)) {
-      task.setAssignedEmployees(acquirePointsForTask(taskId));
-    } else {
-      task.setAssignedEmployees(updateRequestDto.assignedEmployees());
-    }
-    Task savedTask = taskDao.save(task);
-    return taskConverter.getTaskResponsePublicDto(savedTask);
   }
 
   @Transactional(rollbackOn = Exception.class)

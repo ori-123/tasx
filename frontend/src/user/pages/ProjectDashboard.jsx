@@ -33,7 +33,8 @@ function ProjectDashboard() {
   const projectId = useParams()?.projectId;
   const [project, setProject] = useState(null);
   const [joinRequests, setJoinRequests] = useState([]);
-  const [unfinishedTasks, setUnfinishedTasks] = useState(null);
+  const [finishedTasks, setFinishedTasks] = useState([]);
+  const [unfinishedTasks, setUnfinishedTasks] = useState([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
   const [snackbarSeverity, setSnackbarSeverity] = useState("error");
@@ -44,8 +45,7 @@ function ProjectDashboard() {
     try {
       setLoading(true);
       const {
-        httpResponse,
-        responseObject
+        httpResponse, responseObject
       } = await authFetch("GET", `companies/${companyId}/projects/${projectId}`);
       if (httpResponse?.status !== 200 || !responseObject?.data) {
         throw new Error(responseObject?.error ?? "Failed to load project");
@@ -65,25 +65,42 @@ function ProjectDashboard() {
   async function loadUnfinishedTasks() {
     try {
       setLoading(true);
-      const {httpResponse, responseObject} = await authFetch(
-        "GET",
-        `companies/${companyId}/projects/${projectId}/tasks/unfinishedtasks`
-      );
+      const {
+        httpResponse,
+        responseObject
+      } = await authFetch("GET", `companies/${companyId}/projects/${projectId}/tasks/unfinished`);
       if (httpResponse?.status !== 200 || !responseObject?.data) {
-        setErrorMessage(responseObject?.error ?? "Failed to load tasks");
-        setUnfinishedTasks(null);
-        return;
+        throw new Error(responseObject?.error ?? "Failed to load unfinished tasks");
       }
       setUnfinishedTasks(responseObject.data);
     } catch (e) {
-      console.error(e);
-      setErrorMessage("Failed to load tasks");
-      setUnfinishedTasks(null);
+      setSnackbarSeverity("error");
+      setSnackbarMessage(e.message ?? "Failed to load unfinished tasks");
+      setUnfinishedTasks([]);
     } finally {
       setLoading(false);
     }
   }
 
+  async function loadFinishedTasks() {
+    try {
+      setLoading(true);
+      const {
+        httpResponse,
+        responseObject
+      } = await authFetch("GET", `companies/${companyId}/projects/${projectId}/tasks/finished`);
+      if (httpResponse?.status !== 200 || !responseObject?.data) {
+        throw new Error(responseObject?.error ?? "Failed to load finished tasks");
+      }
+      setFinishedTasks(responseObject.data);
+    } catch (e) {
+      setSnackbarSeverity("error");
+      setSnackbarMessage(e.message ?? "Failed to load finished tasks");
+      setFinishedTasks([]);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function loadJoinRequests() {
     try {
@@ -135,6 +152,7 @@ function ProjectDashboard() {
 
   useEffect(() => {
     loadProject();
+    loadFinishedTasks();
     loadUnfinishedTasks();
   }, []);
 
@@ -175,32 +193,44 @@ function ProjectDashboard() {
           </ul>
         </>) : (<></>)}
 
-        <StyledSubtitle>Tasks:</StyledSubtitle>
+        <StyledSubtitle>Ongoing tasks:</StyledSubtitle>
         <ul className={"projectList"}>
-          {unfinishedTasks?.length ? (
-            unfinishedTasks.map((task) => {
-              return (
-                <li key={task.taskId}>
-                  <Link
-                    to={`/companies/${companyId}/projects/${projectId}/tasks/${task.taskId}`}
-                    style={{color: "#FFFFFF"}}
-                  >
-                    {task.name}
-                  </Link>
-                  <p>{task.description}</p>
-                </li>
-              );
-            })
-          ) : (
-            <p>
-              No tasks found
-            </p>
-          )}
-          <Link to={`/companies/${companyId}/projects/${projectId}/tasks/create`}
-                style={{color: "#FFFFFF"}}>
-            Create a new task
-          </Link>
+          {unfinishedTasks?.length ? (unfinishedTasks.map((task) => {
+            return (<li key={task.taskId}>
+              <Link
+                to={`/companies/${companyId}/projects/${projectId}/tasks/${task.taskId}`}
+                style={{color: "#FFFFFF"}}
+              >
+                {task.name}
+              </Link>
+              <p>{task.description}</p>
+            </li>);
+          })) : (<p>
+            No tasks found
+          </p>)}
         </ul>
+
+        <StyledSubtitle>Finished tasks:</StyledSubtitle>
+        <ul className={"projectList"}>
+          {finishedTasks?.length ? (finishedTasks.map((task) => {
+            return (<li key={task.taskId}>
+              <Link
+                to={`/companies/${companyId}/projects/${projectId}/tasks/${task.taskId}`}
+                style={{color: "#FFFFFF"}}
+              >
+                {task.name} - {task.taskStatus}
+              </Link>
+              <p>{task.description}</p>
+            </li>);
+          })) : (<p>
+            No tasks found
+          </p>)}
+        </ul>
+
+        <Link to={`/companies/${companyId}/projects/${projectId}/tasks/create`}
+              style={{color: "#FFFFFF"}}>
+          Create a new task
+        </Link>
 
         <Typography variant="h6">
           Start date: {format(parseISO(project.startDate), "yyyy-MM-dd HH:mm")}

@@ -96,9 +96,10 @@ function TaskDetails() {
           ? "You are the task owner"
           : `Owner: ${task.owner.username}`
         }</p>
-        <Link to={`/companies/${companyId}/projects/${projectId}/tasks/update/${taskId}`}>
-          Update task details
-        </Link>
+        {(task.taskStatus !== "DONE" && task.taskStatus !== "FAILED") ?
+          <Link to={`/companies/${companyId}/projects/${projectId}/tasks/update/${taskId}`}>
+            Update task details
+          </Link> : <></>}
         <div>
           <BackButton path={`/companies/${companyId}`}/>
         </div>

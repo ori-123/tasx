@@ -20,7 +20,7 @@ public class UserConverter {
   }
 
   public UserResponsePrivateDto getUserResponsePrivateDto(User user) {
-    return new UserResponsePrivateDto(user.getId(), user.getUsername(), user.getEmail(), user.getScore());
+    return new UserResponsePrivateDto(user.getId(), user.getActualUsername(), user.getEmail(), user.getScore());
   }
 
   public List<UserResponsePrivateDto> getUserResponsePrivateDtos(List<User> users) {
