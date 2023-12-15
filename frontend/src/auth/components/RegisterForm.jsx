@@ -15,12 +15,12 @@ const StyledDiv = styled("div")(({theme}) => ({
   color: "#FFFFFF",
   accentColor: "#FFFFFF",
   padding: theme.spacing(4),
-  borderRadius: theme.spacing(2),
+  borderRadius: theme.spacing(2)
 }));
 
 const StyledButton = styled(Button)(({theme}) => ({
   marginRight: theme.spacing(2),
-  color: "inherit",
+  color: "inherit"
 }));
 
 function RegisterForm({
@@ -28,7 +28,7 @@ function RegisterForm({
                         errorMessage,
                         usernameError,
                         emailError,
-                        passwordError,
+                        passwordError
                       }) {
   const [checked, setChecked] = useState(false);
 
@@ -128,7 +128,8 @@ function RegisterForm({
             >
               Sign Up
             </StyledButton>
-            <a href={`${import.meta.env.VITE_OAUTH2_FRONTEND_AUTHORIZATION_URL}`}>
+            <a
+              href={`${import.meta.env.VITE_API_BASE_URL}/${import.meta.env.VITE_OAUTH2_FRONTEND_AUTHORIZATION_URL}`}>
               <StyledButton
                 type="button"
                 fullWidth

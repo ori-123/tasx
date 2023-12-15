@@ -115,7 +115,7 @@ function LoginForm({onSubmit, errorMessage, emailError, passwordError}) {
               </Link>
             </Grid>
           </Grid>
-          <a href={`${import.meta.env.VITE_OAUTH2_FRONTEND_AUTHORIZATION_URL}`}>
+          <a href={`${import.meta.env.VITE_API_BASE_URL}/${import.meta.env.VITE_OAUTH2_FRONTEND_AUTHORIZATION_URL}`}>
             <StyledButton
               type="button"
               fullWidth

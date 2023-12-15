@@ -26,7 +26,7 @@ function OAuth2Redirect() {
           setAuth({
             "username": receivedUsername, "email": receivedEmail, "roles": receivedRoles, "accessToken": accessToken
           });
-          navigate("/user");
+          navigate("/companies");
         } else {
           throw new Error("OAuth2 login failed");
         }
