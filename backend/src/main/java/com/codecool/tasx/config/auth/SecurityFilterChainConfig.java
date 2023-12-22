@@ -26,7 +26,6 @@ public class SecurityFilterChainConfig {
   private final OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService;
   private final AuthenticationSuccessHandler authenticationSuccessHandler;
   private final AuthenticationFailureHandler authenticationFailureHandler;
-  private final AuthExceptionHandlerFilter authExceptionHandlerFilter;
 
   @Autowired
   public SecurityFilterChainConfig(
@@ -35,15 +34,13 @@ public class SecurityFilterChainConfig {
     HttpCookieOAuth2AuthorizationRequestRepository authorizationRequestRepository,
     OAuth2UserService<OAuth2UserRequest, OAuth2User> oAuth2UserService,
     AuthenticationSuccessHandler authenticationSuccessHandler,
-    AuthenticationFailureHandler authenticationFailureHandler,
-    AuthExceptionHandlerFilter authExceptionHandlerFilter) {
+    AuthenticationFailureHandler authenticationFailureHandler) {
     this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     this.authenticationProvider = authenticationProvider;
     this.authorizationRequestRepository = authorizationRequestRepository;
     this.oAuth2UserService = oAuth2UserService;
     this.authenticationSuccessHandler = authenticationSuccessHandler;
     this.authenticationFailureHandler = authenticationFailureHandler;
-    this.authExceptionHandlerFilter = authExceptionHandlerFilter;
   }
 
   /**
