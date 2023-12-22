@@ -12,18 +12,19 @@ import Container from "@mui/material/Container";
 import {styled} from "@mui/material/styles";
 import Collapse from "@mui/material/Collapse";
 import Popover from "@mui/material/Popover";
+import OAuth2GoogleSignInButton from "./OAuth2GoogleSignInButton.jsx";
 
 const StyledDiv = styled("div")(({theme}) => ({
   background: "linear-gradient(45deg, #516d79 30%, #11508d 90%)",
   color: "#FFFFFF",
   accentColor: "#FFFFFF",
   padding: theme.spacing(4),
-  borderRadius: theme.spacing(2),
+  borderRadius: theme.spacing(2)
 }));
 
 const StyledButton = styled(Button)(({theme}) => ({
   marginRight: theme.spacing(2),
-  color: "inherit",
+  color: "inherit"
 }));
 
 function LoginForm({onSubmit, errorMessage, emailError, passwordError}) {
@@ -115,16 +116,7 @@ function LoginForm({onSubmit, errorMessage, emailError, passwordError}) {
               </Link>
             </Grid>
           </Grid>
-          <a href={`${import.meta.env.VITE_API_BASE_URL}/${import.meta.env.VITE_OAUTH2_FRONTEND_AUTHORIZATION_URL}`}>
-            <StyledButton
-              type="button"
-              fullWidth
-              variant="contained"
-              sx={{mt: 3, mb: 2}}
-            >
-              Sign In with Google
-            </StyledButton>
-          </a>
+          <OAuth2GoogleSignInButton/>
         </Box>
       </StyledDiv>
       <Popover
@@ -133,11 +125,11 @@ function LoginForm({onSubmit, errorMessage, emailError, passwordError}) {
         onClose={handlePopoverClose}
         anchorOrigin={{
           vertical: "bottom",
-          horizontal: "left",
+          horizontal: "left"
         }}
         transformOrigin={{
           vertical: "top",
-          horizontal: "left",
+          horizontal: "left"
         }}
       >
         <Typography sx={{padding: 2, color: "darkred"}}>

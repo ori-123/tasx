@@ -1,10 +1,7 @@
 FROM node:latest as build_frontend
 
+# See the .dockerignore for details
 COPY frontend /home/app
-
-COPY frontend/src /home/app/src
-COPY frontend/public /home/app/public
-COPY frontend/index.html /home/app/index.html
 
 WORKDIR /home/app
 RUN npm install

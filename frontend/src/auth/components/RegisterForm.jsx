@@ -9,6 +9,7 @@ import Button from "@mui/material/Button";
 import Container from "@mui/material/Container";
 import Collapse from "@mui/material/Collapse";
 import {styled} from "@mui/material/styles";
+import OAuth2GoogleSignInButton from "./OAuth2GoogleSignInButton.jsx";
 
 const StyledDiv = styled("div")(({theme}) => ({
   background: "linear-gradient(45deg, #516d79 30%, #11508d 90%)",
@@ -128,17 +129,7 @@ function RegisterForm({
             >
               Sign Up
             </StyledButton>
-            <a
-              href={`${import.meta.env.VITE_API_BASE_URL}/${import.meta.env.VITE_OAUTH2_FRONTEND_AUTHORIZATION_URL}`}>
-              <StyledButton
-                type="button"
-                fullWidth
-                variant="contained"
-                sx={{mt: 3, mb: 2}}
-              >
-                Sign In with Google
-              </StyledButton>
-            </a>
+            <OAuth2GoogleSignInButton/>
           </Box>
         </Collapse>
       </StyledDiv>

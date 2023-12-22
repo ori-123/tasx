@@ -7,9 +7,6 @@ RUN mvn -f /home/app/pom.xml clean package
 
 FROM eclipse-temurin:21-jre-jammy
 
-# ssl
-COPY ssl/keystore.p12 /usr/local/lib/ssl/keystore.p12
-
 # app
 COPY --from=build /home/app/target/*.jar /usr/local/lib/app.jar
 

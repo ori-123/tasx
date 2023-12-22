@@ -54,7 +54,7 @@ const theme = createTheme({
   }
 });
 
-const oAuth2RedirectURL = import.meta.env.VITE_OAUTH2_FRONTEND_REDIRECT_URL;
+const oAuth2RedirectURL = import.meta.env.VITE_OAUTH2_REDIRECT_URL;
 
 const router = createBrowserRouter([
   /* public */
