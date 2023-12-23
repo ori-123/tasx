@@ -1,9 +1,7 @@
 import React, {useEffect, useState} from "react";
 import useAuthFetch from "../../api/useAuthFetch.js";
 import LoadingSpinner from "../../components/LoadingSpinner.jsx";
-import {Link} from "react-router-dom";
-import {
-  Button, Container, Grid, Paper, Typography, Snackbar, Alert
+import { Container, Grid, Paper, Typography, Snackbar, Alert
 } from "@mui/material";
 import {styled} from "@mui/system";
 
@@ -38,7 +36,6 @@ function UserDashboard() {
         throw new Error(responseObject?.error ?? "Failed to load user details");
       }
       setUserDetails(responseObject.data);
-      console.log(responseObject.data);
     } catch (e) {
       console.error(e);
       setJoinRequests([]);

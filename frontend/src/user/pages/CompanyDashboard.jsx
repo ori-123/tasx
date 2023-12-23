@@ -205,6 +205,7 @@ function CompanyDashboard() {
     <StyledPaper>
       {company ? (<div className={"companyDetails"}>
         <StyledTypography variant="h2">{company.name}</StyledTypography>
+        <Typography variant="p">{company.description}</Typography>
 
         {!userIsCompanyOwner ? (<Typography variant="h5">
           Company owner: {company.companyOwner?.username}
@@ -245,9 +246,9 @@ function CompanyDashboard() {
                       }}
                       style={{color: "#FFFFFF"}}
               >
-                {company.name}
+                {project.name}
               </Button>
-              <p>Description: {company.description}</p>
+              <p>Description: {project.description}</p>
             </ListItem>))) : (<p>No projects yet</p>)}
         </List>
 
