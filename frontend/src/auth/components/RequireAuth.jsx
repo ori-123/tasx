@@ -8,8 +8,9 @@ import useAuth from "../hooks/useAuth.js";
 function RequireAuth({ allowedRoles }) {
   const { auth } = useAuth();
   const hasAuthState = auth?.username && auth?.accessToken && auth?.roles;
+  const hasRequiredRoles = auth.roles?.find((role) => allowedRoles?.includes(role));
   // eslint-disable-next-line react/prop-types
-  if (hasAuthState && auth.roles?.find((role) => allowedRoles?.includes(role))) {
+  if (hasAuthState && hasRequiredRoles) {
     return <Outlet />;
   } else if (hasAuthState) {
     return <Unauthorized />;

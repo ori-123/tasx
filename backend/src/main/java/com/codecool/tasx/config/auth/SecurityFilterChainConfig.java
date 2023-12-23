@@ -55,13 +55,7 @@ public class SecurityFilterChainConfig {
   @Bean
   public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
     httpSecurity
-      .csrf(AbstractHttpConfigurer::disable)
-      .formLogin(AbstractHttpConfigurer::disable)
-      .httpBasic(AbstractHttpConfigurer::disable)
-      .sessionManagement(sessionManagementConfigurer -> sessionManagementConfigurer
-        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-      .authenticationProvider(authenticationProvider)
-      .authorizeRequests(authorizeRequestsConfigurer -> authorizeRequestsConfigurer
+      .authorizeHttpRequests(authorizeRequestsConfigurer -> authorizeRequestsConfigurer
         .requestMatchers(
           "/error",
           "/favicon.ico")
@@ -71,6 +65,12 @@ public class SecurityFilterChainConfig {
           "/oauth2/**")
         .permitAll()
         .anyRequest().authenticated())
+      .csrf(AbstractHttpConfigurer::disable)
+      .formLogin(AbstractHttpConfigurer::disable)
+      .httpBasic(AbstractHttpConfigurer::disable)
+      .sessionManagement(sessionManagementConfigurer -> sessionManagementConfigurer
+        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+      .authenticationProvider(authenticationProvider)
       .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
       .oauth2Login(configurer -> configurer
         .authorizationEndpoint(authorizationEndpointConfig -> authorizationEndpointConfig

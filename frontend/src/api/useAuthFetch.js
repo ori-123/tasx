@@ -7,7 +7,6 @@ function useAuthFetch() {
   const {auth} = useAuth();
   const logout = useLogout();
   const refresh = useRefresh();
-  // eslint-disable-next-line no-undef
   const baseUrl = import.meta.env.VITE_API_BASE_URL;
 
   async function handleRefresh(url, requestConfig, authErrorStatus) {
@@ -25,27 +24,32 @@ function useAuthFetch() {
   }
 
   const authFetch = useCallback(async (method, path, body) => {
-      const authErrorStatus = 401 || 403;
-      const url = `${baseUrl}/${path}`;
-      const requestConfig = {
-        method: `${method}`, headers: {
-          "Content-Type": "application/json"
-        }, credentials: "include"
-      };
-      if (auth?.accessToken) {
-        requestConfig.headers.Authorization = `Bearer ${auth.accessToken}`;
-      }
-      if (body) {
-        requestConfig.body = JSON.stringify(body);
-      }
-      let httpResponse = await fetch(url, requestConfig);
-      if ((path !== "auth/login" && httpResponse.status === authErrorStatus)) {
+    const authErrorStatus = 401 || 403;
+    const url = `${baseUrl}/${path}`;
+    const requestConfig = {
+      method: `${method}`, headers: {
+        "Content-Type": "application/json"
+      }, credentials: "include"
+    };
+    if (auth?.accessToken) {
+      requestConfig.headers.Authorization = `Bearer ${auth.accessToken}`;
+    }
+    if (body) {
+      requestConfig.body = JSON.stringify(body);
+    }
+    let httpResponse = await fetch(url, requestConfig);
+    let responseObject = await httpResponse.json();
+
+    if (!path.includes("auth/") && !path.includes("oauth2/") && httpResponse.status === authErrorStatus) {
+      if (responseObject.isAccessTokenExpired) {
         httpResponse = await handleRefresh(url, requestConfig, authErrorStatus);
+        responseObject = await httpResponse.json();
+      } else {
+        return await logout();
       }
-      const responseObject = await httpResponse.json();
-      return {"httpResponse": httpResponse, "responseObject": responseObject};
-    }, // eslint-disable-next-line react-hooks/exhaustive-deps
-    [auth.accessToken]);
+    }
+    return {httpResponse, responseObject};
+  }, [auth.accessToken]);
 
   return authFetch;
 }

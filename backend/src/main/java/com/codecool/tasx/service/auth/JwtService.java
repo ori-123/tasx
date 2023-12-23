@@ -55,6 +55,10 @@ public class JwtService {
     return isTokenValid(accessToken, userDetails, accessTokenSecret, accessTokenAlgorithm);
   }
 
+  public boolean isAccessTokenExpired(String accessToken) {
+    return isTokenExpired(accessToken, accessTokenSecret, accessTokenAlgorithm);
+  }
+
   public boolean isRefreshTokenValid(String refreshToken, UserDetails userDetails) {
     return isTokenValid(refreshToken, userDetails, refreshTokenSecret, refreshTokenAlgorithm);
   }
