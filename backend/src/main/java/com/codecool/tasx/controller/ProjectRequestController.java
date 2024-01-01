@@ -26,28 +26,30 @@ public class ProjectRequestController {
   }
 
   @GetMapping()
-  public ResponseEntity<?> readJoinRequestsOfProject(@PathVariable Long projectId) {
+  public ResponseEntity<?> readJoinRequestsOfProject(
+    @PathVariable Long companyId, @PathVariable Long projectId) {
 
-    List<ProjectJoinRequestResponseDto> requests = projectJoinRequestService
-      .getJoinRequestsOfProject(projectId);
+    List<ProjectJoinRequestResponseDto> requests =
+      projectJoinRequestService.getJoinRequestsOfProject(companyId, projectId);
 
     return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", requests));
   }
 
   @PostMapping()
-  public ResponseEntity<?> joinProject(@PathVariable Long projectId) {
-    ProjectJoinRequestResponseDto createdRequest = projectJoinRequestService
-      .createJoinRequest(projectId);
+  public ResponseEntity<?> joinProject(@PathVariable Long companyId, @PathVariable Long projectId) {
+    ProjectJoinRequestResponseDto createdRequest = projectJoinRequestService.createJoinRequest(
+      companyId, projectId);
 
     return ResponseEntity.status(HttpStatus.CREATED).body(
       Map.of("message", "Request created successfully", "data", createdRequest));
   }
 
   @PutMapping("/{requestId}")
-  public ResponseEntity<?> updateJoinRequestById(@PathVariable Long requestId, @RequestBody
-  ProjectJoinRequestUpdateDto requestDto) {
+  public ResponseEntity<?> updateJoinRequestById(
+    @PathVariable Long requestId, @RequestBody ProjectJoinRequestUpdateDto requestDto,
+    @PathVariable Long companyId, @PathVariable Long projectId) {
 
-    projectJoinRequestService.handleJoinRequest(requestId, requestDto);
+    projectJoinRequestService.handleJoinRequest(companyId, projectId, requestId, requestDto);
 
     //TODO: notify the user who requested to join...
     return ResponseEntity.status(HttpStatus.OK).body(

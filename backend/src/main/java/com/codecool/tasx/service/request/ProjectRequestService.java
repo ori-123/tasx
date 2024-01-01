@@ -2,10 +2,10 @@ package com.codecool.tasx.service.request;
 
 import com.codecool.tasx.controller.dto.requests.ProjectJoinRequestResponseDto;
 import com.codecool.tasx.controller.dto.requests.ProjectJoinRequestUpdateDto;
-import com.codecool.tasx.exception.project.ProjectJoinRequestNotFoundException;
-import com.codecool.tasx.exception.project.ProjectNotFoundException;
-import com.codecool.tasx.exception.project.DuplicateProjectJoinRequestException;
-import com.codecool.tasx.exception.project.UserAlreadyInProjectException;
+import com.codecool.tasx.exception.company.project.DuplicateProjectJoinRequestException;
+import com.codecool.tasx.exception.company.project.ProjectJoinRequestNotFoundException;
+import com.codecool.tasx.exception.company.project.ProjectNotFoundException;
+import com.codecool.tasx.exception.company.project.UserAlreadyInProjectException;
 import com.codecool.tasx.model.company.project.Project;
 import com.codecool.tasx.model.company.project.ProjectDao;
 import com.codecool.tasx.model.requests.ProjectJoinRequest;
@@ -46,9 +46,9 @@ public class ProjectRequestService {
   }
 
   @Transactional
-  public ProjectJoinRequestResponseDto createJoinRequest(Long projectId) {
+  public ProjectJoinRequestResponseDto createJoinRequest(Long companyId, Long projectId) {
     User user = userProvider.getAuthenticatedUser();
-    Project project = projectDao.findById(projectId).orElseThrow(
+    Project project = projectDao.findByIdAndCompanyId(companyId, projectId).orElseThrow(
       () -> new ProjectNotFoundException(projectId));
     if (project.getAssignedEmployees().contains(user)) {
       throw new UserAlreadyInProjectException();
@@ -64,9 +64,10 @@ public class ProjectRequestService {
   }
 
   @Transactional
-  public List<ProjectJoinRequestResponseDto> getJoinRequestsOfProject(Long projectId) {
+  public List<ProjectJoinRequestResponseDto> getJoinRequestsOfProject(
+    Long companyId, Long projectId) {
     User user = userProvider.getAuthenticatedUser();
-    Project project = projectDao.findById(projectId).orElseThrow(
+    Project project = projectDao.findByIdAndCompanyId(companyId, projectId).orElseThrow(
       () -> new ProjectNotFoundException(projectId));
     accessControlService.verifyProjectOwnerAccess(project, user);
     List<ProjectJoinRequest> requests = requestDao.findByProjectAndStatus(
@@ -83,13 +84,15 @@ public class ProjectRequestService {
   }
 
   @Transactional(rollbackOn = Exception.class)
-  public void handleJoinRequest(Long requestId, ProjectJoinRequestUpdateDto updateDto) {
-    ProjectJoinRequest request = requestDao.findById(requestId).orElseThrow(
-      () -> new ProjectJoinRequestNotFoundException(requestId));
+  public void handleJoinRequest(
+    Long companyId, Long projectId, Long requestId, ProjectJoinRequestUpdateDto updateDto) {
     User user = userProvider.getAuthenticatedUser();
-    Project project = projectDao.findById(request.getProject().getId()).orElseThrow(
-      () -> new ProjectNotFoundException(request.getProject().getId()));
+    Project project = projectDao.findByIdAndCompanyId(companyId, projectId).orElseThrow(
+      () -> new ProjectNotFoundException(projectId));
     accessControlService.verifyAssignedToProjectAccess(project, user);
+    ProjectJoinRequest request = requestDao.findByCompanyIdAndProjectIdAndRequestId(
+      companyId, projectId, requestId).orElseThrow(
+      () -> new ProjectJoinRequestNotFoundException(requestId));
     request.setStatus(updateDto.status());
     if (request.getStatus().equals(RequestStatus.APPROVED)) {
       addUserToProject(request.getUser(), request.getProject());

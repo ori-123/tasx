@@ -1,19 +1,19 @@
 package com.codecool.tasx.service.company.project.task.expense;
 
-import com.codecool.tasx.controller.dto.task.expense.ExpenseCreateRequestDto;
-import com.codecool.tasx.controller.dto.task.expense.ExpenseResponseDto;
-import com.codecool.tasx.controller.dto.task.expense.ExpenseUpdateRequestDto;
+import com.codecool.tasx.controller.dto.company.project.task.expense.ExpenseCreateRequestDto;
+import com.codecool.tasx.controller.dto.company.project.task.expense.ExpenseResponseDto;
+import com.codecool.tasx.controller.dto.company.project.task.expense.ExpenseUpdateRequestDto;
 import com.codecool.tasx.exception.auth.UnauthorizedException;
-import com.codecool.tasx.exception.expense.ExpenseNotFoundException;
-import com.codecool.tasx.exception.project.ProjectNotFoundException;
-import com.codecool.tasx.exception.task.TaskNotFoundException;
+import com.codecool.tasx.exception.company.project.ProjectNotFoundException;
+import com.codecool.tasx.exception.company.project.task.TaskNotFoundException;
+import com.codecool.tasx.exception.company.project.task.expense.ExpenseNotFoundException;
 import com.codecool.tasx.model.company.Company;
 import com.codecool.tasx.model.company.project.Project;
 import com.codecool.tasx.model.company.project.ProjectDao;
-import com.codecool.tasx.model.company.project.task.Expense;
-import com.codecool.tasx.model.company.project.task.ExpenseDao;
 import com.codecool.tasx.model.company.project.task.Task;
 import com.codecool.tasx.model.company.project.task.TaskDao;
+import com.codecool.tasx.model.company.project.task.expense.Expense;
+import com.codecool.tasx.model.company.project.task.expense.ExpenseDao;
 import com.codecool.tasx.model.user.User;
 import com.codecool.tasx.service.auth.CustomAccessControlService;
 import com.codecool.tasx.service.auth.UserProvider;
@@ -25,7 +25,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,9 +49,10 @@ public class ExpenseService {
   }
 
   @Transactional
-  public List<ExpenseResponseDto> getAllExpenses(Long taskId)
+  public List<ExpenseResponseDto> getAllExpenses(Long companyId, Long projectId, Long taskId)
     throws ProjectNotFoundException, UnauthorizedException {
-    Task task = taskDao.findById(taskId).orElseThrow(() -> new TaskNotFoundException(taskId));
+    Task task = taskDao.findByCompanyIdAndProjectIdAndTaskId(companyId, projectId, taskId)
+      .orElseThrow(() -> new TaskNotFoundException(taskId));
     User user = userProvider.getAuthenticatedUser();
     Company company = task.getProject().getCompany();
     accessControlService.verifyCompanyEmployeeAccess(company, user);
@@ -63,22 +63,23 @@ public class ExpenseService {
   }
 
   @Transactional
-  public Optional<ExpenseResponseDto> getExpense(Long expenseId) throws UnauthorizedException {
-    Optional<Expense> expense = expenseDao.findById(expenseId);
-    if (expense.isEmpty()) {
-      return Optional.empty();
-    }
+  public ExpenseResponseDto getExpense(
+    Long companyId, Long projectId, Long taskId, Long expenseId) throws UnauthorizedException {
+    Expense expense = expenseDao.findByCompanyIdAndProjectIdAndTaskIdAndExpenseId(
+      companyId, projectId, taskId, expenseId).orElseThrow(() -> new ExpenseNotFoundException());
     User user = userProvider.getAuthenticatedUser();
-    Company company = expense.get().getTask().getProject().getCompany();
-    accessControlService.verifyCompanyEmployeeAccess(company, user);
-    return Optional.of(new ExpenseResponseDto(expense.get().getId(), expense.get().getName(),
-      expense.get().getPrice(), expense.get().isPaid()));
+    Project project = expense.getTask().getProject();
+    accessControlService.verifyAssignedToProjectAccess(project, user);
+    return new ExpenseResponseDto(expense.getId(), expense.getName(), expense.getPrice(),
+      expense.isPaid());
   }
 
   @Transactional(rollbackOn = Exception.class)
-  public ExpenseResponseDto createExpense(ExpenseCreateRequestDto createRequestDto, Long taskId)
+  public ExpenseResponseDto createExpense(
+    ExpenseCreateRequestDto createRequestDto, Long companyId, Long projectId, Long taskId)
     throws ConstraintViolationException {
-    Task task = taskDao.findById(taskId).orElseThrow(() -> new TaskNotFoundException(taskId));
+    Task task = taskDao.findByCompanyIdAndProjectIdAndTaskId(companyId, projectId, taskId)
+      .orElseThrow(() -> new TaskNotFoundException(taskId));
     User user = userProvider.getAuthenticatedUser();
     Project project = task.getProject();
     accessControlService.verifyAssignedToProjectAccess(project, user);
@@ -91,12 +92,12 @@ public class ExpenseService {
 
   @Transactional(rollbackOn = Exception.class)
   public ExpenseResponseDto updateExpense(
-    ExpenseUpdateRequestDto updateRequestDto, Long expenseId) throws ConstraintViolationException {
+    ExpenseUpdateRequestDto updateRequestDto, Long companyId, Long projectId, Long taskId,
+    Long expenseId) throws ConstraintViolationException {
     User user = userProvider.getAuthenticatedUser();
-    Expense expense = expenseDao.findById(expenseId).orElseThrow(
-      () -> new ExpenseNotFoundException());
-    Project project = projectDao.findById(expense.getTask().getProject().getId()).orElseThrow(
-      () -> new ProjectNotFoundException(expense.getTask().getId()));
+    Expense expense = expenseDao.findByCompanyIdAndProjectIdAndTaskIdAndExpenseId(
+      companyId, projectId, taskId, expenseId).orElseThrow(() -> new ExpenseNotFoundException());
+    Project project = expense.getTask().getProject();
     accessControlService.verifyAssignedToProjectAccess(project, user);
     expense.setName(updateRequestDto.name());
     expense.setPrice(updateRequestDto.price());
@@ -107,12 +108,11 @@ public class ExpenseService {
   }
 
   @Transactional(rollbackOn = Exception.class)
-  public void deleteExpense(Long expenseId) {
+  public void deleteExpense(Long companyId, Long projectId, Long taskId, Long expenseId) {
     User user = userProvider.getAuthenticatedUser();
-    Expense expense = expenseDao.findById(expenseId).orElseThrow(
-      () -> new ExpenseNotFoundException());
-    Project project = projectDao.findById(expense.getTask().getProject().getId()).orElseThrow(
-      () -> new ProjectNotFoundException(expense.getTask().getProject().getId()));
+    Expense expense = expenseDao.findByCompanyIdAndProjectIdAndTaskIdAndExpenseId(
+      companyId, projectId, taskId, expenseId).orElseThrow(() -> new ExpenseNotFoundException());
+    Project project = expense.getTask().getProject();
     accessControlService.verifyAssignedToProjectAccess(project, user);
     expenseDao.delete(expense);
   }

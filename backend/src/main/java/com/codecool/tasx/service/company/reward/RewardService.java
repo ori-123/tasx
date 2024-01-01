@@ -1,11 +1,11 @@
 package com.codecool.tasx.service.company.reward;
 
-import com.codecool.tasx.controller.dto.reward.RewardCreateRequestDto;
-import com.codecool.tasx.controller.dto.reward.RewardResponseDto;
-import com.codecool.tasx.controller.dto.reward.RewardUpdateRequestDto;
+import com.codecool.tasx.controller.dto.company.reward.RewardCreateRequestDto;
+import com.codecool.tasx.controller.dto.company.reward.RewardResponseDto;
+import com.codecool.tasx.controller.dto.company.reward.RewardUpdateRequestDto;
 import com.codecool.tasx.exception.auth.UnauthorizedException;
 import com.codecool.tasx.exception.company.CompanyNotFoundException;
-import com.codecool.tasx.exception.reward.RewardNotFoundException;
+import com.codecool.tasx.exception.company.reward.RewardNotFoundException;
 import com.codecool.tasx.model.company.Company;
 import com.codecool.tasx.model.company.CompanyDao;
 import com.codecool.tasx.model.company.reward.Reward;
@@ -22,7 +22,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class RewardService {
@@ -46,7 +45,8 @@ public class RewardService {
   }
 
   @Transactional
-  public List<RewardResponseDto> getAllRewards(Long companyId) throws UnauthorizedException {
+  public List<RewardResponseDto> getAllRewards(Long companyId)
+    throws CompanyNotFoundException, UnauthorizedException {
     Company company = companyDao.findById(companyId).orElseThrow(
       () -> new CompanyNotFoundException(companyId));
     User user = userProvider.getAuthenticatedUser();
@@ -56,21 +56,18 @@ public class RewardService {
   }
 
   @Transactional
-  public Optional<RewardResponseDto> getRewardById(Long rewardId) throws UnauthorizedException {
-    Optional<Reward> foundReward = rewardDao.findById(rewardId);
-    if (foundReward.isEmpty()) {
-      logger.error("Rewrd with ID " + rewardId + " was not found");
-      return Optional.empty();
-    }
-    Reward reward = foundReward.get();
+  public RewardResponseDto getRewardById(Long companyId, Long rewardId)
+    throws RewardNotFoundException, UnauthorizedException {
+    Reward reward = rewardDao.findByIdAndCompanyId(companyId, rewardId).orElseThrow(
+      () -> new RewardNotFoundException(rewardId));
     User user = userProvider.getAuthenticatedUser();
     accessControlService.verifyCompanyEmployeeAccess(reward.getCompany(), user);
-    return Optional.of(rewardConverter.getRewardResponseDto(reward));
+    return rewardConverter.getRewardResponseDto(reward);
   }
 
   @Transactional(rollbackOn = Exception.class)
   public RewardResponseDto createReward(RewardCreateRequestDto createRequestDto, Long companyId)
-    throws ConstraintViolationException {
+    throws ConstraintViolationException, UnauthorizedException {
     Company company = companyDao.findById(companyId).orElseThrow(
       () -> new CompanyNotFoundException(companyId));
     User user = userProvider.getAuthenticatedUser();
@@ -82,10 +79,11 @@ public class RewardService {
   }
 
   @Transactional(rollbackOn = Exception.class)
-  public RewardResponseDto updateReward(RewardUpdateRequestDto updateRequestDto, Long rewardId)
+  public RewardResponseDto updateReward(
+    RewardUpdateRequestDto updateRequestDto, Long companyId, Long rewardId)
     throws ConstraintViolationException {
     User user = userProvider.getAuthenticatedUser();
-    Reward reward = rewardDao.findById(rewardId).orElseThrow(
+    Reward reward = rewardDao.findByIdAndCompanyId(companyId, rewardId).orElseThrow(
       () -> new RewardNotFoundException(rewardId));
     accessControlService.verifyCompanyOwnerAccess(reward.getCompany(), user);
     reward.setName(updateRequestDto.name());
@@ -98,10 +96,10 @@ public class RewardService {
   @Transactional(rollbackOn = Exception.class)
   public void deleteReward(Long rewardId, Long companyId) {
     User user = userProvider.getAuthenticatedUser();
-    Company company = companyDao.findById(companyId).orElseThrow(
-      () -> new CompanyNotFoundException(companyId));
-    accessControlService.verifyCompanyOwnerAccess(company, user);
-    rewardDao.deleteById(rewardId);
+    Reward reward = rewardDao.findByIdAndCompanyId(companyId, rewardId).orElseThrow(
+      () -> new RewardNotFoundException(rewardId));
+    accessControlService.verifyCompanyOwnerAccess(reward.getCompany(), user);
+    rewardDao.delete(reward);
   }
 
 }

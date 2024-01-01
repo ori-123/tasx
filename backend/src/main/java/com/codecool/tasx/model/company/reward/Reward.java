@@ -41,44 +41,44 @@ public class Reward {
     return id;
   }
 
-  public long getPointCost() {
-    return pointCost;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public Company getCompany() {
-    return company;
-  }
-
-  public List<Task> getTasks() {
-    return List.copyOf(tasks);
-  }
-
   public void setId(Long id) {
     this.id = id;
   }
 
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  public void setDescription(String description) {
-    this.description = description;
+  public long getPointCost() {
+    return pointCost;
   }
 
   public void setPointCost(long pointCost) {
     this.pointCost = pointCost;
   }
 
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  public Company getCompany() {
+    return company;
+  }
+
   public void setCompany(Company company) {
     this.company = company;
+  }
+
+  public List<Task> getTasks() {
+    return List.copyOf(tasks);
   }
 
   public void setTasks(List<Task> tasks) {

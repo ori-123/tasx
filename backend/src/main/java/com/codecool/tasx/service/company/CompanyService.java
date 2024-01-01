@@ -21,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CompanyService {
@@ -33,8 +32,7 @@ public class CompanyService {
 
   @Autowired
   public CompanyService(
-    CompanyDao companyDao,
-    CompanyConverter companyConverter, UserProvider userProvider,
+    CompanyDao companyDao, CompanyConverter companyConverter, UserProvider userProvider,
     CustomAccessControlService accessControlService) {
     this.companyDao = companyDao;
     this.companyConverter = companyConverter;
@@ -44,55 +42,46 @@ public class CompanyService {
   }
 
   @Transactional
-  public List<CompanyResponsePublicDTO> getCompaniesWithoutUser()
-    throws UnauthorizedException {
+  public List<CompanyResponsePublicDTO> getCompaniesWithoutUser() throws UnauthorizedException {
     User user = userProvider.getAuthenticatedUser();
-    List<Company> companies = companyDao.findAllWithoutEmployeeAndJoinRequest(user, List.of(
-      RequestStatus.PENDING, RequestStatus.DECLINED));
+    List<Company> companies = companyDao.findAllWithoutEmployeeAndJoinRequest(
+      user, List.of(RequestStatus.PENDING, RequestStatus.DECLINED));
     return companyConverter.getCompanyResponsePublicDtos(companies);
   }
 
   @Transactional
-  public List<CompanyResponsePublicDTO> getCompaniesWithUser()
-    throws UnauthorizedException {
+  public List<CompanyResponsePublicDTO> getCompaniesWithUser() throws UnauthorizedException {
     User user = userProvider.getAuthenticatedUser();
     List<Company> companies = user.getCompanies();
     return companyConverter.getCompanyResponsePublicDtos(companies);
   }
 
   @Transactional
-  public Optional<CompanyResponsePrivateDTO> getCompanyById(Long companyId)
-    throws UnauthorizedException {
-    Optional<Company> foundCompany = companyDao.findById(companyId);
-    if (foundCompany.isEmpty()) {
-      logger.error("Company with ID " + companyId + " was not found");
-      return Optional.empty();
-    }
-    Company company = foundCompany.get();
+  public CompanyResponsePrivateDTO getCompanyById(Long companyId)
+    throws CompanyNotFoundException, UnauthorizedException {
+    Company company = companyDao.findById(companyId).orElseThrow(
+      () -> new CompanyNotFoundException(companyId));
     User user = userProvider.getAuthenticatedUser();
     accessControlService.verifyCompanyEmployeeAccess(company, user);
-    return Optional.of(companyConverter.getCompanyResponsePrivateDto(company));
+    return companyConverter.getCompanyResponsePrivateDto(company);
   }
 
   @Transactional(rollbackOn = Exception.class)
   public CompanyResponsePrivateDTO createCompany(
-    CompanyCreateRequestDto createRequestDto)
-    throws ConstraintViolationException {
+    CompanyCreateRequestDto createRequestDto) throws ConstraintViolationException {
     User user = userProvider.getAuthenticatedUser();
-    Company company = companyDao.save(new Company(createRequestDto.name(),
-      createRequestDto.description(), user));
+    Company company = companyDao.save(
+      new Company(createRequestDto.name(), createRequestDto.description(), user));
     company.addEmployee(user);
     return companyConverter.getCompanyResponsePrivateDto(company);
   }
 
   @Transactional(rollbackOn = Exception.class)
   public CompanyResponsePrivateDTO updateCompany(
-    CompanyUpdateRequestDto updateRequestDto, Long companyId)
-    throws ConstraintViolationException {
+    CompanyUpdateRequestDto updateRequestDto, Long companyId) throws ConstraintViolationException {
     User user = userProvider.getAuthenticatedUser();
     Company company = companyDao.findById(companyId).orElseThrow(
-      () -> new CompanyNotFoundException(companyId)
-    );
+      () -> new CompanyNotFoundException(companyId));
     accessControlService.verifyCompanyOwnerAccess(company, user);
     company.setName(updateRequestDto.name());
     company.setDescription(updateRequestDto.description());
@@ -104,9 +93,8 @@ public class CompanyService {
   public void deleteCompany(Long companyId) {
     User user = userProvider.getAuthenticatedUser();
     Company company = companyDao.findById(companyId).orElseThrow(
-      () -> new CompanyNotFoundException(companyId)
-    );
+      () -> new CompanyNotFoundException(companyId));
     accessControlService.verifyCompanyOwnerAccess(company, user);
-    companyDao.deleteById(companyId);
+    companyDao.delete(company);
   }
 }

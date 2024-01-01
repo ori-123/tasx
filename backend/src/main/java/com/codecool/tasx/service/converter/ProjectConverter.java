@@ -1,7 +1,7 @@
 package com.codecool.tasx.service.converter;
 
-import com.codecool.tasx.controller.dto.project.ProjectResponsePrivateDTO;
-import com.codecool.tasx.controller.dto.project.ProjectResponsePublicDTO;
+import com.codecool.tasx.controller.dto.company.project.ProjectResponsePrivateDTO;
+import com.codecool.tasx.controller.dto.company.project.ProjectResponsePublicDTO;
 import com.codecool.tasx.controller.dto.requests.ProjectJoinRequestResponseDto;
 import com.codecool.tasx.model.company.project.Project;
 import com.codecool.tasx.model.requests.ProjectJoinRequest;
@@ -44,15 +44,15 @@ public class ProjectConverter {
   }
 
   public ProjectJoinRequestResponseDto getProjectJoinRequestResponseDto(
-          ProjectJoinRequest request) {
+    ProjectJoinRequest request) {
     return new ProjectJoinRequestResponseDto(request.getId(),
-            getProjectResponsePublicDto(request.getProject()),
-            userConverter.getUserResponsePublicDto(request.getUser()), request.getStatus());
+      getProjectResponsePublicDto(request.getProject()),
+      userConverter.getUserResponsePublicDto(request.getUser()), request.getStatus());
   }
 
   public List<ProjectJoinRequestResponseDto> getProjectJoinRequestResponseDtos(
-          List<ProjectJoinRequest> requests) {
+    List<ProjectJoinRequest> requests) {
     return requests.stream().map(request -> getProjectJoinRequestResponseDto(request)).collect(
-            Collectors.toList());
+      Collectors.toList());
   }
 }

@@ -1,9 +1,8 @@
 package com.codecool.tasx.controller;
 
-import com.codecool.tasx.controller.dto.reward.RewardCreateRequestDto;
-import com.codecool.tasx.controller.dto.reward.RewardResponseDto;
-import com.codecool.tasx.controller.dto.reward.RewardUpdateRequestDto;
-import com.codecool.tasx.exception.reward.RewardNotFoundException;
+import com.codecool.tasx.controller.dto.company.reward.RewardCreateRequestDto;
+import com.codecool.tasx.controller.dto.company.reward.RewardResponseDto;
+import com.codecool.tasx.controller.dto.company.reward.RewardUpdateRequestDto;
 import com.codecool.tasx.service.company.reward.RewardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -30,9 +29,9 @@ public class RewardController {
   }
 
   @GetMapping("/{rewardId}")
-  public ResponseEntity<?> getRewardById(@PathVariable Long rewardId) {
-    RewardResponseDto reward = rewardService.getRewardById(rewardId).orElseThrow(
-      () -> new RewardNotFoundException(rewardId));
+  public ResponseEntity<?> getRewardById(
+    @PathVariable Long companyId, @PathVariable Long rewardId) {
+    RewardResponseDto reward = rewardService.getRewardById(companyId, rewardId);
     return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", reward));
   }
 
@@ -46,8 +45,10 @@ public class RewardController {
 
   @PutMapping("/{rewardId}")
   public ResponseEntity<?> updateReward(
-    @PathVariable Long rewardId, @RequestBody RewardUpdateRequestDto rewardDetails) {
-    RewardResponseDto rewardResponseDetails = rewardService.updateReward(rewardDetails, rewardId);
+    @PathVariable Long companyId, @PathVariable Long rewardId,
+    @RequestBody RewardUpdateRequestDto rewardDetails) {
+    RewardResponseDto rewardResponseDetails = rewardService.updateReward(rewardDetails, companyId,
+      rewardId);
     return ResponseEntity.status(HttpStatus.OK).body(
       Map.of("message", "Reward with ID " + rewardId + " updated successfully", "data",
         rewardResponseDetails));

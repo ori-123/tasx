@@ -75,8 +75,9 @@ public class GeneralExceptionHandler {
   /**
    * Use this to customize error messages for any constraint violation<br/>
    * Blame ChatGPT for any regex🤮 related issues<br/>
-   * @TODO: Refactor this, appending cases to a switch does not seem very OOP
+   *
    * @return A custom error message based on the related data field
+   * @TODO: Refactor this, appending cases to a switch does not seem very OOP
    */
   private String getConstraintErrorMessage(String errorMessage) {
     Pattern pattern = Pattern.compile("Detail: Key \\((.*?)\\)=\\((.*?)\\)");

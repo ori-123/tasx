@@ -4,7 +4,6 @@ import com.codecool.tasx.controller.dto.company.CompanyCreateRequestDto;
 import com.codecool.tasx.controller.dto.company.CompanyResponsePrivateDTO;
 import com.codecool.tasx.controller.dto.company.CompanyResponsePublicDTO;
 import com.codecool.tasx.controller.dto.company.CompanyUpdateRequestDto;
-import com.codecool.tasx.exception.company.CompanyNotFoundException;
 import com.codecool.tasx.service.company.CompanyService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,42 +43,35 @@ public class CompanyController {
   @GetMapping("/{companyId}")
   public ResponseEntity<?> getCompanyById(
     @PathVariable Long companyId) {
-
-    CompanyResponsePrivateDTO company = companyService.getCompanyById(companyId)
-      .orElseThrow(() -> new CompanyNotFoundException(companyId));
-
+    CompanyResponsePrivateDTO company = companyService.getCompanyById(companyId);
     return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", company));
   }
 
   @PostMapping
   public ResponseEntity<?> createCompany(
     @RequestBody CompanyCreateRequestDto createRequestDto) {
-    CompanyResponsePrivateDTO companyResponseDetails =
-      companyService.createCompany(createRequestDto);
-
-    return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-      "message", "Company created successfully",
-      "data", companyResponseDetails));
+    CompanyResponsePrivateDTO companyResponseDetails = companyService.createCompany(
+      createRequestDto);
+    return ResponseEntity.status(HttpStatus.CREATED).body(
+      Map.of("message", "Company created successfully", "data", companyResponseDetails));
   }
 
   @PutMapping("/{companyId}")
   public ResponseEntity<?> updateCompany(
-    @PathVariable Long companyId, @RequestBody
-  CompanyUpdateRequestDto updateRequestDto) {
-    CompanyResponsePrivateDTO companyResponseDetails =
-      companyService.updateCompany(updateRequestDto, companyId);
+    @PathVariable Long companyId, @RequestBody CompanyUpdateRequestDto updateRequestDto) {
+    CompanyResponsePrivateDTO companyResponseDetails = companyService.updateCompany(
+      updateRequestDto, companyId);
 
-    return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-      "message", "Company with ID " + companyId + " updated successfully",
-      "data", companyResponseDetails));
+    return ResponseEntity.status(HttpStatus.OK).body(
+      Map.of("message", "Company with ID " + companyId + " updated successfully", "data",
+        companyResponseDetails));
   }
 
   @DeleteMapping("/{companyId}")
   public ResponseEntity<?> deleteCompany(@PathVariable Long companyId) {
     companyService.deleteCompany(companyId);
 
-    return ResponseEntity.status(HttpStatus.OK).body(Map.of(
-      "message",
-      "Company with ID " + companyId + " deleted successfully"));
+    return ResponseEntity.status(HttpStatus.OK).body(
+      Map.of("message", "Company with ID " + companyId + " deleted successfully"));
   }
 }

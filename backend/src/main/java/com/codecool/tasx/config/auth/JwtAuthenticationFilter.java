@@ -29,6 +29,7 @@ import java.io.IOException;
  * - Cross-references it's payload with {@link UserDetails}<br/>
  * - Creates internal {@link UsernamePasswordAuthenticationToken} from {@link UserDetails}
  * and adds it to the {@link SecurityContextHolder}<br/>
+ *
  * @Expiration: Appends <code>isAccessTokenExpired: true</code> to the response object if
  * the token is expired
  * @see JwtService
@@ -57,7 +58,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       final String userEmail;
 
       if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-        filterChain.doFilter(request,response);
+        filterChain.doFilter(request, response);
         return;
       }
 

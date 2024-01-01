@@ -1,6 +1,7 @@
 package com.codecool.tasx.model.company.project.task;
 
 import com.codecool.tasx.model.company.project.Project;
+import com.codecool.tasx.model.company.project.task.expense.Expense;
 import com.codecool.tasx.model.user.User;
 import jakarta.persistence.*;
 
@@ -65,101 +66,100 @@ public class Task {
     return id;
   }
 
+  public void setId(Long id) {
+    this.id = id;
+  }
 
   public String getName() {
     return name;
-  }
-
-  public String getDescription() {
-    return description;
-  }
-
-  public Importance getImportance() {
-    return importance;
-  }
-
-  public int getDifficulty() {
-    return difficulty;
-  }
-
-  public LocalDateTime getStartDate() {
-    return startDate;
-  }
-
-  public LocalDateTime getDeadline() {
-    return deadline;
-  }
-
-  public TaskStatus getTaskStatus() {
-    return taskStatus;
-  }
-
-  public User getTaskOwner() {
-    return taskOwner;
-  }
-
-  public List<User> getAssignedEmployees() {
-    return List.copyOf(this.assignedEmployees);
-  }
-
-  public Project getProject() {
-    return project;
-  }
-
-  public List<Expense> getExpenses() {
-    return List.copyOf(expenses);
-  }
-
-  public void assignEmployee(User user) {
-    this.assignedEmployees.add(user);
-  }
-
-  public void setId(Long id) {
-    this.id = id;
   }
 
   public void setName(String name) {
     this.name = name;
   }
 
+  public String getDescription() {
+    return description;
+  }
+
   public void setDescription(String description) {
     this.description = description;
+  }
+
+  public Importance getImportance() {
+    return importance;
   }
 
   public void setImportance(Importance importance) {
     this.importance = importance;
   }
 
+  public int getDifficulty() {
+    return difficulty;
+  }
+
   public void setDifficulty(int difficulty) {
     this.difficulty = difficulty;
+  }
+
+  public LocalDateTime getStartDate() {
+    return startDate;
   }
 
   public void setStartDate(LocalDateTime startDate) {
     this.startDate = startDate;
   }
 
+  public LocalDateTime getDeadline() {
+    return deadline;
+  }
+
   public void setDeadline(LocalDateTime deadline) {
     this.deadline = deadline;
+  }
+
+  public TaskStatus getTaskStatus() {
+    return taskStatus;
   }
 
   public void setTaskStatus(TaskStatus taskStatus) {
     this.taskStatus = taskStatus;
   }
 
+  public User getTaskOwner() {
+    return taskOwner;
+  }
+
   public void setTaskOwner(User taskOwner) {
     this.taskOwner = taskOwner;
+  }
+
+  public List<User> getAssignedEmployees() {
+    return List.copyOf(this.assignedEmployees);
   }
 
   public void setAssignedEmployees(List<User> assignedEmployees) {
     this.assignedEmployees = assignedEmployees;
   }
 
+  public Project getProject() {
+    return project;
+  }
+
   public void setProject(Project project) {
     this.project = project;
   }
 
+  public List<Expense> getExpenses() {
+    return List.copyOf(expenses);
+  }
+
   public void setExpenses(List<Expense> expenses) {
     this.expenses = expenses;
+  }
+
+  public void assignEmployee(User user) {
+    this.assignedEmployees.add(user);
   }
 
   public long getPoints() {
@@ -180,6 +180,12 @@ public class Task {
   }
 
   @Override
+  public int hashCode() {
+    return Objects.hash(id, name, description, importance, difficulty, startDate, deadline,
+      taskStatus, taskOwner, assignedEmployees, project, expenses);
+  }
+
+  @Override
   public boolean equals(Object object) {
     if (this == object) {
       return true;
@@ -195,12 +201,6 @@ public class Task {
       taskStatus == task.taskStatus && Objects.equals(taskOwner, task.taskOwner) &&
       Objects.equals(assignedEmployees, task.assignedEmployees) && Objects.equals(
       project, task.project) && Objects.equals(expenses, task.expenses);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, name, description, importance, difficulty, startDate, deadline,
-      taskStatus, taskOwner, assignedEmployees, project, expenses);
   }
 
   @Override

@@ -1,12 +1,12 @@
 package com.codecool.tasx.service.company.project;
 
-import com.codecool.tasx.controller.dto.project.ProjectCreateRequestDto;
-import com.codecool.tasx.controller.dto.project.ProjectResponsePrivateDTO;
-import com.codecool.tasx.controller.dto.project.ProjectResponsePublicDTO;
-import com.codecool.tasx.controller.dto.project.ProjectUpdateRequestDto;
+import com.codecool.tasx.controller.dto.company.project.ProjectCreateRequestDto;
+import com.codecool.tasx.controller.dto.company.project.ProjectResponsePrivateDTO;
+import com.codecool.tasx.controller.dto.company.project.ProjectResponsePublicDTO;
+import com.codecool.tasx.controller.dto.company.project.ProjectUpdateRequestDto;
 import com.codecool.tasx.exception.auth.UnauthorizedException;
 import com.codecool.tasx.exception.company.CompanyNotFoundException;
-import com.codecool.tasx.exception.project.ProjectNotFoundException;
+import com.codecool.tasx.exception.company.project.ProjectNotFoundException;
 import com.codecool.tasx.model.company.Company;
 import com.codecool.tasx.model.company.CompanyDao;
 import com.codecool.tasx.model.company.project.Project;
@@ -24,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class ProjectService {
@@ -54,7 +53,7 @@ public class ProjectService {
     Company company = companyDao.findById(companyId).orElseThrow(
       () -> new CompanyNotFoundException(companyId));
     accessControlService.verifyCompanyEmployeeAccess(company, user);
-    List<Project> projects = projectDao.findAllWithoutEmployeeAndJoinRequestAndCompany(
+    List<Project> projects = projectDao.findAllWithoutEmployeeAndJoinRequestInCompany(
       user, List.of(RequestStatus.PENDING, RequestStatus.DECLINED), company);
     return projectConverter.getProjectResponsePublicDtos(projects);
   }
@@ -71,17 +70,13 @@ public class ProjectService {
   }
 
   @Transactional
-  public Optional<ProjectResponsePrivateDTO> getProjectById(Long projectId)
+  public ProjectResponsePrivateDTO getProjectById(Long companyId, Long projectId)
     throws UnauthorizedException {
-    Optional<Project> foundProject = projectDao.findById(projectId);
-    if (foundProject.isEmpty()) {
-      logger.error("Project with ID " + projectId + " was not found");
-      return Optional.empty();
-    }
-    Project project = foundProject.get();
+    Project project = projectDao.findByIdAndCompanyId(projectId, companyId).orElseThrow(
+      () -> new ProjectNotFoundException(projectId));
     User user = userProvider.getAuthenticatedUser();
-    accessControlService.verifyAssignedToProjectAccess(foundProject.get(), user);
-    return Optional.of(projectConverter.getProjectResponsePrivateDto(project));
+    accessControlService.verifyAssignedToProjectAccess(project, user);
+    return projectConverter.getProjectResponsePrivateDto(project);
   }
 
   @Transactional(rollbackOn = Exception.class)
@@ -100,9 +95,10 @@ public class ProjectService {
 
   @Transactional(rollbackOn = Exception.class)
   public ProjectResponsePrivateDTO updateProject(
-    ProjectUpdateRequestDto updateRequestDto, Long projectId) throws ConstraintViolationException {
+    ProjectUpdateRequestDto updateRequestDto, Long companyId, Long projectId)
+    throws ConstraintViolationException {
     User user = userProvider.getAuthenticatedUser();
-    Project project = projectDao.findById(projectId).orElseThrow(
+    Project project = projectDao.findByIdAndCompanyId(projectId, companyId).orElseThrow(
       () -> new ProjectNotFoundException(projectId));
     accessControlService.verifyAssignedToProjectAccess(project, user);
     project.setName(updateRequestDto.name());
@@ -114,11 +110,12 @@ public class ProjectService {
   }
 
   @Transactional(rollbackOn = Exception.class)
-  public void deleteProject(Long projectId) {
+  public void deleteProject(Long companyId, Long projectId) {
     User user = userProvider.getAuthenticatedUser();
-    Project project = projectDao.findById(projectId).orElseThrow(
+    Project project = projectDao.findByIdAndCompanyId(projectId, companyId).orElseThrow(
       () -> new ProjectNotFoundException(projectId));
     accessControlService.verifyProjectOwnerAccess(project, user);
-    projectDao.deleteById(projectId);
+    projectDao.delete(project);
   }
+
 }

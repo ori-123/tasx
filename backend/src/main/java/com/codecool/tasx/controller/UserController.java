@@ -4,10 +4,8 @@ import com.codecool.tasx.controller.dto.requests.CompanyJoinRequestResponseDto;
 import com.codecool.tasx.controller.dto.requests.ProjectJoinRequestResponseDto;
 import com.codecool.tasx.controller.dto.user.UserResponsePrivateDto;
 import com.codecool.tasx.controller.dto.user.UserUpdateRequestDto;
-import com.codecool.tasx.exception.user.UserNotFoundException;
-import com.codecool.tasx.service.auth.UserProvider;
+import com.codecool.tasx.service.request.CompanyRequestService;
 import com.codecool.tasx.service.request.ProjectRequestService;
-import com.codecool.tasx.service.request.RequestService;
 import com.codecool.tasx.service.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,13 +22,13 @@ import java.util.Map;
 @Controller
 @RequestMapping("/api/v1/user")
 public class UserController {
-  private final RequestService requestService;
+  private final CompanyRequestService requestService;
   private final ProjectRequestService projectRequestService;
   private final UserService userService;
 
   @Autowired
   public UserController(
-    RequestService requestService, ProjectRequestService projectRequestService,
+    CompanyRequestService requestService, ProjectRequestService projectRequestService,
     UserService userService) {
     this.requestService = requestService;
     this.projectRequestService = projectRequestService;

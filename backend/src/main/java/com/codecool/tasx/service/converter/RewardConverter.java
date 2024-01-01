@@ -1,6 +1,6 @@
 package com.codecool.tasx.service.converter;
 
-import com.codecool.tasx.controller.dto.reward.RewardResponseDto;
+import com.codecool.tasx.controller.dto.company.reward.RewardResponseDto;
 import com.codecool.tasx.model.company.reward.Reward;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

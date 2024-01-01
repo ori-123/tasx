@@ -76,6 +76,10 @@ public class User implements UserDetails, OAuth2User {
     return id;
   }
 
+  public void setId(Long id) {
+    this.id = id;
+  }
+
   /**
    * Returns the actual username, since getUsername is reserved for the subject, which is the email
    */
@@ -87,56 +91,36 @@ public class User implements UserDetails, OAuth2User {
     return email;
   }
 
+  public void setEmail(String email) {
+    this.email = email;
+  }
+
   public long getScore() {
     return score;
-  }
-
-  public Set<Role> getRoles() {
-    return Set.copyOf(roles);
-  }
-
-  public List<Company> getOwnedCompanies() {
-    return List.copyOf(ownedCompanies);
-  }
-
-  public List<Project> getProjects() {
-    return projects;
   }
 
   public void setScore(long score) {
     this.score = score;
   }
 
-  public void setId(Long id) {
-    this.id = id;
-  }
-
-  public void setUsername(String username) {
-    this.username = username;
-  }
-
-  public void setEmail(String email) {
-    this.email = email;
-  }
-
-  public void setPassword(String password) {
-    this.password = password;
+  public Set<Role> getRoles() {
+    return Set.copyOf(roles);
   }
 
   public void setRoles(Set<Role> roles) {
     this.roles = roles;
   }
 
+  public List<Company> getOwnedCompanies() {
+    return List.copyOf(ownedCompanies);
+  }
+
   public void setOwnedCompanies(List<Company> ownedCompanies) {
     this.ownedCompanies = ownedCompanies;
   }
 
-  public void setCompanies(List<Company> companies) {
-    this.companies = companies;
-  }
-
-  public void setOwnedProjects(List<Project> ownedProjects) {
-    this.ownedProjects = ownedProjects;
+  public List<Project> getProjects() {
+    return projects;
   }
 
   public void setProjects(List<Project> projects) {
@@ -147,8 +131,16 @@ public class User implements UserDetails, OAuth2User {
     return List.copyOf(companies);
   }
 
+  public void setCompanies(List<Company> companies) {
+    this.companies = companies;
+  }
+
   public List<Project> getOwnedProjects() {
     return List.copyOf(ownedProjects);
+  }
+
+  public void setOwnedProjects(List<Project> ownedProjects) {
+    this.ownedProjects = ownedProjects;
   }
 
   public boolean isOAuth2User() {
@@ -169,6 +161,10 @@ public class User implements UserDetails, OAuth2User {
     return password;
   }
 
+  public void setPassword(String password) {
+    this.password = password;
+  }
+
   /**
    * In {@link UserDetails} the subject is always named "username"<br>
    * In our application the subject is the email, but since {@link User} implements
@@ -178,6 +174,10 @@ public class User implements UserDetails, OAuth2User {
   @Override
   public String getUsername() {
     return email;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
   }
 
   @Override

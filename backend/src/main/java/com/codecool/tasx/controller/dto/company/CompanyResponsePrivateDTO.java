@@ -1,6 +1,6 @@
 package com.codecool.tasx.controller.dto.company;
 
-import com.codecool.tasx.controller.dto.reward.RewardResponseDto;
+import com.codecool.tasx.controller.dto.company.reward.RewardResponseDto;
 import com.codecool.tasx.controller.dto.user.UserResponsePublicDto;
 
 import java.util.List;

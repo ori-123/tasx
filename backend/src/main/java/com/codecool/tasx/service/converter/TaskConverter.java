@@ -1,6 +1,6 @@
 package com.codecool.tasx.service.converter;
 
-import com.codecool.tasx.controller.dto.task.TaskResponsePublicDto;
+import com.codecool.tasx.controller.dto.company.project.task.TaskResponsePublicDto;
 import com.codecool.tasx.model.company.project.task.Task;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

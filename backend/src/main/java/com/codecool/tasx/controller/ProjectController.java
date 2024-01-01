@@ -1,11 +1,9 @@
 package com.codecool.tasx.controller;
 
-import com.codecool.tasx.controller.dto.project.ProjectCreateRequestDto;
-import com.codecool.tasx.controller.dto.project.ProjectResponsePrivateDTO;
-import com.codecool.tasx.controller.dto.project.ProjectResponsePublicDTO;
-import com.codecool.tasx.controller.dto.project.ProjectUpdateRequestDto;
-import com.codecool.tasx.exception.project.ProjectNotFoundException;
-import com.codecool.tasx.service.company.CompanyService;
+import com.codecool.tasx.controller.dto.company.project.ProjectCreateRequestDto;
+import com.codecool.tasx.controller.dto.company.project.ProjectResponsePrivateDTO;
+import com.codecool.tasx.controller.dto.company.project.ProjectResponsePublicDTO;
+import com.codecool.tasx.controller.dto.company.project.ProjectUpdateRequestDto;
 import com.codecool.tasx.service.company.project.ProjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,14 +18,11 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/v1/companies/{companyId}/projects")
 public class ProjectController {
-  private final CompanyService companyService;
   private final ProjectService projectService;
   private final Logger logger;
 
   @Autowired
-  public ProjectController(
-    CompanyService companyService, ProjectService projectService) {
-    this.companyService = companyService;
+  public ProjectController(ProjectService projectService) {
     this.projectService = projectService;
     logger = LoggerFactory.getLogger(this.getClass());
   }
@@ -47,9 +42,9 @@ public class ProjectController {
   }
 
   @GetMapping("/{projectId}")
-  public ResponseEntity<?> getProjectById(@PathVariable Long projectId) {
-    ProjectResponsePrivateDTO project = projectService.getProjectById(projectId).orElseThrow(
-      () -> new ProjectNotFoundException(projectId));
+  public ResponseEntity<?> getProjectById(
+    @PathVariable Long companyId, @PathVariable Long projectId) {
+    ProjectResponsePrivateDTO project = projectService.getProjectById(companyId, projectId);
     return ResponseEntity.status(HttpStatus.OK).body(Map.of("data", project));
   }
 
@@ -64,9 +59,10 @@ public class ProjectController {
 
   @PutMapping("/{projectId}")
   public ResponseEntity<?> updateProject(
-    @PathVariable Long projectId, @RequestBody ProjectUpdateRequestDto projectDetails) {
+    @PathVariable Long companyId, @PathVariable Long projectId,
+    @RequestBody ProjectUpdateRequestDto projectDetails) {
     ProjectResponsePrivateDTO projectResponseDetails = projectService.updateProject(
-      projectDetails, projectId);
+      projectDetails, companyId, projectId);
 
     return ResponseEntity.status(HttpStatus.OK).body(
       Map.of("message", "Project with ID " + projectId + " updated successfully", "data",
@@ -74,8 +70,9 @@ public class ProjectController {
   }
 
   @DeleteMapping("/{projectId}")
-  public ResponseEntity<?> deleteProject(@PathVariable Long projectId) {
-    projectService.deleteProject(projectId);
+  public ResponseEntity<?> deleteProject(
+    @PathVariable Long companyId, @PathVariable Long projectId) {
+    projectService.deleteProject(companyId, projectId);
 
     return ResponseEntity.status(HttpStatus.OK).body(
       Map.of("message", "Project with ID " + projectId + " deleted successfully"));
